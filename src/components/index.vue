@@ -28,11 +28,22 @@ function calendar(A) {
 
 const CHdate = ref(new Date())
 
+const radioItems = ref([
+  {label: '收入', value: '1'},
+  {label: '食物', value: '2'},
+  {label: '飲品', value: '3'},
+  {label: '交通', value: '4'}
+])
+
+const radio_group_value = ref('2')
+
 const fromData = reactive({
   date: '',
   expense_and_income_number: 'A',
   inputMoney: 0,
   details: '',
+  radio_group_value: '2',
+  radioItems: '',
 })
 
 const tableData = ref([])
@@ -41,7 +52,7 @@ const show = ref(false)
 const show0 = ref(false)
 
 function showNull0() {
-  show0.value = fromData.inputMoney <= 0;
+  show0.value = fromData.inputMoney <= 0
 }
 
 function showNull() {
@@ -58,44 +69,64 @@ function ins() {
   }
   show0.value = fromData.inputMoney <= 0;
   show.value = fromData.details === '';
-  if (fromData.date !== null && fromData.inputMoney > 0 && fromData.details !== '') {
-    fetch('http://localhost:8080/index/ins', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        data: fromData
-      })
+  if (radio_group_value.value === '1' && fromData.expense_and_income_number === 'A') {
+    radio_group_value.value = '2'
+    fromData.inputMoney = 0
+    fromData.details = ''
+    ElNotification.error({
+      title: '注意',
+      dangerouslyUseHTMLString: true,
+      message: '<strong>' +
+          '<span style="color: blue; font-size: 20px;">選擇支出</span>' +
+          ' <br>' +
+          ' <span style="color: crimson; font-size: 20px;">種類&emsp;請勿點選</span>' +
+          '<span style="color: blue; font-size: 24px;">收入</span>' +
+          '</strong>',
+      position: 'top-left',
+      duration: 10000,
     })
-        .then((response) => {
-          return response.json()
-        })
-        .then((result) => {
-          tableData.value = result
-          fromData.inputMoney = 0
-          fromData.details = ''
-          expense.value = 0
-          income.value = 0
-          totalAmount.value = 0
-        })
-    setTimeout(() => {
-      fetch('http://localhost:8080/index/finA', {
+  } else {
+    if (fromData.date !== null && fromData.inputMoney > 0 && fromData.details !== '') {
+      fromData.radio_group_value = radio_group_value.value
+      fromData.radioItems = radioItems.value[Number(radio_group_value.value) - 1].label
+      fetch('http://localhost:8080/index/ins', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          date: fromData.date
+          data: fromData
         })
       })
           .then((response) => {
             return response.json()
           })
           .then((result) => {
-            tableDataData.value = result
+            tableData.value = result
+            fromData.inputMoney = 0
+            fromData.details = ''
+            expense.value = 0
+            income.value = 0
+            totalAmount.value = 0
           })
-    }, 500)
+      setTimeout(() => {
+        fetch('http://localhost:8080/index/finA', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            date: fromData.date
+          })
+        })
+            .then((response) => {
+              return response.json()
+            })
+            .then((result) => {
+              tableDataData.value = result
+            })
+      }, 500)
+    }
   }
 }
 
@@ -159,6 +190,7 @@ function clear() {
   CHdate.value = new Date()
   show.value = false
   show0.value = false
+  radio_group_value.value = '2'
 }
 
 function calendarTwoDay(A) {
@@ -351,6 +383,17 @@ function enter() {
   }
 }
 
+const disabledTF = ref(false)
+
+function radioInC() {
+  radio_group_value.value = '1'
+  disabledTF.value = true
+}
+
+function radioEX() {
+  radio_group_value.value = '2'
+  disabledTF.value = false
+}
 
 </script>
 
@@ -377,16 +420,27 @@ function enter() {
             &emsp;
             <el-button plain type="primary" @click="fin">查詢</el-button>
           </el-form-item>
+          <el-form-item label="種類">
+            <el-radio-group v-model="radio_group_value">
+              <el-radio-button
+                  v-for="radioItem in radioItems"
+                  :key="radioItem.value"
+                  :label="radioItem.value"
+                  :disabled="disabledTF"
+              >{{ radioItem.label }}
+              </el-radio-button>
+            </el-radio-group>
+          </el-form-item>
           <el-form-item label="選擇">
             <el-radio-group v-model="fromData.expense_and_income_number">
-              <el-radio label="A" border>支出</el-radio>
-              <el-radio label="B" border>收入</el-radio>
+              <el-radio label="A" border @click="radioEX">支出</el-radio>
+              <el-radio label="B" border @click="radioInC">收入</el-radio>
             </el-radio-group>
           </el-form-item>
           <div v-show="show0" style="color: red">金額請勿小於 0 或等於 0</div>
           <el-form-item label="金額">
             <el-input-number
-                @input="showNull0"
+                @blur="showNull0"
                 v-model.number="fromData.inputMoney"
             />
           </el-form-item>
@@ -520,10 +574,12 @@ function enter() {
       <el-table-column
           prop="date"
           label="日期"
+          width="75px"
       />
       <el-table-column
           prop="expense_and_income_name"
           label="選擇"
+          width="45px"
       />
       <el-table-column
           prop="inputMoney"
