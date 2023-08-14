@@ -27,13 +27,32 @@ function calendar(A) {
 }
 
 const CHdate = ref(new Date())
+const insTypeValue = ref('')
 
 const radioItems = ref([
   {label: '收入', value: '1'},
-  {label: '食物', value: '2'},
-  {label: '飲品', value: '3'},
-  {label: '交通', value: '4'}
+  {label: '食材', value: '2'},
+  {label: '人力', value: '3'}
 ])
+
+function insType() {
+  let TF = false
+  radioItems.value.forEach(element => {
+    TF = element.label !== insTypeValue.value;
+  })
+  if (insTypeValue.value) {
+    if (TF) {
+      radioItems.value.push(
+          {label: insTypeValue.value, value: (radioItems.value.length + 1).toString()}
+      )
+    }
+  }
+  insTypeValue.value = ''
+}
+
+function insTypeClear() {
+  radioItems.value.splice(3, 1)
+}
 
 const radio_group_value = ref('2')
 
@@ -420,6 +439,24 @@ function radioEX() {
             &emsp;
             <el-button plain type="primary" @click="fin">查詢</el-button>
           </el-form-item>
+
+          <el-divider/>
+          <el-form-item label="新增其他種類">
+            <el-input v-model="insTypeValue" type="text" size="small" style="width: 250px;height: 100%"
+              placeholder="可不填"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button plain type="primary" size="small"
+                       @click="insType">新增暫存種類
+            </el-button>
+            <el-button plain type="danger" size="small"
+                       @click="insTypeClear">清除暫存種類
+            </el-button>
+          </el-form-item>
+          <el-divider/>
+
+
           <el-form-item label="種類">
             <el-radio-group v-model="radio_group_value">
               <el-radio-button
@@ -427,6 +464,7 @@ function radioEX() {
                   :key="radioItem.value"
                   :label="radioItem.value"
                   :disabled="disabledTF"
+                  size="small"
               >{{ radioItem.label }}
               </el-radio-button>
             </el-radio-group>
