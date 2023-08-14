@@ -10,6 +10,6 @@ webStorm編輯器
 
 vue3.js + element Plus + pubsub-js
 
-## 啟用
+## 啟動
 
 yarn dev
