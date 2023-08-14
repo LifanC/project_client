@@ -9,3 +9,7 @@ webStorm編輯器
 ## Customize configuration 定製配置
 
 vue3.js + element Plus + pubsub-js
+
+## 啟用
+
+yarn dev
