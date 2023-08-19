@@ -10,7 +10,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
     "element-plus": "^2.3.8",
-    "pubsub.js": "^1.5.2",
+    "pubsub-js": "^1.9.4",
     "unplugin-auto-import": "^0.16.6",
     "unplugin-icons": "^0.16.5",
     "unplugin-vue-components": "^0.25.1",

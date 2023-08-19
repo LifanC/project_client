@@ -701,10 +701,10 @@ postcss@^8.1.10, postcss@^8.4.26:
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
-pubsub.js@^1.5.2:
-  version "1.5.2"
-  resolved "https://registry.npmjs.org/pubsub.js/-/pubsub.js-1.5.2.tgz"
-  integrity sha512-HG0TJgEuJz4DoGj5o8ksKYtGDd2T7p1oh2Q1eVJwxkgxsddYPMoL7LijUYg0l9G3fI/pU5MKZ6MT599Pz90fYQ==
+pubsub-js@^1.9.4:
+  version "1.9.4"
+  resolved "https://registry.npmjs.org/pubsub-js/-/pubsub-js-1.9.4.tgz"
+  integrity sha512-hJYpaDvPH4w8ZX/0Fdf9ma1AwRgU353GfbaVfPjfJQf1KxZ2iHaHl3fAUw1qlJIR5dr4F3RzjGaWohYUEyoh7A==
 
 queue-microtask@^1.2.2:
   version "1.2.3"
