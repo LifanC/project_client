@@ -561,7 +561,7 @@ function radioEX() {
           v-if="tableDataData.length > 0">
         <el-table-column
             label="功能"
-            width="150px"
+            width="200px"
         >
           <template #default="scope">
             <el-button
