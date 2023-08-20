@@ -1,7 +1,10 @@
 <script setup>
 
 const tableData = ref([])
+const tableCsvData = ref([])
 const tableDataList = ref([])
+
+const csv = ref()
 
 function getTable() {
   fetch('http://localhost:8080/setUp/getTable', {
@@ -19,12 +22,18 @@ function getCsv() {
   fetch('http://localhost:8080/setUp/readCsv', {
     method: 'GET',
   })
-  .then((response) => {
-    return response.json()
-  })
-  .then((result) => {
-    console.log('result',result)
-  })
+      .then((response) => {
+        return response.json()
+      })
+      .then((result) => {
+        if (result[0] === 'error') {
+          csv.value = result[1]
+        } else {
+          csv.value = ''
+          tableCsvData.value = result[0]
+
+        }
+      })
 }
 
 
@@ -37,21 +46,48 @@ PubSub.subscribe('A2', function (msg, data) {
 
 <template>
   <el-container class="layout-container-demo">
-    <el-header style="text-align: left; font-size: 12px; margin-top: 1%">
-      <div class="toolbar">
-        <el-avatar :size="100">
-          <img src="@/components/img.png" alt="IMG">
-        </el-avatar>
-        &emsp;
-        <el-text style="color: white"><p>Luke Chen's 設定</p></el-text>
-      </div>
-    </el-header>
-    <el-divider/>
+    <el-header
+        style="text-align: left;
+        font-size: 12px; margin-top: 1%"
+    />
     <el-main>
       <el-form-item>
-        <el-text type="primary">載入文件 fileOne.csv</el-text>
+        <el-text type="primary">D:\project3.0\file_csv\載入文件 fileOne.csv(UTF-8)</el-text>
+        <el-divider/>
+        <el-text type="danger">{{ csv }}</el-text>
       </el-form-item>
-
+      <el-form-item>
+        <el-table
+            :data="tableCsvData"
+            height="400px" border
+            style="width: 1000px"
+        >
+          <el-table-column
+              label="(1)"
+              prop="0"
+          />
+          <el-table-column
+              label="(2)"
+              prop="1"
+          />
+          <el-table-column
+              label="(3)"
+              prop="2"
+          />
+          <el-table-column
+              label="(4)"
+              prop="3"
+          />
+          <el-table-column
+              label="(5)"
+              prop="4"
+          />
+          <el-table-column
+              label="(6)"
+              prop="5"
+          />
+        </el-table>
+      </el-form-item>
       <el-form-item>
         <el-table
             :data="tableData"
@@ -60,7 +96,7 @@ PubSub.subscribe('A2', function (msg, data) {
         >
           <el-table-column
               prop="tableName"
-              label="Table名稱"
+              label="資料庫project_a ➙ Table Name"
           />
         </el-table>
       </el-form-item>
