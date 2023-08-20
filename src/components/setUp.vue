@@ -4,7 +4,7 @@ const tableData = ref([])
 const tableDataList = ref([])
 
 function getTable() {
-  fetch('http://localhost:8080/index/getTable', {
+  fetch('http://localhost:8080/setUp/getTable', {
     method: 'GET',
   })
       .then((response) => {
@@ -15,9 +15,22 @@ function getTable() {
       })
 }
 
+function getCsv() {
+  fetch('http://localhost:8080/setUp/readCsv', {
+    method: 'GET',
+  })
+  .then((response) => {
+    return response.json()
+  })
+  .then((result) => {
+    console.log('result',result)
+  })
+}
+
 
 PubSub.subscribe('A2', function (msg, data) {
   getTable()
+  getCsv()
 })
 
 </script>
@@ -35,21 +48,22 @@ PubSub.subscribe('A2', function (msg, data) {
     </el-header>
     <el-divider/>
     <el-main>
-        <el-form-item>
-          <el-table
-              :data="tableData"
-              height="400px" border
-              style="width: 250px"
-          >
-            <el-table-column
-                prop="tableName"
-                label="Table名稱"
-            />
-          </el-table>
+      <el-form-item>
+        <el-text type="primary">載入文件 fileOne.csv</el-text>
+      </el-form-item>
 
-
-
-        </el-form-item>
+      <el-form-item>
+        <el-table
+            :data="tableData"
+            height="400px" border
+            style="width: 250px"
+        >
+          <el-table-column
+              prop="tableName"
+              label="Table名稱"
+          />
+        </el-table>
+      </el-form-item>
 
 
     </el-main>
