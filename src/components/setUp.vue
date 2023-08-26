@@ -6,17 +6,9 @@ const tableDataList = ref([])
 
 const csv = ref()
 
-function getTable() {
-  fetch('http://localhost:8080/setUp/getTable', {
-    method: 'GET',
-  })
-      .then((response) => {
-        return response.json()
-      })
-      .then((result) => {
-        tableData.value = result
-      })
-}
+const csvTF = ref()
+const selectCsv = ref('')
+const selectCsvData = ref([])
 
 function getCsv() {
   fetch('http://localhost:8080/setUp/readCsv', {
@@ -26,20 +18,45 @@ function getCsv() {
         return response.json()
       })
       .then((result) => {
-        if (result[0] === 'error') {
-          csv.value = result[1]
-        } else {
-          csv.value = ''
-          tableCsvData.value = result[0]
-
-        }
+        selectCsv.value = result[0]
+        selectCsvData.value = result
       })
+}
+
+function getCsvData() {
+  if (selectCsv.value !== '') {
+    fetch('http://localhost:8080/setUp/readCsvData', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        selectCsv: selectCsv.value
+      })
+    })
+        .then((response) => {
+          return response.json()
+        })
+        .then((result) => {
+          if (result[0] === 'error') {
+            csv.value = result[1]
+            tableCsvData.value = []
+            csvTF.value = false
+          } else {
+            csv.value = '成功載入文件 (UTF-8)'
+            tableCsvData.value = result[0]
+            csvTF.value = true
+          }
+        })
+  }
 }
 
 
 PubSub.subscribe('A2', function (msg, data) {
-  getTable()
   getCsv()
+  setTimeout(() => {
+    getCsvData()
+  }, 500)
 })
 
 </script>
@@ -52,9 +69,21 @@ PubSub.subscribe('A2', function (msg, data) {
     />
     <el-main>
       <el-form-item>
-        <el-text type="primary">D:\project3.0\file_csv\載入文件 fileOne.csv(UTF-8)</el-text>
+
+        <el-select v-model="selectCsv" class="m-2" placeholder="Select CSV">
+          <el-option
+              v-for="item in selectCsvData"
+              :key="item"
+              :label="item"
+              :value="item"
+              @click="getCsvData"
+          />
+        </el-select>
+        &emsp;
+        <el-text type="primary">D:\project3.0\file_csv\&emsp;文件載入 (UTF-8)</el-text>
         <el-divider/>
-        <el-text type="danger">{{ csv }}</el-text>
+        <el-text v-if="csvTF" type="success">{{ csv }}</el-text>
+        <el-text v-else type="danger">{{ csv }}</el-text>
       </el-form-item>
       <el-form-item>
         <el-table
@@ -88,20 +117,6 @@ PubSub.subscribe('A2', function (msg, data) {
           />
         </el-table>
       </el-form-item>
-      <el-form-item>
-        <el-table
-            :data="tableData"
-            height="400px" border
-            style="width: 250px"
-        >
-          <el-table-column
-              prop="tableName"
-              label="資料庫project_a ➙ Table Name"
-          />
-        </el-table>
-      </el-form-item>
-
-
     </el-main>
   </el-container>
 </template>

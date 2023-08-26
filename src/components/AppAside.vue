@@ -19,20 +19,20 @@ function handleSelect(key, keyPath) {
 </script>
 
 <template>
-  <el-aside width="150px">
+  <el-aside width="200px">
     <el-menu
         @select="handleSelect"
         @close="handleClose"
     >
       <el-sub-menu index="A">
         <template #title>
-          首頁
+          Luke's Toolkit 工具包
         </template>
         <el-menu-item index="A1">
           <h1>記帳表</h1>
         </el-menu-item>
         <el-menu-item index="A2">
-          <h1>設定</h1>
+          <h1>顯示Excel內容</h1>
         </el-menu-item>
       </el-sub-menu>
     </el-menu>
