@@ -51,13 +51,11 @@ function getCsvData() {
   }
 }
 
+getCsv()
+setTimeout(() => {
+  getCsvData()
+}, 500)
 
-PubSub.subscribe('A2', function (msg, data) {
-  getCsv()
-  setTimeout(() => {
-    getCsvData()
-  }, 500)
-})
 
 </script>
 
