@@ -56,6 +56,28 @@ setTimeout(() => {
   getCsvData()
 }, 500)
 
+const textMessage = ref('')
+const textMessageName = ref('')
+const type = ref('')
+function handleSuccess(response, file) {
+  getCsv()
+  if('文件上傳成功' === response){
+    type.value = 'success'
+  }else{
+    type.value = 'danger'
+  }
+  textMessageName.value = file.name
+  textMessage.value = response
+}
+function beforeUpload(file) {
+  const allowedType = 'text/csv';
+  if (file.type !== allowedType) {
+    ElMessage.error("只能上傳 CSV 文件");
+    return false;
+  }
+  return true;
+}
+
 
 </script>
 
@@ -67,7 +89,6 @@ setTimeout(() => {
     />
     <el-main>
       <el-form-item>
-
         <el-select v-model="selectCsv" class="m-2" placeholder="Select CSV">
           <el-option
               v-for="item in selectCsvData"
@@ -80,8 +101,28 @@ setTimeout(() => {
         &emsp;
         <el-text type="primary">D:\project3.0\file_csv\&emsp;文件載入 (UTF-8)</el-text>
         <el-divider/>
-        <el-text v-if="csvTF" type="success">{{ csv }}</el-text>
+        <el-text v-if="csvTF" type="primary">{{ csv }}</el-text>
         <el-text v-else type="danger">{{ csv }}</el-text>
+      </el-form-item>
+      <el-form-item>
+        <el-upload
+            action="http://localhost:8080/setUp/fileUpload"
+            :on-success="handleSuccess"
+            :before-upload="beforeUpload"
+            :limit="1"
+        >
+          <el-button size="small" type="primary">上傳文件</el-button>
+          <template #tip>
+            <div class="el-upload__tip">
+              只能上傳 CSV 文件
+            </div>
+          </template>
+          &emsp;
+          <el-text type="primary">{{ textMessageName }}</el-text>
+          &emsp;
+          <el-text :type="type">{{ textMessage }}</el-text>
+        </el-upload>
+        <el-text>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</el-text>
       </el-form-item>
       <el-form-item>
         <el-table
