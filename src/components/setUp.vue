@@ -9,6 +9,15 @@ const csv = ref()
 const csvTF = ref()
 const selectCsv = ref('')
 const selectCsvData = ref([])
+const userNameValue = ref()
+
+const cookies = document.cookie.split("; ");
+for (const cookie of cookies) {
+  const [name, value] = cookie.split("=");
+  if (name === "userName") {
+    userNameValue.value = value
+  }
+}
 
 function getCsv() {
   fetch('http://localhost:8080/setUp/readCsv', {
@@ -83,6 +92,7 @@ function beforeUpload(file) {
 
 <template>
   <el-container class="layout-container-demo">
+    {{ userNameValue }}
     <el-header
         style="text-align: left;
         font-size: 12px; margin-top: 1%"

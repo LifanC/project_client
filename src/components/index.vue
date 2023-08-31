@@ -1,4 +1,6 @@
 <script setup>
+import PubSub from "pubsub-js";
+
 const datePicker = ref([])
 const defaultDateRange = ref([]);
 watch(defaultDateRange, (newValue) => {
@@ -7,6 +9,16 @@ watch(defaultDateRange, (newValue) => {
 const expense = ref(0)
 const income = ref(0)
 const totalAmount = ref(0)
+const userNameValue = ref()
+
+const cookies = document.cookie.split("; ");
+for (const cookie of cookies) {
+  const [name, value] = cookie.split("=");
+  if (name === "userName") {
+    userNameValue.value = value
+  }
+}
+
 
 setDefaultDateRange()
 
@@ -418,6 +430,7 @@ function radioEX() {
 
 <template>
   <el-container class="layout-container-demo">
+    {{ userNameValue }}
     <el-header style="text-align: left; font-size: 12px; margin-top: 1%">
       <div class="toolbar">
         <el-avatar :size="100">

@@ -1,8 +1,26 @@
 import {createRouter, createWebHistory} from "vue-router";
 import PubSub from "pubsub-js";
 
-const index = ref(import("@/components/index.vue"))
-const setUp = ref(import("@/components/setUp.vue"))
+const index = ref()
+const setUp = ref()
+
+const userNameValue = ref()
+
+const cookies = document.cookie.split("; ");
+for (const cookie of cookies) {
+    const [name, value] = cookie.split("=");
+    if (name === "userName") {
+        userNameValue.value = value
+    }
+}
+
+if(!userNameValue.value){
+    index.value = import("@/components/home.vue")
+    setUp.value = import("@/components/home.vue")
+}else{
+    index.value = import("@/components/index.vue")
+    setUp.value = import("@/components/setUp.vue")
+}
 
 PubSub.subscribe('home', function (msg, data) {
     // console.log('data',data)

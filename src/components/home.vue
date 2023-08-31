@@ -11,6 +11,7 @@ const INP = ref(true)
 const CER = ref(true)
 const OUT = ref(true)
 const show = ref(true)
+const show2 = ref(true)
 const show3 = ref(true)
 
 const cookies = document.cookie.split("; ");
@@ -43,9 +44,15 @@ function goIn() {
       .then((result) => {
         if (result === '') {
           document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-          fromData.userName = ''
           PubSub.publish('home', false)
-          show3.value = false
+          show2.value = false
+          if(fromData.userName === '' || fromData.userName === undefined){
+            show.value = false
+            show2.value = true
+          }else{
+            show3.value = true
+          }
+          fromData.userName = ''
         } else {
           document.cookie = `userName=${result}`
           fromData.userName = result
@@ -66,15 +73,15 @@ function goOut() {
   fromData.userName = ''
   PubSub.publish('home', false)
   show.value = false
-  show3.value = true
+  show2.value = true
 }
 
 if (userNameValue.value) {
   PubSub.publish('home', true)
-  show3.value = false
+  show2.value = false
 }else{
   show.value = false
-  show3.value = true
+  show2.value = true
 }
 
 </script>
@@ -104,8 +111,8 @@ if (userNameValue.value) {
       Luke、admin
       <el-form-item>
         <div v-if="show"><el-text type="success" size="large"><h1>成功</h1></el-text></div>
-        <div v-else-if="show3"><el-text type="warning" size="large"><h1>請輸入使用者</h1></el-text></div>
-        <div v-else><el-text type="danger" size="large"><h1>失敗</h1></el-text></div>
+        <div v-else-if="show2"><el-text type="warning" size="large"><h1>請輸入使用者</h1></el-text></div>
+        <div v-else-if="show3"><el-text type="danger" size="large"><h1>失敗</h1></el-text></div>
       </el-form-item>
     </el-main>
   </el-container>
