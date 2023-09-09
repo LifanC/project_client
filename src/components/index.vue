@@ -228,7 +228,6 @@ function find() {
 const multipleSelection = ref()
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
-
   if (multipleSelection.value.length !== 0) {
     postApi('http://localhost:8080/index/findA', multipleSelection.value)
         .then((result) => {

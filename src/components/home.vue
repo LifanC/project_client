@@ -108,7 +108,7 @@ if (userNameValue.value) {
             </el-form>
           </el-card>
         </el-row>
-        Luke、admin
+        admin
         <el-form-item>
           <div v-if="show">
             <el-text type="success" size="large"><h1>成功</h1></el-text>
