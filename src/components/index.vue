@@ -1,5 +1,6 @@
 <script setup>
-import PubSub from "pubsub-js";
+
+import {postApi} from "@/components/js/api";
 
 const datePicker = ref([])
 const defaultDateRange = ref([]);
@@ -120,18 +121,7 @@ function ins() {
     if (fromData.date !== null && fromData.inputMoney > 0 && fromData.details !== '') {
       fromData.radio_group_value = radio_group_value.value
       fromData.radioItems = radioItems.value[Number(radio_group_value.value) - 1].label
-      fetch('http://localhost:8080/index/ins', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          data: fromData
-        })
-      })
-          .then((response) => {
-            return response.json()
-          })
+      postApi('http://localhost:8080/index/ins', fromData)
           .then((result) => {
             tableData.value = result
             fromData.inputMoney = 0
@@ -141,18 +131,7 @@ function ins() {
             totalAmount.value = 0
           })
       setTimeout(() => {
-        fetch('http://localhost:8080/index/finA', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            date: fromData.date
-          })
-        })
-            .then((response) => {
-              return response.json()
-            })
+        postApi('http://localhost:8080/index/finA', fromData.date)
             .then((result) => {
               tableDataData.value = result
             })
@@ -170,18 +149,7 @@ function fin() {
     CHdate.value = new Date()
   }
   if (fromData.date !== null) {
-    fetch('http://localhost:8080/index/fin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        date: fromData.date
-      })
-    })
-        .then((response) => {
-          return response.json()
-        })
+    postApi('http://localhost:8080/index/fin', fromData.date)
         .then((result) => {
           tableData.value = result
           fromData.inputMoney = 0
@@ -191,18 +159,7 @@ function fin() {
           totalAmount.value = 0
           fromData.expense_and_income_number = 'A'
         })
-    fetch('http://localhost:8080/index/finA', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        date: fromData.date
-      })
-    })
-        .then((response) => {
-          return response.json()
-        })
+    postApi('http://localhost:8080/index/finA', fromData.date)
         .then((result) => {
           tableDataData.value = result
         })
@@ -245,18 +202,7 @@ function find() {
       calendarTwoDay(datePicker.value[1])
   )
   if (dateRange.value.length !== 0) {
-    fetch('http://localhost:8080/index/find', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        dateRange: dateRange.value
-      })
-    })
-        .then((response) => {
-          return response.json()
-        })
+    postApi('http://localhost:8080/index/find', dateRange.value)
         .then((result) => {
           tableData.value = result
           let ex = 0
@@ -284,18 +230,7 @@ const handleSelectionChange = (val) => {
   multipleSelection.value = val
 
   if (multipleSelection.value.length !== 0) {
-    fetch('http://localhost:8080/index/findA', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        multipleSelection: multipleSelection.value
-      })
-    })
-        .then((response) => {
-          return response.json()
-        })
+    postApi('http://localhost:8080/index/findA', multipleSelection.value)
         .then((result) => {
           tableDataData.value = result
         })
@@ -303,37 +238,17 @@ const handleSelectionChange = (val) => {
 }
 
 function confirmEvent(row) {
-  fetch('http://localhost:8080/index/del', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      a_id: row.a_id,
-      date: row.date,
-      expense_and_income_number: row.expense_and_income_number,
-      inputMoney: row.inputMoney
-    })
+  postApi('http://localhost:8080/index/del', {
+    a_id: row.a_id,
+    date: row.date,
+    expense_and_income_number: row.expense_and_income_number,
+    inputMoney: row.inputMoney
   })
-      .then((response) => {
-        return response.json()
-      })
       .then((result) => {
         tableDataData.value = result
       })
   setTimeout(() => {
-    fetch('http://localhost:8080/index/fin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        date: row.date
-      })
-    })
-        .then((response) => {
-          return response.json()
-        })
+    postApi('http://localhost:8080/index/fin', row.date)
         .then((result) => {
           tableData.value = result
         })
@@ -374,40 +289,20 @@ function enter() {
     tableDateSet.value.forEach(e => {
       e.details = setDetails.value
     })
-    fetch('http://localhost:8080/index/enter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        a_id: tableDateSet.value[0].a_id,
-        date: tableDateSet.value[0].date,
-        details: tableDateSet.value[0].details,
-        expense_and_income_number: tableDateSet.value[0].expense_and_income_number,
-        setInputMoney: setInputMoney.value,
-        inputMoney: tableDateSet.value[0].inputMoney
-      })
+    postApi('http://localhost:8080/index/enter', {
+      a_id: tableDateSet.value[0].a_id,
+      date: tableDateSet.value[0].date,
+      details: tableDateSet.value[0].details,
+      expense_and_income_number: tableDateSet.value[0].expense_and_income_number,
+      setInputMoney: setInputMoney.value,
+      inputMoney: tableDateSet.value[0].inputMoney
     })
-        .then((response) => {
-          return response.json()
-        })
         .then((result) => {
           tableDataData.value = result
           dialogFormVisible.value = false
         })
     setTimeout(() => {
-      fetch('http://localhost:8080/index/fin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          date: tableDateSet.value[0].date
-        })
-      })
-          .then((response) => {
-            return response.json()
-          })
+      postApi('http://localhost:8080/index/fin', tableDateSet.value[0].date)
           .then((result) => {
             tableData.value = result
           })
@@ -427,19 +322,19 @@ function radioEX() {
   disabledTF.value = false
 }
 
-let B = [
+const B = ref([
   {'date': '日期'},
   {'expense': '支出'},
   {'income': '收入'},
   {'totleMoney': '總金額'}
-]
+])
 
-let A = [
+const A = ref([
   {'date': '日期'},
   {'expense_and_income_name': '選擇'},
   {'inputMoney': '金額'},
   {'details': '內容'}
-]
+])
 
 </script>
 
@@ -533,8 +428,8 @@ let A = [
           <el-table-column type="selection" width="55px"/>
           <el-table-column
               v-for="i in B"
-              :label="i[Object.keys(i)[0]]"
-              :prop="Object.keys(i)"
+              :label="i[Object.keys(i)[0]].toString()"
+              :prop="Object.keys(i).toString()"
           />
         </el-table>
       </el-row>
@@ -551,15 +446,19 @@ let A = [
           &emsp;
           <el-button plain type="primary" @click="find">查詢</el-button>
           &emsp;
-          <el-text size="large" type="warning">總支出 ➠ <span style="color: cornflowerblue;">{{ expense }}</span> ＄
+          <el-text size="large" type="warning">總支出 ➠ <span style="color: cornflowerblue;">
+            {{ expense.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
+          </span> ＄
           </el-text>
           &emsp;
-          <el-text size="large" type="warning">總收入 ➠ <span style="color: cornflowerblue;">{{ income }}</span> ＄
+          <el-text size="large" type="warning">總收入 ➠ <span style="color: cornflowerblue;">
+            {{ income.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
+          </span> ＄
           </el-text>
           &emsp;
-          <el-text size="large" type="warning">總金額 ➠ <span style="color: cornflowerblue;">{{
-              totalAmount
-            }}</span> ＄
+          <el-text size="large" type="warning">總金額 ➠ <span style="color: cornflowerblue;">
+            {{ totalAmount.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
+          </span> ＄
           </el-text>
         </el-form-item>
       </el-row>
@@ -596,8 +495,8 @@ let A = [
           </el-table-column>
           <el-table-column
               v-for="i in A"
-              :label="i[Object.keys(i)[0]]"
-              :prop="Object.keys(i)"
+              :label="i[Object.keys(i)[0]].toString()"
+              :prop="Object.keys(i).toString()"
           />
         </el-table>
       </el-row>
@@ -613,8 +512,8 @@ let A = [
         style="width: 1000px">
       <el-table-column
           v-for="i in A"
-          :label="i[Object.keys(i)[0]]"
-          :prop="Object.keys(i)"
+          :label="i[Object.keys(i)[0]].toString()"
+          :prop="Object.keys(i).toString()"
       />
     </el-table>
     <el-divider/>

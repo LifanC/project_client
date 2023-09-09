@@ -1,6 +1,7 @@
 <script setup>
 
 import PubSub from "pubsub-js";
+import {postApi} from "@/components/js/api";
 
 const fromData = reactive({
   userName: '',
@@ -35,21 +36,16 @@ if (userNameValue.value) {
 }
 
 function goIn() {
-  fetch(`http://localhost:8080/go/getGo?userName=${fromData.userName}`, {
-    method: 'GET',
-  })
-      .then((response) => {
-        return response.text()
-      })
+  postApi('http://localhost:8080/go/getGo', fromData.userName)
       .then((result) => {
         if (result === '') {
           document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
           PubSub.publish('home', false)
           show2.value = false
-          if(fromData.userName === '' || fromData.userName === undefined){
+          if (fromData.userName === '' || fromData.userName === undefined) {
             show.value = false
             show2.value = true
-          }else{
+          } else {
             show3.value = true
           }
           fromData.userName = ''
@@ -79,7 +75,7 @@ function goOut() {
 if (userNameValue.value) {
   PubSub.publish('home', true)
   show2.value = false
-}else{
+} else {
   show.value = false
   show2.value = true
 }
@@ -88,33 +84,48 @@ if (userNameValue.value) {
 
 <template>
   <el-container>
-    <el-header
-        style="text-align: left;
-        font-size: 12px; margin-top: 1%"
-    >
-      <div v-if="show"><el-text type="success" size="large"><h1>☝</h1></el-text></div>
-    </el-header>
-    <el-main>
-      <el-row>
-        <el-card shadow="never">
-          <el-form v-model="fromData">
-            <el-form-item label="使用者">
-              <el-input :disabled="INP" type="text" v-model="fromData.userName"/>
-            </el-form-item>
-            <el-form-item>
-              <el-button :disabled="CER" type="primary" @click="goIn">登入</el-button>
-              <el-button :disabled="OUT" type="primary" @click="goOut">登出</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </el-row>
-      Luke、admin
-      <el-form-item>
-        <div v-if="show"><el-text type="success" size="large"><h1>成功</h1></el-text></div>
-        <div v-else-if="show2"><el-text type="warning" size="large"><h1>請輸入使用者</h1></el-text></div>
-        <div v-else-if="show3"><el-text type="danger" size="large"><h1>失敗</h1></el-text></div>
-      </el-form-item>
-    </el-main>
+    <el-aside width="200px">
+      el-aside
+    </el-aside>
+    <el-container>
+      <el-header>
+        el-header
+        <div v-if="show">
+          <el-text type="success" size="large"><h1>☝</h1></el-text>
+        </div>
+      </el-header>
+      <el-main>
+        <el-row>
+          <el-card shadow="never">
+            <el-form v-model="fromData">
+              <el-form-item label="使用者">
+                <el-input :disabled="INP" type="text" v-model="fromData.userName"/>
+              </el-form-item>
+              <el-form-item>
+                <el-button :disabled="CER" type="primary" @click="goIn">登入</el-button>
+                <el-button :disabled="OUT" type="primary" @click="goOut">登出</el-button>
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </el-row>
+        Luke、admin
+        <el-form-item>
+          <div v-if="show">
+            <el-text type="success" size="large"><h1>成功</h1></el-text>
+          </div>
+          <div v-else-if="show2">
+            <el-text type="warning" size="large"><h1>請輸入使用者</h1></el-text>
+          </div>
+          <div v-else-if="show3">
+            <el-text type="danger" size="large"><h1>失敗</h1></el-text>
+          </div>
+        </el-form-item>
+        el-main
+      </el-main>
+      <el-footer>
+        el-footer
+      </el-footer>
+    </el-container>
   </el-container>
 </template>
 

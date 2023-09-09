@@ -1,5 +1,7 @@
 <script setup>
 
+import {getApi, postApi} from "@/components/js/api";
+
 const tableData = ref([])
 const tableCsvData = ref([])
 const tableDataList = ref([])
@@ -20,12 +22,7 @@ for (const cookie of cookies) {
 }
 
 function getCsv() {
-  fetch('http://localhost:8080/setUp/readCsv', {
-    method: 'GET',
-  })
-      .then((response) => {
-        return response.json()
-      })
+  getApi('http://localhost:8080/setUp/readCsv')
       .then((result) => {
         selectCsv.value = result[0]
         selectCsvData.value = result
@@ -37,18 +34,7 @@ const newtableCsvData = ref([])
 
 function getCsvData() {
   if (selectCsv.value !== '') {
-    fetch('http://localhost:8080/setUp/readCsvData', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        selectCsv: selectCsv.value
-      })
-    })
-        .then((response) => {
-          return response.json()
-        })
+    postApi('http://localhost:8080/setUp/readCsvData',selectCsv.value)
         .then((result) => {
           newtableCsvData.value = []
           if (result[0] === 'error') {
@@ -173,8 +159,8 @@ function beforeUpload(file) {
         >
           <el-table-column
               v-for="i in csvCount"
-              :label="`(${i})`"
-              :prop="i"
+              :label="`(${i})`.toString()"
+              :prop="i.toString()"
           />
         </el-table>
       </el-form-item>
