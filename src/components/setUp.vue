@@ -34,7 +34,7 @@ const newtableCsvData = ref([])
 
 function getCsvData() {
   if (selectCsv.value !== '') {
-    postApi('http://localhost:8080/setUp/readCsvData',selectCsv.value)
+    postApi('http://localhost:8080/setUp/readCsvData', selectCsv.value)
         .then((result) => {
           newtableCsvData.value = []
           if (result[0] === 'error') {
@@ -104,67 +104,78 @@ function beforeUpload(file) {
         style="text-align: left;
         font-size: 12px; margin-top: 1%"
     />
-    <el-main>
-      <el-row>
-        <el-form-item>
-          <el-select v-model="selectCsv" class="m-2" placeholder="Select CSV">
-            <el-option
-                v-for="item in selectCsvData"
-                :key="item"
-                :label="item"
-                :value="item"
-                @click="getCsvData"
-            />
-          </el-select>
+    <el-container>
+      <el-aside width="200px">
+        <div style="height: 300px;padding-top: 50px">
+          <el-steps direction="vertical" :active="1">
+            <el-step title="Step 1" description="查詢csv資料"/>
+            <el-step title="Step 2" description="可以上傳文件"/>
+            <el-step title="Step 3" description=""/>
+          </el-steps>
+        </div>
+      </el-aside>
+      <el-main>
+        <el-row>
+          <el-form-item>
+            <el-select v-model="selectCsv" class="m-2" placeholder="Select CSV">
+              <el-option
+                  v-for="item in selectCsvData"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                  @click="getCsvData"
+              />
+            </el-select>
+            &emsp;
+            <el-text type="primary">D:\project3.0\file_csv\&emsp;文件載入 (UTF-8)</el-text>
+          </el-form-item>
           &emsp;
-          <el-text type="primary">D:\project3.0\file_csv\&emsp;文件載入 (UTF-8)</el-text>
-        </el-form-item>
-        &emsp;
+          <el-form-item>
+            <el-space wrap>
+              <el-card shadow="always">
+                <el-form-item>
+                  <el-upload
+                      action="http://localhost:8080/setUp/fileUpload"
+                      :on-success="handleSuccess"
+                      :before-upload="beforeUpload"
+                      :limit="1"
+                  >
+                    <el-button size="small" type="primary">上傳文件</el-button>
+                    <template #tip>
+                      <div class="el-upload__tip">
+                        只能上傳 CSV 文件
+                      </div>
+                    </template>
+                    &emsp;
+                    <el-text type="primary">{{ textMessageName }}</el-text>
+                    &emsp;
+                    <el-text :type="type">{{ textMessage }}</el-text>
+                  </el-upload>
+                  <el-text>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</el-text>
+                </el-form-item>
+              </el-card>
+            </el-space>
+          </el-form-item>
+        </el-row>
         <el-form-item>
-          <el-space wrap>
-            <el-card shadow="always">
-              <el-form-item>
-                <el-upload
-                    action="http://localhost:8080/setUp/fileUpload"
-                    :on-success="handleSuccess"
-                    :before-upload="beforeUpload"
-                    :limit="1"
-                >
-                  <el-button size="small" type="primary">上傳文件</el-button>
-                  <template #tip>
-                    <div class="el-upload__tip">
-                      只能上傳 CSV 文件
-                    </div>
-                  </template>
-                  &emsp;
-                  <el-text type="primary">{{ textMessageName }}</el-text>
-                  &emsp;
-                  <el-text :type="type">{{ textMessage }}</el-text>
-                </el-upload>
-                <el-text>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</el-text>
-              </el-form-item>
-            </el-card>
-          </el-space>
+          <el-text v-if="csvTF" type="warning">{{ csv }}</el-text>
+          <el-text v-else type="danger">{{ csv }}</el-text>
         </el-form-item>
-      </el-row>
-      <el-form-item>
-        <el-text v-if="csvTF" type="warning">{{ csv }}</el-text>
-        <el-text v-else type="danger">{{ csv }}</el-text>
-      </el-form-item>
-      <el-form-item>
-        <el-table
-            :data="newtableCsvData"
-            height="400px" border
-            style="width: 1000px"
-        >
-          <el-table-column
-              v-for="i in csvCount"
-              :label="`(${i})`.toString()"
-              :prop="i.toString()"
-          />
-        </el-table>
-      </el-form-item>
-    </el-main>
+        <el-form-item>
+          <el-table
+              :data="newtableCsvData"
+              height="400px" border
+              style="width: 1000px"
+          >
+            <el-table-column
+                v-for="i in csvCount"
+                :label="`(${i})`.toString()"
+                :prop="i.toString()"
+            />
+          </el-table>
+        </el-form-item>
+      </el-main>
+    </el-container>
   </el-container>
 </template>
 

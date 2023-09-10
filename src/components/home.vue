@@ -1,7 +1,7 @@
 <script setup>
 
 import PubSub from "pubsub-js";
-import {postApi} from "@/components/js/api";
+import {getApi, postApi} from "@/components/js/api";
 
 const fromData = reactive({
   userName: '',
@@ -84,16 +84,6 @@ if (userNameValue.value) {
 
 <template>
   <el-container>
-    <el-aside width="200px">
-      el-aside
-    </el-aside>
-    <el-container>
-      <el-header>
-        el-header
-        <div v-if="show">
-          <el-text type="success" size="large"><h1>☝</h1></el-text>
-        </div>
-      </el-header>
       <el-main>
         <el-row>
           <el-card shadow="never">
@@ -120,13 +110,8 @@ if (userNameValue.value) {
             <el-text type="danger" size="large"><h1>失敗</h1></el-text>
           </div>
         </el-form-item>
-        el-main
       </el-main>
-      <el-footer>
-        el-footer
-      </el-footer>
     </el-container>
-  </el-container>
 </template>
 
 <style scoped>

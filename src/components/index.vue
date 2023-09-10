@@ -349,12 +349,73 @@ const A = ref([
         <el-text style="color: white"><p>Luke Chen's 記帳表</p></el-text>
       </div>
     </el-header>
-    <el-divider/>
-    <el-main>
-      <el-row>
-        <el-space wrap>
-          <el-card shadow="always">
-            <el-form v-model="fromData">
+    <el-container>
+      <el-aside width="200px">
+        <div style="height: 300px;padding-top: 50px">
+          <el-steps direction="vertical" :active="1">
+            <el-step title="Step 1" description="先查詢幾月到幾月的資料" />
+            <el-step title="Step 2" description="點選日期" />
+            <el-step title="Step 3" description="修改資料、刪除資料" />
+            <el-step title="Step 4" description="新增資料" />
+          </el-steps>
+        </div>
+      </el-aside>
+      <el-main>
+        <el-row>
+          <el-space wrap>
+            <el-card shadow="always">
+              <el-form v-model="fromData">
+                <el-form-item label="新增其他種類">
+                  <el-input v-model="insTypeValue" type="text" size="small" style="width: 250px;height: 100%"
+                            placeholder="可不填"
+                  />
+                </el-form-item>
+                <el-form-item>
+                  <el-button plain type="primary" size="small"
+                             @click="insType">新增暫存種類
+                  </el-button>
+                  <el-button plain type="danger" size="small"
+                             @click="insTypeClear">清除暫存種類
+                  </el-button>
+                </el-form-item>
+                <el-divider/>
+                <el-form-item label="種類">
+                  <el-radio-group v-model="radio_group_value">
+                    <el-radio-button
+                        v-for="radioItem in radioItems"
+                        :key="radioItem.value"
+                        :label="radioItem.value"
+                        :disabled="disabledTF"
+                        size="small"
+                    >{{ radioItem.label }}
+                    </el-radio-button>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="選擇">
+                  <el-radio-group v-model="fromData.expense_and_income_number">
+                    <el-radio label="A" border @click="radioEX">支出</el-radio>
+                    <el-radio label="B" border @click="radioInC">收入</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <div v-show="show0" style="color: red">金額請勿小於 0 或等於 0</div>
+                <el-form-item label="金額">
+                  <el-input-number
+                      @blur="showNull0"
+                      v-model.number="fromData.inputMoney"
+                  />
+                </el-form-item>
+                <div v-show="show" style="color: red">請輸入支出或收入的內容</div>
+                <el-form-item label="支出、收入內容">
+                  <el-input
+                      @input="showNull"
+                      v-model="fromData.details" type="textarea" style="width: 100%;height: 100%"/>
+                </el-form-item>
+              </el-form>
+              <el-form-item>
+                <el-button plain type="primary" @click="ins">新增</el-button>
+                <el-button plain type="danger" @click="clear">清除</el-button>
+              </el-form-item>
+              <el-divider/>
               <el-form-item>
                 <el-date-picker
                     v-model="CHdate"
@@ -363,143 +424,91 @@ const A = ref([
                 &emsp;
                 <el-button plain type="primary" @click="fin">查詢</el-button>
               </el-form-item>
-
-              <el-divider/>
-              <el-form-item label="新增其他種類">
-                <el-input v-model="insTypeValue" type="text" size="small" style="width: 250px;height: 100%"
-                          placeholder="可不填"
-                />
-              </el-form-item>
-              <el-form-item>
-                <el-button plain type="primary" size="small"
-                           @click="insType">新增暫存種類
-                </el-button>
-                <el-button plain type="danger" size="small"
-                           @click="insTypeClear">清除暫存種類
-                </el-button>
-              </el-form-item>
-              <el-divider/>
-              <el-form-item label="種類">
-                <el-radio-group v-model="radio_group_value">
-                  <el-radio-button
-                      v-for="radioItem in radioItems"
-                      :key="radioItem.value"
-                      :label="radioItem.value"
-                      :disabled="disabledTF"
-                      size="small"
-                  >{{ radioItem.label }}
-                  </el-radio-button>
-                </el-radio-group>
-              </el-form-item>
-              <el-form-item label="選擇">
-                <el-radio-group v-model="fromData.expense_and_income_number">
-                  <el-radio label="A" border @click="radioEX">支出</el-radio>
-                  <el-radio label="B" border @click="radioInC">收入</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <div v-show="show0" style="color: red">金額請勿小於 0 或等於 0</div>
-              <el-form-item label="金額">
-                <el-input-number
-                    @blur="showNull0"
-                    v-model.number="fromData.inputMoney"
-                />
-              </el-form-item>
-              <div v-show="show" style="color: red">請輸入支出或收入的內容</div>
-              <el-form-item label="支出、收入內容">
-                <el-input
-                    @input="showNull"
-                    v-model="fromData.details" type="textarea" style="width: 100%;height: 100%"/>
-              </el-form-item>
-            </el-form>
-            <el-form-item>
-              <el-button plain type="primary" @click="ins">新增</el-button>
-              <el-button plain type="danger" @click="clear">清除</el-button>
-            </el-form-item>
-          </el-card>
-        </el-space>
-        <el-table
-            :data="tableData"
-            @selection-change="handleSelectionChange"
-            height="400px" border
-            style="width: 900px"
-            v-if="tableData.length > 0"
-        >
-          <el-table-column type="selection" width="55px"/>
-          <el-table-column
-              v-for="i in B"
-              :label="i[Object.keys(i)[0]].toString()"
-              :prop="Object.keys(i).toString()"
-          />
-        </el-table>
-      </el-row>
-      <el-divider/>
-      <el-row>
-        <el-form-item>
-          <el-date-picker
-              v-model="datePicker"
-              type="daterange"
-              range-separator="~"
-              start-placeholder="Start"
-              end-placeholder="End"
-          />
-          &emsp;
-          <el-button plain type="primary" @click="find">查詢</el-button>
-          &emsp;
-          <el-text size="large" type="warning">總支出 ➠ <span style="color: cornflowerblue;">
-            {{ expense.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
-          </span> ＄
-          </el-text>
-          &emsp;
-          <el-text size="large" type="warning">總收入 ➠ <span style="color: cornflowerblue;">
-            {{ income.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
-          </span> ＄
-          </el-text>
-          &emsp;
-          <el-text size="large" type="warning">總金額 ➠ <span style="color: cornflowerblue;">
-            {{ totalAmount.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
-          </span> ＄
-          </el-text>
-        </el-form-item>
-      </el-row>
-      <el-text size="large" type="danger">支出、收入 ➠ 內容明細</el-text>
-      <el-row>
-        <el-table
-            :data="tableDataData"
-            height="400px" border
-            style="width: 1000px"
-            v-if="tableDataData.length > 0">
-          <el-table-column
-              label="功能"
-              width="200px"
+            </el-card>
+          </el-space>
+          <el-table
+              :data="tableData"
+              @selection-change="handleSelectionChange"
+              height="400px" border
+              style="width: 900px"
+              v-if="tableData.length > 0"
           >
-            <template #default="scope">
-              <el-button
-                  link
-                  type="primary"
-                  @click.prevent="openDialog(scope.row)"
-              >修改金額
-              </el-button>
-              <el-popconfirm
-                  width="220"
-                  confirm-button-text="確定"
-                  cancel-button-text="取消"
-                  title="確定要刪除嗎?"
-                  @confirm="confirmEvent(scope.row)"
-              >
-                <template #reference>
-                  <el-button link type="primary">刪除資料</el-button>
-                </template>
-              </el-popconfirm>
-            </template>
-          </el-table-column>
-          <el-table-column
-              v-for="i in A"
-              :label="i[Object.keys(i)[0]].toString()"
-              :prop="Object.keys(i).toString()"
-          />
-        </el-table>
-      </el-row>
-    </el-main>
+            <el-table-column type="selection" width="55px"/>
+            <el-table-column
+                v-for="i in B"
+                :label="i[Object.keys(i)[0]].toString()"
+                :prop="Object.keys(i).toString()"
+            />
+          </el-table>
+        </el-row>
+        <el-divider/>
+        <el-row>
+          <el-form-item>
+            <el-date-picker
+                v-model="datePicker"
+                type="daterange"
+                range-separator="~"
+                start-placeholder="Start"
+                end-placeholder="End"
+            />
+            &emsp;
+            <el-button plain type="primary" @click="find">查詢</el-button>
+            &emsp;
+            <el-text size="large" type="warning">總支出 ➠ <span style="color: cornflowerblue;">
+            {{ expense.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
+          </span>
+            </el-text>
+            &emsp;
+            <el-text size="large" type="warning">總收入 ➠ <span style="color: cornflowerblue;">
+            {{ income.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
+          </span>
+            </el-text>
+            &emsp;
+            <el-text size="large" type="warning">總金額 ➠ <span style="color: cornflowerblue;">
+            {{ totalAmount.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
+          </span>
+            </el-text>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-table
+              :data="tableDataData"
+              height="400px" border
+              style="width: 1000px"
+              v-if="tableDataData.length > 0">
+            <el-table-column
+                label="功能"
+                width="200px"
+            >
+              <template #default="scope">
+                <el-button
+                    link
+                    type="primary"
+                    @click.prevent="openDialog(scope.row)"
+                >修改金額
+                </el-button>
+                <el-popconfirm
+                    width="220"
+                    confirm-button-text="確定"
+                    cancel-button-text="取消"
+                    title="確定要刪除嗎?"
+                    @confirm="confirmEvent(scope.row)"
+                >
+                  <template #reference>
+                    <el-button link type="primary">刪除資料</el-button>
+                  </template>
+                </el-popconfirm>
+              </template>
+            </el-table-column>
+            <el-table-column
+                v-for="i in A"
+                :label="i[Object.keys(i)[0]].toString()"
+                :prop="Object.keys(i).toString()"
+            />
+          </el-table>
+        </el-row>
+      </el-main>
+    </el-container>
   </el-container>
   <el-dialog v-model="dialogFormVisible" title="修改資料" width="800px">
     <el-button plain type="primary" @click="enter">確定</el-button>
