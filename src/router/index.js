@@ -17,7 +17,7 @@ for (const cookie of cookies) {
 if(!userNameValue.value){
     index.value = import("@/components/home.vue")
     setUp.value = import("@/components/home.vue")
-}else{
+}else {
     index.value = import("@/components/index.vue")
     setUp.value = import("@/components/setUp.vue")
 }

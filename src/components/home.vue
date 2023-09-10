@@ -1,5 +1,4 @@
 <script setup>
-
 import PubSub from "pubsub-js";
 import {getApi, postApi} from "@/components/js/api";
 
@@ -57,6 +56,7 @@ function goIn() {
           OUT.value = false
           PubSub.publish('home', true)
           show.value = true
+          userNa.value = []
         }
       })
 }
@@ -80,6 +80,14 @@ if (userNameValue.value) {
   show2.value = true
 }
 
+const userNa = ref([])
+function getUserName(){
+  getApi('http://localhost:8080/go/getUserName')
+      .then((result) => {
+        userNa.value = result
+      })
+}
+
 </script>
 
 <template>
@@ -98,7 +106,10 @@ if (userNameValue.value) {
             </el-form>
           </el-card>
         </el-row>
-        admin
+        <el-button link type="default" @click="getUserName">查詢使用者</el-button>
+        <el-form-item>
+          <el-text type="success" v-for="un in userNa">{{`${un}&emsp;`}}</el-text>
+        </el-form-item>
         <el-form-item>
           <div v-if="show">
             <el-text type="success" size="large"><h1>成功</h1></el-text>
