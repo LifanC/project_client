@@ -1,12 +1,31 @@
 <script setup>
 
-import {postApi} from "@/components/js/api";
+import {getApi, postApi} from "@/components/js/api";
 
 const datePicker = ref([])
 const defaultDateRange = ref([]);
-watch(defaultDateRange, (newValue) => {
-  datePicker.value = newValue;
-});
+// watch(defaultDateRange, (newValue) => {
+//   datePicker.value = newValue;
+// });
+setDefaultDateRange()
+
+function setDefaultDateRange() {
+  const currentDate = new Date()
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+  const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+  lastDayOfMonth.setDate(lastDayOfMonth.getDate() - 1)
+  let arr = [formatDate(firstDayOfMonth), formatDate(lastDayOfMonth)]
+  defaultDateRange.value = arr
+  datePicker.value = arr
+}
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+}
+
 const expense = ref(0)
 const income = ref(0)
 const totalAmount = ref(0)
@@ -19,17 +38,6 @@ for (const cookie of cookies) {
     userNameValue.value = value
   }
 }
-
-
-setDefaultDateRange()
-
-function setDefaultDateRange() {
-  const currentDate = new Date()
-  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
-  const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
-  defaultDateRange.value = [firstDayOfMonth, lastDayOfMonth]
-}
-
 
 function calendar(A) {
   let date = A
@@ -134,6 +142,8 @@ function ins() {
         postApi('http://localhost:8080/index/finA', fromData.date)
             .then((result) => {
               tableDataData.value = result
+              printIreportMessage1.value = ''
+              printIreportMessage2.value = ''
             })
       }, 500)
     }
@@ -158,10 +168,14 @@ function fin() {
           income.value = 0
           totalAmount.value = 0
           fromData.expense_and_income_number = 'A'
+          printIreportMessage1.value = ''
+          printIreportMessage2.value = ''
         })
     postApi('http://localhost:8080/index/finA', fromData.date)
         .then((result) => {
           tableDataData.value = result
+          printIreportMessage1.value = ''
+          printIreportMessage2.value = ''
         })
   }
 }
@@ -179,30 +193,17 @@ function clear() {
   show.value = false
   show0.value = false
   radio_group_value.value = '2'
+  printIreportMessage1.value = ''
+  printIreportMessage2.value = ''
 }
-
-function calendarTwoDay(A) {
-  let date = A
-  let year = date.getFullYear()
-  let month = date.getMonth() + 1
-  let day = date.getDate()
-  return `${year}/${month}/${day}`
-}
-
-const dateRange = ref([])
 
 function find() {
   tableDataData.value = []
   if (datePicker.value === null) {
     datePicker.value = defaultDateRange.value
   }
-  dateRange.value = []
-  dateRange.value.push(
-      calendarTwoDay(datePicker.value[0]),
-      calendarTwoDay(datePicker.value[1])
-  )
-  if (dateRange.value.length !== 0) {
-    postApi('http://localhost:8080/index/find', dateRange.value)
+  if (0 !== datePicker.value.length) {
+    postApi('http://localhost:8080/index/find', datePicker.value)
         .then((result) => {
           tableData.value = result
           let ex = 0
@@ -220,6 +221,8 @@ function find() {
             tot += result[key].totleMoney
           }
           totalAmount.value = tot
+          printIreportMessage1.value = ''
+          printIreportMessage2.value = ''
         })
   }
 
@@ -232,6 +235,8 @@ const handleSelectionChange = (val) => {
     postApi('http://localhost:8080/index/findA', multipleSelection.value)
         .then((result) => {
           tableDataData.value = result
+          printIreportMessage1.value = ''
+          printIreportMessage2.value = ''
         })
   }
 }
@@ -245,11 +250,15 @@ function confirmEvent(row) {
   })
       .then((result) => {
         tableDataData.value = result
+        printIreportMessage1.value = ''
+        printIreportMessage2.value = ''
       })
   setTimeout(() => {
     postApi('http://localhost:8080/index/fin', row.date)
         .then((result) => {
           tableData.value = result
+          printIreportMessage1.value = ''
+          printIreportMessage2.value = ''
         })
   }, 500)
 }
@@ -267,7 +276,7 @@ function openDialog(row) {
   setInputMoney.value = row.inputMoney
   setDetails.value = row.details
   tableDateSet.value = []
-  let t = {
+  let od = {
     a_id: row.a_id,
     date: row.date,
     expense_and_income_name: row.expense_and_income_name,
@@ -275,7 +284,7 @@ function openDialog(row) {
     inputMoney: row.inputMoney,
     details: row.details
   }
-  tableDateSet.value.push(t)
+  tableDateSet.value.push(od)
 }
 
 function enter() {
@@ -299,11 +308,15 @@ function enter() {
         .then((result) => {
           tableDataData.value = result
           dialogFormVisible.value = false
+          printIreportMessage1.value = ''
+          printIreportMessage2.value = ''
         })
     setTimeout(() => {
       postApi('http://localhost:8080/index/fin', tableDateSet.value[0].date)
           .then((result) => {
             tableData.value = result
+            printIreportMessage1.value = ''
+            printIreportMessage2.value = ''
           })
     }, 500)
   }
@@ -335,6 +348,45 @@ const A = ref([
   {'details': '內容'}
 ])
 
+const printIreportMessage1 = ref('')
+const printIreportMessage2 = ref('')
+const typeColor = ref('')
+function printIreport() {
+  if (datePicker.value) {
+    postApi('http://localhost:8080/index/printIreport', datePicker.value)
+        .then((result) => {
+          if(result === 'err'){
+            printIreportMessage1.value = '失敗'
+            printIreportMessage2.value = ''
+                typeColor.value = 'danger'
+            tableData.value = []
+          }else{
+            printIreportMessage1.value = '成功'
+            typeColor.value = 'success'
+            printIreportMessage2.value = result[0]
+            tableData.value = result[1]
+            printIreportData()
+          }
+        })
+  }
+}
+
+const p_ire_data = ref([])
+printIreportData()
+function printIreportData(){
+  getApi('http://localhost:8080/index/printIreportData')
+      .then((result) => {
+        p_ire_data.value = result
+      })
+}
+
+function printPath(){
+  getApi('http://localhost:8080/index/printPath?number=PathB')
+      .then((result) => {
+        printIreportMessage2.value = result
+      })
+}
+
 </script>
 
 <template>
@@ -353,12 +405,25 @@ const A = ref([
       <el-aside width="200px">
         <div style="height: 300px;padding-top: 50px">
           <el-steps direction="vertical" :active="1">
-            <el-step title="Step 1" description="先查詢幾月到幾月的資料" />
-            <el-step title="Step 2" description="點選日期" />
-            <el-step title="Step 3" description="修改資料、刪除資料" />
-            <el-step title="Step 4" description="新增資料" />
+            <el-step title="Step 1" description="先查詢幾月到幾月的資料"/>
+            <el-step title="Step 2" description="點選日期"/>
+            <el-step title="Step 3" description="修改資料、刪除資料"/>
+            <el-step title="Step 4" description="新增資料"/>
           </el-steps>
         </div>
+        <el-divider/>
+        <el-button plain type="primary" size="large"
+                   @click="printIreport">列印報表
+        </el-button>
+        &emsp;
+        <el-text :type="typeColor">{{ printIreportMessage1 }}</el-text>
+        <br><br>
+        <el-button plain type="warning" size="small"
+                   @click="printPath">查詢報表路徑
+        </el-button>
+        <el-card>
+          <el-text v-for="i in p_ire_data">編號 : {{ i }}<br></el-text>
+        </el-card>
       </el-aside>
       <el-main>
         <el-row>
@@ -442,11 +507,14 @@ const A = ref([
           </el-table>
         </el-row>
         <el-divider/>
+        ➠<el-text type="warning">{{ printIreportMessage2 }}</el-text>
         <el-row>
           <el-form-item>
             <el-date-picker
                 v-model="datePicker"
                 type="daterange"
+                format="YYYY-MM-DD"
+                value-format="YYYY/MM/DD"
                 range-separator="~"
                 start-placeholder="Start"
                 end-placeholder="End"
