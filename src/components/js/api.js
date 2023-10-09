@@ -5,10 +5,6 @@ async function getApi(url) {
     return await response.json();
 }
 
-export {
-    getApi
-}
-
 async function postApi(url, params) {
     const response = await fetch(url, {
         method: 'POST',
@@ -23,5 +19,5 @@ async function postApi(url, params) {
 }
 
 export {
-    postApi
+    getApi, postApi
 }
