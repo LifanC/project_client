@@ -97,7 +97,7 @@ function getUserName(){
           <el-card shadow="never">
             <el-form v-model="fromData">
               <el-form-item label="使用者">
-                <el-input :disabled="INP" type="text" v-model="fromData.userName"/>
+                <el-input :disabled="INP" type="text" maxlength="7" v-model="fromData.userName"/>
               </el-form-item>
               <el-form-item>
                 <el-button :disabled="CER" type="primary" @click="goIn">登入</el-button>

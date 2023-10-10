@@ -52,16 +52,20 @@ const insTypeValue = ref('')
 
 const radioItems = ref([
   {label: '收入', value: '1'},
-  {label: '食材', value: '2'},
-  {label: '人力', value: '3'}
+  {label: '食物', value: '2'},
+  {label: '交通', value: '3'},
+  {label: '消費', value: '4'},
+  {label: '3C', value: '5'},
+  {label: '其他', value: '6'}
 ])
 
 function insType() {
-  let TF = false
-  radioItems.value.forEach(element => {
-    TF = element.label !== insTypeValue.value;
-  })
+  let TF = true
   if (insTypeValue.value) {
+    radioItems.value.forEach(element => {
+      if (element.label !== insTypeValue.value) return
+      TF = false
+    })
     if (TF) {
       radioItems.value.push(
           {label: insTypeValue.value, value: (radioItems.value.length + 1).toString()}
@@ -72,7 +76,9 @@ function insType() {
 }
 
 function insTypeClear() {
-  radioItems.value.splice(3, 1)
+  if (radioItems.value.length > 6) {
+    radioItems.value.splice(-1, 1)
+  }
 }
 
 const radio_group_value = ref('2')
@@ -351,16 +357,17 @@ const A = ref([
 const printIreportMessage1 = ref('')
 const printIreportMessage2 = ref('')
 const typeColor = ref('')
+
 function printIreport() {
   if (datePicker.value) {
     postApi('http://localhost:8080/index/printIreport', datePicker.value)
         .then((result) => {
-          if(result === 'err'){
+          if (result === 'err') {
             printIreportMessage1.value = '失敗'
             printIreportMessage2.value = ''
-                typeColor.value = 'danger'
+            typeColor.value = 'danger'
             tableData.value = []
-          }else{
+          } else {
             printIreportMessage1.value = '成功'
             typeColor.value = 'success'
             printIreportMessage2.value = result[0]
@@ -373,14 +380,15 @@ function printIreport() {
 
 const p_ire_data = ref([])
 printIreportData()
-function printIreportData(){
+
+function printIreportData() {
   getApi('http://localhost:8080/index/printIreportData')
       .then((result) => {
         p_ire_data.value = result
       })
 }
 
-function printPath(){
+function printPath() {
   getApi('http://localhost:8080/index/printPath?number=PathB')
       .then((result) => {
         printIreportMessage2.value = result
@@ -391,7 +399,7 @@ function printPath(){
 
 <template>
   <el-container class="layout-container-demo">
-    {{ userNameValue }}
+    <p>{{ userNameValue }}</p>
     <el-header style="text-align: left; font-size: 12px; margin-top: 1%">
       <div class="toolbar">
         <el-avatar :size="100">
@@ -399,6 +407,23 @@ function printPath(){
         </el-avatar>
         &emsp;
         <el-text style="color: white"><p>Luke Chen's 記帳表</p></el-text>
+        <div>
+          &emsp;
+          <el-text size="large" type="warning">總支出 ➠ <span style="color: cornflowerblue;">
+            {{ expense.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
+          </span>
+          </el-text>
+          &emsp;
+          <el-text size="large" type="warning">總收入 ➠ <span style="color: cornflowerblue;">
+            {{ income.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
+          </span>
+          </el-text>
+          &emsp;
+          <el-text size="large" type="warning">總金額 ➠ <span style="color: cornflowerblue;">
+            {{ totalAmount.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
+          </span>
+          </el-text>
+        </div>
       </div>
     </el-header>
     <el-container>
@@ -458,8 +483,8 @@ function printPath(){
                 </el-form-item>
                 <el-form-item label="選擇">
                   <el-radio-group v-model="fromData.expense_and_income_number">
-                    <el-radio label="A" border @click="radioEX">支出</el-radio>
-                    <el-radio label="B" border @click="radioInC">收入</el-radio>
+                    <el-radio size="small" label="A" border @click="radioEX">支出</el-radio>
+                    <el-radio size="small" label="B" border @click="radioInC">收入</el-radio>
                   </el-radio-group>
                 </el-form-item>
                 <div v-show="show0" style="color: red">金額請勿小於 0 或等於 0</div>
@@ -507,7 +532,8 @@ function printPath(){
           </el-table>
         </el-row>
         <el-divider/>
-        ➠<el-text type="warning">{{ printIreportMessage2 }}</el-text>
+        ➠
+        <el-text type="warning">{{ printIreportMessage2 }}</el-text>
         <el-row>
           <el-form-item>
             <el-date-picker
@@ -521,21 +547,6 @@ function printPath(){
             />
             &emsp;
             <el-button plain type="primary" @click="find">查詢</el-button>
-            &emsp;
-            <el-text size="large" type="warning">總支出 ➠ <span style="color: cornflowerblue;">
-            {{ expense.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
-          </span>
-            </el-text>
-            &emsp;
-            <el-text size="large" type="warning">總收入 ➠ <span style="color: cornflowerblue;">
-            {{ income.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
-          </span>
-            </el-text>
-            &emsp;
-            <el-text size="large" type="warning">總金額 ➠ <span style="color: cornflowerblue;">
-            {{ totalAmount.toLocaleString('en-US', {style: 'currency', currency: 'USD'}).replace(/\.00$/, '') }}
-          </span>
-            </el-text>
           </el-form-item>
         </el-row>
         <el-row>
