@@ -14,7 +14,7 @@ for (const cookie of cookies) {
     }
 }
 
-if(!userNameValue.value){
+if(userNameValue.value === undefined){
     index.value = import("@/components/home.vue")
     setUp.value = import("@/components/home.vue")
 }else {
@@ -27,6 +27,9 @@ PubSub.subscribe('home', function (msg, data) {
     if(data){
         index.value = import("@/components/index.vue")
         setUp.value = import("@/components/setUp.vue")
+    }else{
+        index.value = import("@/components/home.vue")
+        setUp.value = import("@/components/home.vue")
     }
 
 })

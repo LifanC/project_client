@@ -1,6 +1,7 @@
 <script setup>
 
 import {getApi, postApi} from "@/components/js/api";
+import PubSub from "pubsub-js";
 
 const tableData = ref([])
 const tableCsvData = ref([])
@@ -92,6 +93,19 @@ function beforeUpload(file) {
     return false;
   }
   return true;
+}
+
+PubSub.subscribe('home', function (msg, data) {
+  // console.log('data',data)
+  dataTF(data)
+})
+function dataTF(data){
+  if(data){
+    getApi('http://localhost:8080/go/time')
+        .then((result) => {
+          document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        })
+  }
 }
 
 

@@ -24,7 +24,7 @@ for (const cookie of cookies) {
 
 fromData.userName = userNameValue.value
 
-if (userNameValue.value) {
+if (userNameValue.value !== undefined) {
   INP.value = true
   CER.value = true
   OUT.value = false
@@ -39,7 +39,6 @@ function goIn() {
       .then((result) => {
         if (result === '') {
           document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-          PubSub.publish('home', false)
           show2.value = false
           if (fromData.userName === '' || fromData.userName === undefined) {
             show.value = false
@@ -48,15 +47,16 @@ function goIn() {
             show3.value = true
           }
           fromData.userName = ''
+          PubSub.publish('home', false)
         } else {
           document.cookie = `userName=${result}`
           fromData.userName = result
           INP.value = true
           CER.value = true
           OUT.value = false
-          PubSub.publish('home', true)
           show.value = true
           userNa.value = []
+          PubSub.publish('home', true)
         }
       })
 }
@@ -67,15 +67,16 @@ function goOut() {
   CER.value = false
   OUT.value = true
   fromData.userName = ''
-  PubSub.publish('home', false)
   show.value = false
   show2.value = true
+  PubSub.publish('home', false)
 }
 
-if (userNameValue.value) {
+if (userNameValue.value !== undefined) {
   PubSub.publish('home', true)
   show2.value = false
 } else {
+  PubSub.publish('home', false)
   show.value = false
   show2.value = true
 }
@@ -86,6 +87,19 @@ function getUserName(){
       .then((result) => {
         userNa.value = result
       })
+}
+
+PubSub.subscribe('home', function (msg, data) {
+  // console.log('data',data)
+  dataTF(data)
+})
+function dataTF(data){
+  if(data){
+    getApi('http://localhost:8080/go/time')
+        .then((result) => {
+          document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        })
+  }
 }
 
 </script>
