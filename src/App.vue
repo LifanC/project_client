@@ -50,6 +50,7 @@ function dataTF(data){
   if(data){
     getApi('http://localhost:8080/go/time')
         .then((result) => {
+          if(result)
           document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         })
   }
