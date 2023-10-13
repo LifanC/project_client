@@ -437,7 +437,7 @@ function dataTF(data){
       </div>
     </el-header>
     <el-container>
-      <el-aside width="200px">
+      <el-aside width="320px">
         <div style="height: 300px;padding-top: 50px">
           <el-steps direction="vertical" :active="1">
             <el-step title="Step 1" description="先查詢幾月到幾月的資料"/>
