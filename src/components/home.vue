@@ -110,8 +110,8 @@ function dataTF(data){
         <el-row>
           <el-card shadow="never">
             <el-form v-model="fromData">
-              <el-form-item label="使用者">
-                <el-input :disabled="INP" type="text" maxlength="7" v-model="fromData.userName"/>
+              <el-form-item label="暫時使用者">
+                <el-input :disabled="INP" type="text" maxlength="6" v-model="fromData.userName"/>
               </el-form-item>
               <el-form-item>
                 <el-button :disabled="CER" type="primary" @click="goIn">登入</el-button>
@@ -120,7 +120,7 @@ function dataTF(data){
             </el-form>
           </el-card>
         </el-row>
-        <el-button link type="default" @click="getUserName">查詢使用者</el-button>
+        <el-button link type="default" @click="getUserName">查詢暫時使用者</el-button>
         <el-form-item>
           <el-text type="success" v-for="un in userNa">{{`${un}&emsp;`}}</el-text>
         </el-form-item>

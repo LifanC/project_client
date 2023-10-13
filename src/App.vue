@@ -7,7 +7,7 @@ import {getApi} from "@/components/js/api";
 const path_ = ref('/')
 const path_index = ref('/')
 const path_setUp = ref('/')
-const TF = ref(false)
+const TF = ref()
 
 PubSub.subscribe('home', function (msg, data) {
   // console.log('data',data)
@@ -44,6 +44,15 @@ for (const cookie of cookies) {
   if (name === "userName") {
     userNameValue.value = value
   }
+}
+
+if(userNameValue.value !== undefined){
+  TF.value = true
+  path_.value = '/'
+  path_index.value = '/index'
+  path_setUp.value = '/setUp'
+}else{
+  TF.value = false
 }
 
 function dataTF(data){

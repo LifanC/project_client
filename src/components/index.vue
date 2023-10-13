@@ -170,11 +170,6 @@ function fin() {
     postApi('http://localhost:8080/index/fin', fromData.date)
         .then((result) => {
           tableData.value = result
-          fromData.inputMoney = 0
-          fromData.details = ''
-          expense.value = 0
-          income.value = 0
-          totalAmount.value = 0
           fromData.expense_and_income_number = 'A'
           printIreportMessage1.value = ''
           printIreportMessage2.value = ''
@@ -516,25 +511,24 @@ function dataTF(data){
                       v-model="fromData.details" type="textarea" style="width: 100%;height: 100%"/>
                 </el-form-item>
               </el-form>
-              <el-form-item>
-                <el-button plain type="primary" @click="ins">新增</el-button>
-                <el-button plain type="danger" @click="clear">清除</el-button>
-              </el-form-item>
-              <el-divider/>
-              <el-form-item>
+              <el-form-item label="日期">
                 <el-date-picker
                     v-model="CHdate"
                     type="date"
                 />
                 &emsp;
-                <el-button plain type="primary" @click="fin">查詢</el-button>
+                <el-button plain type="text" @click="fin">查詢</el-button>
+              </el-form-item>
+              <el-form-item>
+                <el-button plain type="primary" @click="ins">新增</el-button>
+                <el-button plain type="danger" @click="clear">清除</el-button>
               </el-form-item>
             </el-card>
           </el-space>
           <el-table
               :data="tableData"
               @selection-change="handleSelectionChange"
-              height="400px" border
+              height="500px" border
               style="width: 900px"
               v-if="tableData.length > 0"
           >
@@ -567,7 +561,7 @@ function dataTF(data){
         <el-row>
           <el-table
               :data="tableDataData"
-              height="400px" border
+              height="500px" border
               style="width: 1000px"
               v-if="tableDataData.length > 0">
             <el-table-column
