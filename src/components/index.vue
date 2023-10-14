@@ -2,52 +2,21 @@
 
 import {getApi, postApi} from "@/components/js/api";
 import PubSub from "pubsub-js";
+import {setDefaultDateRange, calendar} from "@/components/componentsJs/index"
+import {toFindCookie} from "@/components/js/cookie"
 
 const datePicker = ref([])
 const defaultDateRange = ref([]);
-// watch(defaultDateRange, (newValue) => {
-//   datePicker.value = newValue;
-// });
-setDefaultDateRange()
 
-function setDefaultDateRange() {
-  const currentDate = new Date()
-  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
-  const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
-  lastDayOfMonth.setDate(lastDayOfMonth.getDate() - 1)
-  let arr = [formatDate(firstDayOfMonth), formatDate(lastDayOfMonth)]
-  defaultDateRange.value = arr
-  datePicker.value = arr
-}
-
-function formatDate(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`;
-}
+defaultDateRange.value = setDefaultDateRange()
+datePicker.value = setDefaultDateRange()
 
 const expense = ref(0)
 const income = ref(0)
 const totalAmount = ref(0)
 const userNameValue = ref()
 
-const cookies = document.cookie.split("; ");
-for (const cookie of cookies) {
-  const [name, value] = cookie.split("=");
-  if (name === "userName") {
-    userNameValue.value = value
-  }
-}
-// console.log(userNameValue.value)
-
-function calendar(A) {
-  let date = A
-  let year = date.getFullYear()
-  let month = date.getMonth() + 1
-  let day = date.getDate()
-  return `${year}/${month}/${day}`
-}
+userNameValue.value = toFindCookie()
 
 const CHdate = ref(new Date())
 const insTypeValue = ref('')
@@ -61,6 +30,9 @@ const radioItems = ref([
   {label: '其他', value: '6'}
 ])
 
+/**
+ * <h3>新增其他種類的方法</h3>
+ */
 function insType() {
   let TF = true
   if (insTypeValue.value) {
@@ -77,6 +49,9 @@ function insType() {
   insTypeValue.value = ''
 }
 
+/**
+ * <h3>清除其他種類的方法</h3>
+ */
 function insTypeClear() {
   if (radioItems.value.length > 6) {
     radioItems.value.splice(-1, 1)
@@ -99,14 +74,23 @@ const tableDataData = ref([])
 const show = ref(false)
 const show0 = ref(false)
 
+/**
+ * <h3>金額請勿小於 0 或等於 0</h3>
+ */
 function showNull0() {
   show0.value = fromData.inputMoney <= 0
 }
 
+/**
+ * <h3>請輸入支出或收入的內容</h3>
+ */
 function showNull() {
   show.value = fromData.details === '';
 }
 
+/**
+ * <h3>index新增功能</h3>
+ */
 function ins() {
   if (CHdate.value === null) {
     CHdate.value = new Date()
@@ -137,6 +121,7 @@ function ins() {
     if (fromData.date !== null && fromData.inputMoney > 0 && fromData.details !== '') {
       fromData.radio_group_value = radio_group_value.value
       fromData.radioItems = radioItems.value[Number(radio_group_value.value) - 1].label
+      //index新增功能 回傳Table B的值
       postApi('http://localhost:8080/index/ins', fromData)
           .then((result) => {
             tableData.value = result
@@ -147,6 +132,7 @@ function ins() {
             totalAmount.value = 0
           })
       setTimeout(() => {
+        //index查詢資料庫Table A的值
         postApi('http://localhost:8080/index/finA', fromData.date)
             .then((result) => {
               tableDataData.value = result
@@ -158,6 +144,9 @@ function ins() {
   }
 }
 
+/**
+ * <h3>index單一查詢功能</h3>
+ */
 function fin() {
   if (CHdate.value === null) {
     CHdate.value = new Date()
@@ -167,6 +156,7 @@ function fin() {
     CHdate.value = new Date()
   }
   if (fromData.date !== null) {
+    //index查詢資料庫Table B的值
     postApi('http://localhost:8080/index/fin', fromData.date)
         .then((result) => {
           tableData.value = result
@@ -174,6 +164,7 @@ function fin() {
           printIreportMessage1.value = ''
           printIreportMessage2.value = ''
         })
+    //index查詢資料庫Table A的值
     postApi('http://localhost:8080/index/finA', fromData.date)
         .then((result) => {
           tableDataData.value = result
@@ -183,6 +174,9 @@ function fin() {
   }
 }
 
+/**
+ * <h3>index清除input值的功能</h3>
+ */
 function clear() {
   fromData.expense_and_income_number = 'A'
   fromData.inputMoney = 0
@@ -200,12 +194,16 @@ function clear() {
   printIreportMessage2.value = ''
 }
 
+/**
+ * <h3>index Start~End日期查詢功能</h3>
+ */
 function find() {
   tableDataData.value = []
   if (datePicker.value === null) {
     datePicker.value = defaultDateRange.value
   }
   if (0 !== datePicker.value.length) {
+    //index查詢資料庫Table B的值
     postApi('http://localhost:8080/index/find', datePicker.value)
         .then((result) => {
           tableData.value = result
@@ -232,9 +230,14 @@ function find() {
 }
 
 const multipleSelection = ref()
+/**
+ * <h3>index 選擇多框選項A</h3>
+ * @param val
+ */
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
   if (multipleSelection.value.length !== 0) {
+    //index查詢資料庫Table A的值
     postApi('http://localhost:8080/index/findA', multipleSelection.value)
         .then((result) => {
           tableDataData.value = result
@@ -244,7 +247,11 @@ const handleSelectionChange = (val) => {
   }
 }
 
+/**
+ * <h3>index選擇日期 刪除功能</h3>
+ */
 function confirmEvent(row) {
+  //index刪除功能
   postApi('http://localhost:8080/index/del', {
     a_id: row.a_id,
     date: row.date,
@@ -257,6 +264,7 @@ function confirmEvent(row) {
         printIreportMessage2.value = ''
       })
   setTimeout(() => {
+    //index查詢資料庫Table B的值
     postApi('http://localhost:8080/index/fin', row.date)
         .then((result) => {
           tableData.value = result
@@ -290,6 +298,9 @@ function openDialog(row) {
   tableDateSet.value.push(od)
 }
 
+/**
+ * <h3>index修改資料明細功能</h3>
+ */
 function enter() {
   showSet.value = setInputMoney.value <= 0;
   showSetDetails.value = setDetails.value === '';
@@ -300,6 +311,7 @@ function enter() {
     tableDateSet.value.forEach(e => {
       e.details = setDetails.value
     })
+    //index修改資料明細功能 回傳資料庫Table A的值
     postApi('http://localhost:8080/index/enter', {
       a_id: tableDateSet.value[0].a_id,
       date: tableDateSet.value[0].date,
@@ -315,6 +327,7 @@ function enter() {
           printIreportMessage2.value = ''
         })
     setTimeout(() => {
+      //index查詢資料庫Table B的值
       postApi('http://localhost:8080/index/fin', tableDateSet.value[0].date)
           .then((result) => {
             tableData.value = result
@@ -327,11 +340,17 @@ function enter() {
 
 const disabledTF = ref(false)
 
+/**
+ * <h3>收入</h3>
+ */
 function radioInC() {
   radio_group_value.value = '1'
   disabledTF.value = true
 }
 
+/**
+ * <h3>支出</h3>
+ */
 function radioEX() {
   radio_group_value.value = '2'
   disabledTF.value = false
@@ -355,8 +374,12 @@ const printIreportMessage1 = ref('')
 const printIreportMessage2 = ref('')
 const typeColor = ref('')
 
+/**
+ * <h3>index列印報表</h3>
+ */
 function printIreport() {
   if (datePicker.value) {
+    //index查詢資料庫Table A的值
     postApi('http://localhost:8080/index/printIreport', datePicker.value)
         .then((result) => {
           if (result === 'err') {
@@ -378,32 +401,26 @@ function printIreport() {
 const p_ire_data = ref([])
 printIreportData()
 
+/**
+ * <h3>index畫面顯示報表名稱</h3>
+ */
 function printIreportData() {
-  getApi('http://localhost:8080/index/printIreportData')
+  getApi('http://localhost:8080/index/printIreportData?fileName=reportBpdf')
       .then((result) => {
         p_ire_data.value = result
       })
 }
 
+/**
+ * <h3>index查詢報表路徑位置</h3>
+ */
 function printPath() {
-  getApi('http://localhost:8080/index/printPath?number=PathB')
+  getApi('http://localhost:8080/index/printPath?fileName=reportBpdf')
       .then((result) => {
         printIreportMessage2.value = result
       })
 }
 
-PubSub.subscribe('home', function (msg, data) {
-  // console.log('data',data)
-  dataTF(data)
-})
-function dataTF(data){
-  if(data){
-    getApi('http://localhost:8080/go/time')
-        .then((result) => {
-          document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        })
-  }
-}
 
 </script>
 

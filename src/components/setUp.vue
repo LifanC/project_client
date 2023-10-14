@@ -2,6 +2,7 @@
 
 import {getApi, postApi} from "@/components/js/api";
 import PubSub from "pubsub-js";
+import {toFindCookie, clearCookie} from "@/components/js/cookie";
 
 const tableData = ref([])
 const tableCsvData = ref([])
@@ -14,13 +15,7 @@ const selectCsv = ref('')
 const selectCsvData = ref([])
 const userNameValue = ref()
 
-const cookies = document.cookie.split("; ");
-for (const cookie of cookies) {
-  const [name, value] = cookie.split("=");
-  if (name === "userName") {
-    userNameValue.value = value
-  }
-}
+userNameValue.value = toFindCookie()
 
 function getCsv() {
   getApi('http://localhost:8080/setUp/readCsv')
@@ -94,20 +89,6 @@ function beforeUpload(file) {
   }
   return true;
 }
-
-PubSub.subscribe('home', function (msg, data) {
-  // console.log('data',data)
-  dataTF(data)
-})
-function dataTF(data){
-  if(data){
-    getApi('http://localhost:8080/go/time')
-        .then((result) => {
-          document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        })
-  }
-}
-
 
 </script>
 

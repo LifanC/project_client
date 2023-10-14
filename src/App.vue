@@ -3,11 +3,15 @@ import index from "@/components/index.vue";
 import setUp from "@/components/setUp.vue";
 import PubSub from "pubsub-js";
 import {getApi} from "@/components/js/api";
+import {toFindCookie, clearCookie} from "@/components/js/cookie";
 
 const path_ = ref('/')
 const path_index = ref('/')
 const path_setUp = ref('/')
 const TF = ref()
+
+const userNameValue = ref()
+userNameValue.value = toFindCookie()
 
 PubSub.subscribe('home', function (msg, data) {
   // console.log('data',data)
@@ -37,15 +41,6 @@ setInterval(function() {
   time.value = Y +'/'+M+'/'+D+' '+h+':'+m+':'+s
 }, 1000);
 
-const userNameValue = ref()
-const cookies = document.cookie.split("; ");
-for (const cookie of cookies) {
-  const [name, value] = cookie.split("=");
-  if (name === "userName") {
-    userNameValue.value = value
-  }
-}
-
 if(userNameValue.value !== undefined){
   TF.value = true
   path_.value = '/'
@@ -60,7 +55,7 @@ function dataTF(data){
     getApi('http://localhost:8080/go/time')
         .then((result) => {
           if(result)
-          document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            clearCookie()
         })
   }
 }

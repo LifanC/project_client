@@ -1,6 +1,7 @@
 <script setup>
 import PubSub from "pubsub-js";
 import {getApi, postApi} from "@/components/js/api";
+import {addCookie, clearCookie, toFindCookie} from "@/components/js/cookie";
 
 const fromData = reactive({
   userName: '',
@@ -14,14 +15,7 @@ const show = ref(true)
 const show2 = ref(true)
 const show3 = ref(true)
 
-const cookies = document.cookie.split("; ");
-for (const cookie of cookies) {
-  const [name, value] = cookie.split("=");
-  if (name === "userName") {
-    userNameValue.value = value
-  }
-}
-
+userNameValue.value = toFindCookie()
 fromData.userName = userNameValue.value
 
 if (userNameValue.value !== undefined) {
@@ -34,11 +28,14 @@ if (userNameValue.value !== undefined) {
   OUT.value = true
 }
 
+/**
+ * <h3>登入</h3>
+ */
 function goIn() {
   postApi('http://localhost:8080/go/getGo', fromData.userName)
       .then((result) => {
         if (result === '') {
-          document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          clearCookie()
           show2.value = false
           if (fromData.userName === '' || fromData.userName === undefined) {
             show.value = false
@@ -49,7 +46,7 @@ function goIn() {
           fromData.userName = ''
           PubSub.publish('home', false)
         } else {
-          document.cookie = `userName=${result}`
+          addCookie(result)
           fromData.userName = result
           INP.value = true
           CER.value = true
@@ -61,8 +58,11 @@ function goIn() {
       })
 }
 
+/**
+ * <h3>登出</h3>
+ */
 function goOut() {
-  document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  clearCookie()
   INP.value = false
   CER.value = false
   OUT.value = true
@@ -90,14 +90,14 @@ function getUserName(){
 }
 
 PubSub.subscribe('home', function (msg, data) {
-  // console.log('data',data)
   dataTF(data)
 })
+
 function dataTF(data){
   if(data){
     getApi('http://localhost:8080/go/time')
         .then((result) => {
-          document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          clearCookie()
         })
   }
 }
