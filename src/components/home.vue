@@ -46,6 +46,7 @@ function goIn() {
           fromData.userName = ''
           PubSub.publish('home', false)
         } else {
+          dataTF(true)
           addCookie(result)
           fromData.userName = result
           INP.value = true

@@ -121,7 +121,7 @@ function ins() {
     if (fromData.date !== null && fromData.inputMoney > 0 && fromData.details !== '') {
       fromData.radio_group_value = radio_group_value.value
       fromData.radioItems = radioItems.value[Number(radio_group_value.value) - 1].label
-      //index新增功能 回傳Table B的值
+      //index新增功能 回傳Table B 的值
       postApi('http://localhost:8080/index/ins', fromData)
           .then((result) => {
             tableData.value = result
@@ -230,13 +230,16 @@ function find() {
 }
 
 const multipleSelection = ref()
+const disabledTF = ref(true)
 /**
  * <h3>index 選擇多框選項A</h3>
  * @param val
  */
 const handleSelectionChange = (val) => {
+  reportTF.value = false;
   multipleSelection.value = val
   if (multipleSelection.value.length !== 0) {
+    disabledTF.value = false
     //index查詢資料庫Table A的值
     postApi('http://localhost:8080/index/findA', multipleSelection.value)
         .then((result) => {
@@ -244,6 +247,8 @@ const handleSelectionChange = (val) => {
           printIreportMessage1.value = ''
           printIreportMessage2.value = ''
         })
+  } else {
+    disabledTF.value = true
   }
 }
 
@@ -338,8 +343,6 @@ function enter() {
   }
 }
 
-const disabledTF = ref(false)
-
 /**
  * <h3>收入</h3>
  */
@@ -373,28 +376,28 @@ const A = ref([
 const printIreportMessage1 = ref('')
 const printIreportMessage2 = ref('')
 const typeColor = ref('')
+const reportTF = ref(true)
 
 /**
  * <h3>index列印報表</h3>
  */
 function printIreport() {
-  if (datePicker.value) {
-    //index查詢資料庫Table A的值
-    postApi('http://localhost:8080/index/printIreport', datePicker.value)
-        .then((result) => {
-          if (result === 'err') {
-            printIreportMessage1.value = '失敗'
-            printIreportMessage2.value = ''
-            typeColor.value = 'danger'
-            tableData.value = []
-          } else {
-            printIreportMessage1.value = '成功'
-            typeColor.value = 'success'
-            printIreportMessage2.value = result[0]
-            tableData.value = result[1]
-            printIreportData()
-          }
-        })
+  if (multipleSelection.value) {
+    //index查詢資料庫Table B的值
+      postApi('http://localhost:8080/index/printIreport', multipleSelection.value)
+          .then((result) => {
+            if (result === 'err') {
+              printIreportMessage1.value = '失敗'
+              printIreportMessage2.value = ''
+              typeColor.value = 'danger'
+              tableData.value = []
+            } else {
+              printIreportMessage1.value = '成功'
+              typeColor.value = 'success'
+              printIreportMessage2.value = result[0]
+              printIreportData()
+            }
+          })
   }
 }
 
@@ -454,7 +457,7 @@ function printPath() {
       </div>
     </el-header>
     <el-container>
-      <el-aside width="320px">
+      <el-aside width="350px">
         <div style="height: 300px;padding-top: 50px">
           <el-steps direction="vertical" :active="1">
             <el-step title="Step 1" description="先查詢幾月到幾月的資料"/>
@@ -465,6 +468,7 @@ function printPath() {
         </div>
         <el-divider/>
         <el-button plain type="primary" size="large"
+                   :disabled="disabledTF"
                    @click="printIreport">列印報表
         </el-button>
         &emsp;
@@ -534,7 +538,7 @@ function printPath() {
                     type="date"
                 />
                 &emsp;
-                <el-button plain type="text" @click="fin">查詢</el-button>
+                <el-button plain type="default" @click="fin">查詢</el-button>
               </el-form-item>
               <el-form-item>
                 <el-button plain type="primary" @click="ins">新增</el-button>

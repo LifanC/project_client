@@ -17,11 +17,11 @@ PubSub.subscribe('home', function (msg, data) {
   // console.log('data',data)
   dataTF(data)
   TF.value = data
-  if(data){
+  if (data) {
     path_.value = '/'
     path_index.value = '/index'
     path_setUp.value = '/setUp'
-  }else{
+  } else {
     path_.value = '/'
     path_index.value = '/'
     path_setUp.value = '/'
@@ -30,7 +30,7 @@ PubSub.subscribe('home', function (msg, data) {
 })
 
 const time = ref()
-setInterval(function() {
+setInterval(function () {
   let NowDate = new Date()
   let Y = NowDate.getFullYear()
   let M = NowDate.getMonth() + 1
@@ -38,25 +38,33 @@ setInterval(function() {
   let h = NowDate.getHours()
   let m = NowDate.getMinutes()
   let s = NowDate.getSeconds()
-  time.value = Y +'/'+M+'/'+D+' '+h+':'+m+':'+s
+  time.value = Y + '/' + M + '/' + D + ' ' + h + ':' + m + ':' + s
 }, 1000);
 
-if(userNameValue.value !== undefined){
+if (userNameValue.value !== undefined) {
   TF.value = true
   path_.value = '/'
   path_index.value = '/index'
   path_setUp.value = '/setUp'
-}else{
+} else {
   TF.value = false
 }
 
-function dataTF(data){
-  if(data){
+function dataTF(data) {
+  if (data) {
     getApi('http://localhost:8080/go/time')
         .then((result) => {
-          if(result)
+          if (result)
             clearCookie()
+          location.href="http://localhost:5173/"
         })
+  }
+}
+
+if(toFindCookie() === undefined){
+  let currentURL = window.location.href;
+  if(currentURL !== "http://localhost:5173/"){
+    location.href="http://localhost:5173/"
   }
 }
 
