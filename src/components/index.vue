@@ -109,13 +109,12 @@ function ins() {
       title: '注意',
       dangerouslyUseHTMLString: true,
       message: '<strong>' +
-          '<span style="color: blue; font-size: 20px;">選擇支出</span>' +
-          ' <br>' +
-          ' <span style="color: crimson; font-size: 20px;">種類&emsp;請勿點選</span>' +
-          '<span style="color: blue; font-size: 24px;">收入</span>' +
+          '<span style="color: #409eff ; font-size: 20px;">選擇支出</span>' +
+          ' <span style="color: #f56c6c; font-size: 20px;">種類請勿選擇</span>' +
+          '<span style="color: #409eff; font-size: 20px;">收入</span>' +
           '</strong>',
       position: 'top-left',
-      duration: 10000,
+      duration: 30000,
     })
   } else {
     if (fromData.date !== null && fromData.inputMoney > 0 && fromData.details !== '') {
@@ -230,7 +229,7 @@ function find() {
 }
 
 const multipleSelection = ref()
-const disabledTF = ref(true)
+const disabledTF = ref(false)
 /**
  * <h3>index 選擇多框選項A</h3>
  * @param val
@@ -382,6 +381,8 @@ const reportTF = ref(true)
  * <h3>index列印報表</h3>
  */
 function printIreport() {
+  getApi('http://localhost:8080/index/printIreport?titleName='+userNameValue.value)
+      .then((result) => {})
   if (multipleSelection.value) {
     //index查詢資料庫Table B的值
       postApi('http://localhost:8080/index/printIreport', multipleSelection.value)
@@ -424,12 +425,18 @@ function printPath() {
       })
 }
 
+if(toFindCookie() === undefined){
+  let currentURL = window.location.href;
+  if(currentURL !== "http://localhost:5173/"){
+    location.href="http://localhost:5173/"
+  }
+}
 
 </script>
 
 <template>
   <el-container class="layout-container-demo">
-    <p>{{ userNameValue }}</p>
+    <span>{{ userNameValue }}</span>
     <el-header style="text-align: left; font-size: 12px; margin-top: 1%">
       <div class="toolbar">
         <el-avatar :size="100">
@@ -457,7 +464,7 @@ function printPath() {
       </div>
     </el-header>
     <el-container>
-      <el-aside width="350px">
+      <el-aside width="360px">
         <div style="height: 300px;padding-top: 50px">
           <el-steps direction="vertical" :active="1">
             <el-step title="Step 1" description="先查詢幾月到幾月的資料"/>
@@ -477,8 +484,11 @@ function printPath() {
         <el-button plain type="warning" size="small"
                    @click="printPath">查詢報表路徑
         </el-button>
+        <br><br>
+        ➠
+        <el-text type="warning">{{ printIreportMessage2 }}</el-text>
         <el-card>
-          <el-text v-for="i in p_ire_data">編號 : {{ i }}<br></el-text>
+          <el-text v-for="i in p_ire_data">報表 : {{ i }}<br></el-text>
         </el-card>
       </el-aside>
       <el-main>
@@ -538,7 +548,7 @@ function printPath() {
                     type="date"
                 />
                 &emsp;
-                <el-button plain type="default" @click="fin">查詢</el-button>
+                <el-button link type="default" @click="fin">單一查詢</el-button>
               </el-form-item>
               <el-form-item>
                 <el-button plain type="primary" @click="ins">新增</el-button>
@@ -562,8 +572,6 @@ function printPath() {
           </el-table>
         </el-row>
         <el-divider/>
-        ➠
-        <el-text type="warning">{{ printIreportMessage2 }}</el-text>
         <el-row>
           <el-form-item>
             <el-date-picker

@@ -90,6 +90,13 @@ function beforeUpload(file) {
   return true;
 }
 
+if(toFindCookie() === undefined){
+  let currentURL = window.location.href;
+  if(currentURL !== "http://localhost:5173/"){
+    location.href="http://localhost:5173/"
+  }
+}
+
 </script>
 
 <template>
@@ -105,7 +112,7 @@ function beforeUpload(file) {
           <el-steps direction="vertical" :active="1">
             <el-step title="Step 1" description="查詢csv資料"/>
             <el-step title="Step 2" description="可以上傳文件"/>
-            <el-step title="Step 3" description=""/>
+            <el-step title="Step 3" description="顯示上傳文件內容"/>
           </el-steps>
         </div>
       </el-aside>

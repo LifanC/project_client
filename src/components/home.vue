@@ -83,7 +83,8 @@ if (userNameValue.value !== undefined) {
 }
 
 const userNa = ref([])
-function getUserName(){
+
+function getUserName() {
   getApi('http://localhost:8080/go/getUserName')
       .then((result) => {
         userNa.value = result
@@ -94,8 +95,8 @@ PubSub.subscribe('home', function (msg, data) {
   dataTF(data)
 })
 
-function dataTF(data){
-  if(data){
+function dataTF(data) {
+  if (data) {
     getApi('http://localhost:8080/go/time')
         .then((result) => {
           clearCookie()
@@ -103,41 +104,48 @@ function dataTF(data){
   }
 }
 
+if(toFindCookie() === undefined){
+  let currentURL = window.location.href;
+  if(currentURL !== "http://localhost:5173/"){
+    location.href="http://localhost:5173/"
+  }
+}
+
 </script>
 
 <template>
   <el-container>
-      <el-main>
-        <el-row>
-          <el-card shadow="never">
-            <el-form v-model="fromData">
-              <el-form-item label="暫時使用者">
-                <el-input :disabled="INP" type="text" maxlength="6" v-model="fromData.userName"/>
-              </el-form-item>
-              <el-form-item>
-                <el-button :disabled="CER" type="primary" @click="goIn">登入</el-button>
-                <el-button :disabled="OUT" type="primary" @click="goOut">登出</el-button>
-              </el-form-item>
-            </el-form>
-          </el-card>
-        </el-row>
-        <el-button link type="default" @click="getUserName">查詢暫時使用者</el-button>
-        <el-form-item>
-          <el-text type="success" v-for="un in userNa">{{`${un}&emsp;`}}</el-text>
-        </el-form-item>
-        <el-form-item>
-          <div v-if="show">
-            <el-text type="success" size="large"><h1>成功</h1></el-text>
-          </div>
-          <div v-else-if="show2">
-            <el-text type="warning" size="large"><h1>請輸入使用者</h1></el-text>
-          </div>
-          <div v-else-if="show3">
-            <el-text type="danger" size="large"><h1>失敗</h1></el-text>
-          </div>
-        </el-form-item>
-      </el-main>
-    </el-container>
+    <el-aside width="200px">
+
+    </el-aside>
+    <el-aside>
+      <el-row>
+        <el-card shadow="never">
+          <el-form v-model="fromData">
+            <el-form-item label="暫時使用者">
+              <el-input :disabled="INP" type="text" maxlength="6" v-model="fromData.userName"/>
+            </el-form-item>
+            <el-form-item>
+              <el-button :disabled="CER" type="primary" @click="goIn">登入</el-button>
+              <el-button :disabled="OUT" type="primary" @click="goOut">登出</el-button>
+            </el-form-item>
+          </el-form>
+        </el-card>
+      </el-row>
+      <el-button link type="default" @click="getUserName">查詢暫時使用者</el-button>
+      <el-form-item>
+        <el-text type="success" v-for="un in userNa">{{ `${un}&emsp;` }}</el-text>
+      </el-form-item>
+      <el-form-item>
+        <el-text v-if="show" type="success" size="small"><h3>成功</h3></el-text>
+        <el-text v-else-if="show2" type="warning" size="small"><h3>請輸入使用者</h3></el-text>
+        <el-text v-else-if="show3" type="danger" size="small"><h3>失敗</h3></el-text>
+      </el-form-item>
+    </el-aside>
+    <el-main>
+
+    </el-main>
+  </el-container>
 </template>
 
 <style scoped>
