@@ -50,23 +50,31 @@ if (userNameValue.value !== undefined) {
   TF.value = false
 }
 
+const dialogVisible = ref(false)
+
 function dataTF(data) {
   if (data) {
     getApi('http://localhost:8080/go/time')
         .then((result) => {
-          if (result)
+          if (result) {
             clearCookie()
-          location.href="http://localhost:5173/"
+            dialogVisible.value = true
+          }
         })
   }
 }
 
-if(toFindCookie() === undefined){
+if (toFindCookie() === undefined) {
   let currentURL = window.location.href;
-  if(currentURL !== "http://localhost:5173/"){
-    location.href="http://localhost:5173/"
+  if (currentURL !== "http://localhost:5173/") {
+    location.href = "http://localhost:5173/"
   }
 }
+
+const handleClose = (() => {
+  dialogVisible.value = false
+  location.href = "http://localhost:5173/"
+})
 
 </script>
 
@@ -79,12 +87,20 @@ if(toFindCookie() === undefined){
       <el-breadcrumb-item>...</el-breadcrumb-item>
     </div>
   </el-breadcrumb>
-  <el-text type="primary"><h2>{{ time }}</h2></el-text>
-  <span id="ShowBox"></span>
+  <el-text type="primary">{{ time }}</el-text>
   <el-divider/>
   <el-text type="">
     <router-view/>
   </el-text>
+
+  <el-dialog
+      v-model="dialogVisible"
+      title="時間到..."
+      width="20%"
+      :before-close="handleClose"
+  >
+    <el-text type="primary"><h2>請重新登入</h2></el-text>
+  </el-dialog>
 </template>
 
 <style scoped>
