@@ -229,7 +229,7 @@ function find() {
 }
 
 const multipleSelection = ref()
-const disabledTF = ref(false)
+const disabledTF = ref(true)
 /**
  * <h3>index 選擇多框選項A</h3>
  * @param val
