@@ -439,10 +439,6 @@ if(toFindCookie() === undefined){
     <span>{{ userNameValue }}</span>
     <el-header style="text-align: left; font-size: 12px; margin-top: 1%">
       <div class="toolbar">
-        <el-avatar :size="100">
-          <img src="@/components/img/img.png" alt="IMG">
-        </el-avatar>
-        &emsp;
         <el-text style="color: white"><p>Luke Chen's 記帳表</p></el-text>
         <div>
           &emsp;

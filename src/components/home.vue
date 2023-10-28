@@ -45,6 +45,7 @@ function goIn() {
           }
           fromData.userName = ''
           PubSub.publish('home', false)
+          dialogVisible.value = true
         } else {
           dataTF(true)
           addCookie(result)
@@ -55,6 +56,7 @@ function goIn() {
           show.value = true
           userNa.value = []
           PubSub.publish('home', true)
+          dialogVisible.value = false
         }
       })
 }
@@ -71,6 +73,7 @@ function goOut() {
   show.value = false
   show2.value = true
   PubSub.publish('home', false)
+  dialogVisible.value = false
 }
 
 if (userNameValue.value !== undefined) {
@@ -93,6 +96,7 @@ function getUserName() {
 
 PubSub.subscribe('home', function (msg, data) {
   dataTF(data)
+  userNameValue.value = toFindCookie()
 })
 
 function dataTF(data) {
@@ -104,48 +108,68 @@ function dataTF(data) {
   }
 }
 
-if(toFindCookie() === undefined){
+if (toFindCookie() === undefined) {
   let currentURL = window.location.href;
-  if(currentURL !== "http://localhost:5173/"){
-    location.href="http://localhost:5173/"
+  if (currentURL !== "http://localhost:5173/") {
+    location.href = "http://localhost:5173/"
   }
 }
+
+const dialogVisible = ref(false)
+const handleClose = (() => {
+  fromData.userName = ''
+  dialogVisible.value = false
+})
 
 </script>
 
 <template>
-  <el-container>
-    <el-aside width="200px">
-
-    </el-aside>
-    <el-aside>
-      <el-row>
-        <el-card shadow="never">
-          <el-form v-model="fromData">
-            <el-form-item label="暫時使用者">
-              <el-input :disabled="INP" type="text" maxlength="6" v-model="fromData.userName"/>
-            </el-form-item>
-            <el-form-item>
-              <el-button :disabled="CER" type="primary" @click="goIn">登入</el-button>
-              <el-button :disabled="OUT" type="primary" @click="goOut">登出</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </el-row>
-      <el-button link type="default" @click="getUserName">查詢暫時使用者</el-button>
-      <el-form-item>
-        <el-text type="success" v-for="un in userNa">{{ `${un}&emsp;` }}</el-text>
-      </el-form-item>
-      <el-form-item>
-        <el-text v-if="show" type="success" size="small"><h3>成功</h3></el-text>
-        <el-text v-else-if="show2" type="warning" size="small"><h3>請輸入使用者</h3></el-text>
-        <el-text v-else-if="show3" type="danger" size="small"><h3>失敗</h3></el-text>
-      </el-form-item>
-    </el-aside>
-    <el-main>
-
-    </el-main>
+  <el-container class="layout-container-demo">
+    <span>{{ userNameValue }}</span>
+    <el-header>
+      <div class="toolbar">
+        <h1>Luke's 作品集</h1>
+      </div>
+    </el-header>
+    <el-container>
+      <el-aside width="200px">
+        <el-button plain @click="dialogVisible = true">
+          使用者管理
+        </el-button>
+      </el-aside>
+      <el-container>
+        <el-main>Main</el-main>
+      </el-container>
+    </el-container>
   </el-container>
+  <el-dialog
+      v-model="dialogVisible"
+      width="400px"
+      :before-close="handleClose"
+  >
+    <el-row>
+      <el-card shadow="never">
+        <el-form v-model="fromData">
+          <el-form-item label="暫時使用者">
+            <el-input :disabled="INP" type="text" maxlength="6" v-model="fromData.userName"/>
+          </el-form-item>
+          <el-form-item>
+            <el-button :disabled="CER" type="primary" @click="goIn">登入</el-button>
+            <el-button :disabled="OUT" type="primary" @click="goOut">登出</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </el-row>
+    <el-button link type="default" @click="getUserName">查詢暫時使用者</el-button>
+    <el-form-item>
+      <el-text type="success" v-for="un in userNa">{{ `${un}&emsp;` }}</el-text>
+    </el-form-item>
+    <el-form-item>
+      <el-text v-if="show" type="success" size="small"><h3>成功</h3></el-text>
+      <el-text v-else-if="show2" type="warning" size="small"><h3>請輸入使用者</h3></el-text>
+      <el-text v-else-if="show3" type="danger" size="small"><h3>失敗</h3></el-text>
+    </el-form-item>
+  </el-dialog>
 </template>
 
 <style scoped>
@@ -155,7 +179,7 @@ if(toFindCookie() === undefined){
 }
 
 .layout-container-demo .el-header {
-  background-color: black;
+  background-color: white;
 }
 
 .layout-container-demo .toolbar {
