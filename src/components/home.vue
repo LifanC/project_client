@@ -16,7 +16,7 @@ const show2 = ref(true)
 const show3 = ref(true)
 
 userNameValue.value = toFindCookie()
-fromData.userName = userNameValue.value
+fromData.userName = toFindCookie()
 
 if (userNameValue.value !== undefined) {
   INP.value = true
@@ -97,6 +97,9 @@ function getUserName() {
 PubSub.subscribe('home', function (msg, data) {
   dataTF(data)
   userNameValue.value = toFindCookie()
+  if (toFindCookie() === undefined) {
+    userNameValue.value = '登出'
+  }
 })
 
 function dataTF(data) {
@@ -138,7 +141,9 @@ const handleClose = (() => {
         </el-button>
       </el-aside>
       <el-container>
-        <el-main>Main</el-main>
+        <el-main>
+          Main
+        </el-main>
       </el-container>
     </el-container>
   </el-container>
@@ -150,7 +155,7 @@ const handleClose = (() => {
     <el-row>
       <el-card shadow="never">
         <el-form v-model="fromData">
-          <el-form-item label="暫時使用者">
+          <el-form-item label="使用者">
             <el-input :disabled="INP" type="text" maxlength="6" v-model="fromData.userName"/>
           </el-form-item>
           <el-form-item>
@@ -160,7 +165,7 @@ const handleClose = (() => {
         </el-form>
       </el-card>
     </el-row>
-    <el-button link type="default" @click="getUserName">查詢暫時使用者</el-button>
+    <el-button link type="default" @click="getUserName">查詢使用者</el-button>
     <el-form-item>
       <el-text type="success" v-for="un in userNa">{{ `${un}&emsp;` }}</el-text>
     </el-form-item>
