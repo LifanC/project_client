@@ -12,7 +12,6 @@ userNameValue.value = toFindCookie()
 
 PubSub.subscribe('home', function (msg, data) {
   // console.log('data',data)
-  dataTF(data)
   if (data) {
     path_.value = '/'
     path_index.value = '/index'
@@ -42,17 +41,15 @@ if (userNameValue.value !== undefined) {
 
 const dialogVisible = ref(false)
 
-function dataTF(data) {
-  if (data) {
-    getApi('http://localhost:8080/go/time')
-        .then((result) => {
-          if (result) {
-            clearCookie()
-            dialogVisible.value = true
-          }
-        })
-  }
-}
+PubSub.subscribe('delateClearCookie', function (msg, data) {
+  getApi('http://localhost:8080/go/time')
+      .then((result) => {
+        if (result) {
+          clearCookie()
+          dialogVisible.value = true
+        }
+      })
+})
 
 if (toFindCookie() === undefined) {
   let currentURL = window.location.href;

@@ -47,7 +47,7 @@ function goIn() {
           PubSub.publish('home', false)
           dialogVisible.value = true
         } else {
-          dataTF(true)
+          PubSub.publish('delateClearCookie', true)
           addCookie(result)
           fromData.userName = result
           INP.value = true
@@ -88,28 +88,18 @@ if (userNameValue.value !== undefined) {
 const userNa = ref([])
 
 function getUserName() {
-  getApi('http://localhost:8080/go/getUserName')
+  getApi('http://localhost:8080/go/getUserNameAccount')
       .then((result) => {
         userNa.value = result
       })
 }
 
 PubSub.subscribe('home', function (msg, data) {
-  dataTF(data)
   userNameValue.value = toFindCookie()
   if (toFindCookie() === undefined) {
     userNameValue.value = '登出'
   }
 })
-
-function dataTF(data) {
-  if (data) {
-    getApi('http://localhost:8080/go/time')
-        .then((result) => {
-          clearCookie()
-        })
-  }
-}
 
 if (toFindCookie() === undefined) {
   let currentURL = window.location.href;
