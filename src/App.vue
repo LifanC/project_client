@@ -1,7 +1,9 @@
 <script setup>
+import {zeroPadding} from "@/components/componentsJs/ConvertPadding"
 
-const path_ = ref('/')
+const date = ref('')
 const time = ref('')
+const showUrl = ref(false)
 
 setInterval(() => {
   let NowDate = new Date()
@@ -11,30 +13,50 @@ setInterval(() => {
   let h = NowDate.getHours()
   let m = NowDate.getMinutes()
   let s = NowDate.getSeconds()
-  time.value = zeroPadding(Y, M, D, h, m, s)
+  date.value = Y + '/' + zeroPadding(M, 2) + '/' + zeroPadding(D, 2)
+  time.value = zeroPadding(h, 2) + ':' + zeroPadding(m, 2) + ':' + zeroPadding(s, 2)
 }, 1000)
 
-const zeroPadding = (Y, M, D, h, m, s) => {
-  let MzeroPadding = String(M).padStart(2, '0')
-  let DzeroPadding = String(D).padStart(2, '0')
-  let hzeroPadding = String(h).padStart(2, '0')
-  let mzeroPadding = String(m).padStart(2, '0')
-  let szeroPadding = String(s).padStart(2, '0')
-  let YMD = Y + '/' + MzeroPadding + '/' + DzeroPadding
-  let hms = hzeroPadding + ':' + mzeroPadding + ':' + szeroPadding
-  return YMD + ' ' + hms
+const handleSelect = (url) => {
+  location.href = "/" + url
 }
+
+PubSub.subscribe('IndexUrl', function (msg, data) {
+  // console.log(msg, data)
+  showUrl.value = data
+})
 
 </script>
 
 <template>
-  <el-breadcrumb separator="/">
-    <el-breadcrumb-item :to="{ path: path_ }">Home</el-breadcrumb-item>
-    <el-breadcrumb-item>...</el-breadcrumb-item>
-  </el-breadcrumb>
-  <el-text>{{ time }}</el-text>
-  <el-divider/>
-  <router-view/>
+  <el-container>
+    <el-header>
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item :to="{ path: '/' }">Index</el-breadcrumb-item>
+        <el-breadcrumb-item>...</el-breadcrumb-item>
+      </el-breadcrumb>
+      <el-text>{{ date }}&emsp;{{ time }}</el-text>
+    </el-header>
+    <el-container>
+      <el-aside width="200px">
+        <el-menu
+            @select="handleSelect"
+        >
+          <div v-if="showUrl">
+            <el-menu-item index="W001">
+              <el-text>W001</el-text>
+            </el-menu-item>
+            <el-menu-item index="W002">
+              <el-text>W002</el-text>
+            </el-menu-item>
+          </div>
+        </el-menu>
+      </el-aside>
+      <el-main>
+        <router-view/>
+      </el-main>
+    </el-container>
+  </el-container>
 </template>
 
 <style scoped>
