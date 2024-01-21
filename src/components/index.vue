@@ -10,17 +10,15 @@ const fromData = reactive({
 })
 
 const indexUrl = () => {
-  if (fromData.f_name !== '' && fromData.number !== '') {
-    axios({
-      method: 'post',
-      url: rearEnd + '/Index/' + indexUrl.name,
-      data: fromData
-    })
-        .then((response) => {
-          addCookie(fromData.f_name, fromData.number)
-          PubSub.publish('IndexUrl', response.data)
-        })
-  }
+  axios({
+    method: 'post',
+    url: rearEnd + '/Index/' + indexUrl.name,
+    data: fromData
+  })
+      .then((response) => {
+        addCookie(fromData.f_name, fromData.number)
+        PubSub.publish('IndexUrl', response.data)
+      })
 }
 
 const quitIndexUrl = () => {
