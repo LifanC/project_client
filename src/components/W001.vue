@@ -1,6 +1,7 @@
 <script setup>
 
 import axios from "axios";
+import {toFindCookie} from "@/components/componentsJs/cookie";
 
 const rearEnd = 'http://localhost:8080'
 const W001 = ref('')
@@ -13,6 +14,13 @@ function goW001() {
       .then((response) => {
         W001.value = response.data
       })
+}
+
+if (toFindCookie() === undefined) {
+  let currentURL = window.location.href;
+  if (currentURL !== 'http://localhost:5173/') {
+    location.href = 'http://localhost:5173/'
+  }
 }
 
 </script>

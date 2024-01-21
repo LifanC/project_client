@@ -8,27 +8,30 @@ const fromData = reactive({
   f_name: '',
   number: '',
 })
-const f_name_number = ref('')
-f_name_number.value = toFindCookie()
 
 const indexUrl = () => {
-  axios({
-    method: 'post',
-    url: rearEnd + '/Index/' + indexUrl.name,
-    data: fromData
-  })
-      .then((response) => {
-        addCookie(fromData.f_name, fromData.number)
-        PubSub.publish('IndexUrl', response.data)
-      })
-
+  if (fromData.f_name !== '' && fromData.number !== '') {
+    axios({
+      method: 'post',
+      url: rearEnd + '/Index/' + indexUrl.name,
+      data: fromData
+    })
+        .then((response) => {
+          addCookie(fromData.f_name, fromData.number)
+          PubSub.publish('IndexUrl', response.data)
+        })
+  }
 }
 
 const quitIndexUrl = () => {
   clearCookie()
+  PubSub.publish('IndexUrl', false)
 }
 
-console.log('toFindCookie',f_name_number.value)
+if (toFindCookie() !== undefined) {
+  fromData.f_name = toFindCookie().substring(0, 1)
+  fromData.number = toFindCookie().substring(1, 3)
+}
 
 </script>
 

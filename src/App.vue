@@ -1,5 +1,6 @@
 <script setup>
 import {zeroPadding} from "@/components/componentsJs/ConvertPadding"
+import {toFindCookie} from "@/components/componentsJs/cookie";
 
 const date = ref('')
 const time = ref('')
@@ -25,6 +26,9 @@ PubSub.subscribe('IndexUrl', function (msg, data) {
   // console.log(msg, data)
   showUrl.value = data
 })
+if (toFindCookie() !== undefined) {
+  showUrl.value = true
+}
 
 </script>
 
