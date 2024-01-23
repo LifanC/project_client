@@ -26,7 +26,7 @@ if (toFindCookie() === undefined) {
 </script>
 
 <template>
-  {{ W001 }}
+  {{ W001 }}測試
 </template>
 
 <style scoped>

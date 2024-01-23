@@ -24,7 +24,12 @@ const handleSelect = (url) => {
 
 PubSub.subscribe('IndexUrl', function (msg, data) {
   // console.log(msg, data)
-  showUrl.value = data
+  switch (data) {
+    case 'true': showUrl.value = true
+      break
+    case 'false': showUrl.value = false
+      break
+  }
 })
 if (toFindCookie() !== undefined) {
   showUrl.value = true
