@@ -63,12 +63,14 @@ if (toFindCookie() !== undefined) {
         <el-input v-model="fromData.f_name"
                   maxlength="1"
                   show-word-limit
+                  clearable
         />
       </el-form-item>
       <el-form-item label="Number">
         <el-input v-model="fromData.number"
                   maxlength="2"
                   show-word-limit
+                  clearable
         />
       </el-form-item>
     </el-form>
