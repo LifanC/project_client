@@ -13,7 +13,6 @@ vue3.js + element Plus + pubsub-js
 ## 啟動
 
 yarn dev
-
 <br>
 # project -> showWeb.md
 # [project_網頁畫面 master](https://github.com/LifanC/project_document/blob/master/showWeb.md)
