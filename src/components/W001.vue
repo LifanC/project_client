@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import {toFindCookie} from "@/components/componentsJs/cookie";
-import {setDefaultDateRange, calendar} from "@/components/componentsJs/W001.js";
+import {setDefaultDateRange} from "@/components/componentsJs/W001.js";
 
 const rearEnd = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
@@ -23,11 +23,12 @@ const fromData = reactive({
   input_money: 0,
   details: '',
   new_date: new Date(),
-  radio_group_value: '2',
+  radio_group_value: '6',
   radio_items: '',
   f_name: '',
   number: '',
   id: '',
+  setInputMoney: 0,
 })
 
 if (toFindCookie() === undefined) {
@@ -49,12 +50,13 @@ function W001UrlDefault() {
     }
   })
       .then((response) => {
-        tableW001.value = response.data
+        tableW001.value = response.data[0]
+        tableW0012.value = response.data[1]
       })
 }
 
 const insTypeValue = ref('')
-const radio_group_value = ref('2')
+const radio_group_value = ref('6')
 const radioItems = ref([
   {label: '收入', value: '1'},
   {label: '食物', value: '2'},
@@ -67,11 +69,18 @@ const datePicker = ref([])
 const defaultDateRange = ref([]);
 const tableW001 = ref([]);
 const W001_table_column = ref([
+  {'new_date_Format': '日期'},
   {'radio_items': '種類名稱'},
   {'expense_and_income_name': '選擇名稱'},
   {'input_money': '金額'},
-  {'details': '內容'},
-  {'new_date_Format': '日期'}
+  {'details': '內容'}
+])
+const tableW0012 = ref([]);
+const W001_table_column2 = ref([
+  {'new_date_Format': '日期'},
+  {'expense': '支出'},
+  {'income': '收入'},
+  {'totle_money': '總金額'}
 ])
 const modifyTF = ref(true)
 
@@ -112,13 +121,26 @@ const W001Type = (W001Type_type) => {
 const W001Url = (restfulApi_type) => {
   fromData.radio_group_value = radio_group_value.value
   fromData.radio_items = radioItems.value[+radio_group_value.value - 1].label
+  if (fromData.new_date === null) {
+    fromData.new_date = new Date()
+  }
   switch (restfulApi_type) {
     case 'Add' :
+      if (fromData.expense_and_income_number === 'A' && radio_group_value.value === '1') {
+        fromData.radio_group_value = '6'
+        radio_group_value.value = '6'
+        fromData.radio_items = radioItems.value[+radio_group_value.value - 1].label
+      }
+      if (fromData.expense_and_income_number === 'B') {
+        fromData.radio_group_value = '1'
+        radio_group_value.value = '1'
+      }
       axios.post(rearEnd + path + goW001.name + restfulApi_type, {
         GoW001: fromData
       })
           .then((response) => {
-            tableW001.value = response.data
+            tableW001.value = response.data[0]
+            tableW0012.value = response.data[1]
             fromData.input_money = 0
             fromData.details = ''
           })
@@ -128,7 +150,8 @@ const W001Url = (restfulApi_type) => {
         GoW001: fromData
       })
           .then((response) => {
-            tableW001.value = response.data
+            tableW001.value = response.data[0]
+            tableW0012.value = response.data[1]
           })
       break
     case 'Search' :
@@ -139,7 +162,7 @@ const W001Url = (restfulApi_type) => {
       fromData.input_money = 0
       fromData.details = ''
       fromData.new_date = new Date()
-      radio_group_value.value = '2'
+      radio_group_value.value = '6'
       modifyTF.value = true
       break
     case 'Modify' :
@@ -147,12 +170,13 @@ const W001Url = (restfulApi_type) => {
         GoW001: fromData
       })
           .then((response) => {
-            tableW001.value = response.data
+            tableW001.value = response.data[0]
+            tableW0012.value = response.data[1]
             fromData.expense_and_income_number = 'A'
             fromData.input_money = 0
             fromData.details = ''
             fromData.new_date = new Date()
-            radio_group_value.value = '2'
+            radio_group_value.value = '6'
             modifyTF.value = true
           })
       break
@@ -169,8 +193,10 @@ const modify = (row) => {
   radio_group_value.value = row.radio_group_value
   fromData.expense_and_income_number = row.expense_and_income_number
   fromData.input_money = row.input_money
+  fromData.setInputMoney = row.input_money
   fromData.details = row.details
   fromData.id = String(row.id)
+  fromData.new_date = row.upate_time
 }
 const confirmEventDelete = (row) => {
   axios.delete(rearEnd + path + confirmEventDelete.name, {
@@ -178,12 +204,19 @@ const confirmEventDelete = (row) => {
       id: row.id,
       new_date_Format: row.new_date_Format,
       f_name: row.f_name,
-      number: row.number
+      number: row.number,
+      expense_and_income_number: row.expense_and_income_number,
+      input_money: row.input_money,
     }
   })
       .then((response) => {
-        tableW001.value = response.data
+        tableW001.value = response.data[0]
+        tableW0012.value = response.data[1]
       })
+}
+
+const handleSelectionChange = (val) => {
+  console.log('val', val)
 }
 
 </script>
@@ -193,7 +226,7 @@ const confirmEventDelete = (row) => {
   <el-container>
     <el-header/>
     <el-container>
-      <el-main>
+      <el-aside width="500px">
         <el-row>
           <el-form-item>
             <el-date-picker
@@ -269,19 +302,38 @@ const confirmEventDelete = (row) => {
               </el-form-item>
               <el-form-item>
                 <el-button @click="W001Url('Add')">新增</el-button>
-                <el-button @click="W001Url('Clear')">清除</el-button>
                 <el-button :disabled="modifyTF" @click="W001Url('Modify')">修改</el-button>
+                <el-button @click="W001Url('Clear')">清除</el-button>
               </el-form-item>
             </el-form>
           </el-card>
         </el-space>
-        <el-divider/>
+      </el-aside>
+      <el-main>
+        <el-row>
+          <el-table
+              :data="tableW0012"
+              @selection-change="handleSelectionChange"
+              height="250px" border
+              style="width: 1000px"
+              v-if="tableW0012.length > 0"
+          >
+            <el-table-column type="selection" width="55px"/>
+            <el-table-column
+                v-for="i in W001_table_column2"
+                :label="i[Object.keys(i)[0]].toString()"
+                :prop="Object.keys(i).toString()"
+            />
+          </el-table>
+        </el-row>
         <el-row>
           <el-table
               :data="tableW001"
               border
-              height="500px"
-              style="width: 1000px">
+              height="250px"
+              style="width: 1000px"
+              v-if="tableW001.length > 0"
+          >
             >
             <el-table-column
                 label="功能"

@@ -47,7 +47,7 @@ if (toFindCookie() !== undefined) {
       <el-text>{{ date }}&emsp;{{ time }}</el-text>
     </el-header>
     <el-container>
-      <el-aside width="200px">
+      <el-aside width="80px">
         <el-menu
             @select="handleSelect"
         >

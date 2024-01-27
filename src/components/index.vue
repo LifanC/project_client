@@ -20,9 +20,6 @@ const indexUrl = (restfulApi_type) => {
     data: fromData
   })
       .then((response) => {
-        // ['true', 'Login Success']
-        // ['false', 'Login Fail']
-        // console.log(response.data)
         if (response.data[0] === 'true') {
           if (restfulApi_type === 'Delete') {
             quitIndexUrl()

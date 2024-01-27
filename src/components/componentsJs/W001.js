@@ -22,19 +22,6 @@ function formatDate(date) {
     return `${year}/${month}/${day}`;
 }
 
-/**
- * <h3>顯示 今天日期</h3>
- * @param date 要format的日期
- * @returns {string} 2023/01/01
- */
-function calendar(date){
-    let todayDate = date
-    let year = todayDate.getFullYear()
-    let month = todayDate.getMonth() + 1
-    let day = todayDate.getDate()
-    return `${year}/${month}/${day}`
-}
-
 export {
-    setDefaultDateRange, calendar
+    setDefaultDateRange
 }
