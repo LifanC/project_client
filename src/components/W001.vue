@@ -142,8 +142,8 @@ const W001Url = (restfulApi_type) => {
       radio_group_value.value = '2'
       modifyTF.value = true
       break
-    case 'modify' :
-      axios.put(rearEnd + path + modify.name, {
+    case 'Modify' :
+      axios.put(rearEnd + path + goW001.name + restfulApi_type, {
         GoW001: fromData
       })
           .then((response) => {
@@ -270,7 +270,7 @@ const confirmEventDelete = (row) => {
               <el-form-item>
                 <el-button @click="W001Url('Add')">新增</el-button>
                 <el-button @click="W001Url('Clear')">清除</el-button>
-                <el-button :disabled="modifyTF" @click="W001Url('modify')">修改</el-button>
+                <el-button :disabled="modifyTF" @click="W001Url('Modify')">修改</el-button>
               </el-form-item>
             </el-form>
           </el-card>
