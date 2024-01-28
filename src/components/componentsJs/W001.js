@@ -15,11 +15,11 @@ function setDefaultDateRange() {
  * @param date 要format的日期
  * @returns {string} Date() 例:2023/01/01
  */
-function formatDate(date) {
+const formatDate = (date) => {
     let year = date.getFullYear();
     let month = String(date.getMonth() + 1).padStart(2, '0');
     let day = String(date.getDate()).padStart(2, '0');
-    return `${year}/${month}/${day}`;
+    return `${year}-${month}-${day}`;
 }
 
 export {
