@@ -65,8 +65,7 @@ const radioItems = ref([
   {label: '3C', value: '5'},
   {label: '其他', value: '6'}
 ])
-const datePicker = ref([])
-const defaultDateRange = ref([]);
+const datePicker = ref(setDefaultDateRange())
 const tableW001 = ref([]);
 const W001_table_column = ref([
   {'new_date_Format': '日期'},
@@ -82,10 +81,9 @@ const W001_table_column2 = ref([
   {'income': '收入'},
   {'totle_money': '總金額'}
 ])
-const modifyTF = ref(true)
 
-defaultDateRange.value = setDefaultDateRange()
-datePicker.value = setDefaultDateRange()
+const addTF = ref(true)
+const modifyTF = ref(true)
 
 /**
  * <h3>分類W001Type方法</h3>
@@ -119,6 +117,7 @@ const W001Type = (W001Type_type) => {
  * <h3>分類W001Url方法</h3>
  */
 const W001Url = (restfulApi_type) => {
+  Start_printIreport.value = []
   fromData.radio_group_value = radio_group_value.value
   fromData.radio_items = radioItems.value[+radio_group_value.value - 1].label
   if (fromData.new_date === null) {
@@ -155,7 +154,16 @@ const W001Url = (restfulApi_type) => {
           })
       break
     case 'Search' :
-
+      if (datePicker.value === null) {
+        datePicker.value = setDefaultDateRange()
+      }
+      axios.post(rearEnd + path + goW001.name + restfulApi_type, {
+        GoW001_datePicker: datePicker.value
+      })
+          .then((response) => {
+            tableW001.value = response.data[0]
+            tableW0012.value = response.data[1]
+          })
       break
     case 'Clear' :
       fromData.expense_and_income_number = 'A'
@@ -164,6 +172,7 @@ const W001Url = (restfulApi_type) => {
       fromData.new_date = new Date()
       radio_group_value.value = '6'
       modifyTF.value = true
+      datePicker.value = setDefaultDateRange()
       break
     case 'Modify' :
       axios.put(rearEnd + path + goW001.name + restfulApi_type, {
@@ -183,9 +192,35 @@ const W001Url = (restfulApi_type) => {
   }
 }
 
+const printIreport_Array = ref([])
+const handleSelectionChange = (val) => {
+  printIreport_Array.value = []
+  if (val.length > 0) {
+    for (let valKey in val) {
+      printIreport_Array.value.push(val[valKey])
+    }
+  }
+}
+
+const Start_printIreport = ref([])
+const printIreport = () => {
+  Start_printIreport.value = []
+  axios.post(rearEnd + path + goW001.name + printIreport.name, {
+    GoW001_print: printIreport_Array.value
+  })
+      .then((response) => {
+        Start_printIreport.value.push(response.data[0],response.data[1])
+      })
+}
+
 const less_than_zero = () => {
   fromData.input_money = (fromData.input_money < 0) ? 0 : fromData.input_money
   fromData.input_money = (fromData.input_money === '') ? 0 : fromData.input_money
+  if (fromData.input_money > 0) {
+    addTF.value = false
+  } else {
+    addTF.value = true
+  }
 }
 
 const modify = (row) => {
@@ -215,10 +250,6 @@ const confirmEventDelete = (row) => {
       })
 }
 
-const handleSelectionChange = (val) => {
-  console.log('val', val)
-}
-
 </script>
 
 <template>
@@ -233,13 +264,19 @@ const handleSelectionChange = (val) => {
                 v-model="datePicker"
                 type="daterange"
                 format="YYYY-MM-DD"
-                value-format="YYYY/MM/DD"
+                value-format="YYYY-MM-DD"
                 range-separator="~"
                 start-placeholder="Start"
                 end-placeholder="End"
             />
             &emsp;
             <el-button @click="W001Url('Search')">查詢</el-button>
+          </el-form-item>
+          <el-form-item label="選擇日期">
+            <el-button @click="printIreport()">列印報表</el-button>
+          </el-form-item>
+          <el-form-item>
+            &emsp;{{ Start_printIreport[0] }}&emsp;{{ Start_printIreport[1] }}
           </el-form-item>
         </el-row>
         <el-space wrap>
@@ -301,7 +338,7 @@ const handleSelectionChange = (val) => {
                 <el-button @click="W001Url('Single_search')">單一查詢</el-button>
               </el-form-item>
               <el-form-item>
-                <el-button @click="W001Url('Add')">新增</el-button>
+                <el-button :disabled="addTF" @click="W001Url('Add')">新增</el-button>
                 <el-button :disabled="modifyTF" @click="W001Url('Modify')">修改</el-button>
                 <el-button @click="W001Url('Clear')">清除</el-button>
               </el-form-item>
