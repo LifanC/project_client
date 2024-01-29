@@ -117,6 +117,7 @@ const W001Type = (W001Type_type) => {
  * <h3>分類W001Url方法</h3>
  */
 const W001Url = (restfulApi_type) => {
+  Start_printIreport.value = []
   fromData.radio_group_value = radio_group_value.value
   fromData.radio_items = radioItems.value[+radio_group_value.value - 1].label
   if (fromData.new_date === null) {
@@ -203,12 +204,12 @@ const handleSelectionChange = (val) => {
 
 const Start_printIreport = ref([])
 const printIreport = () => {
+  Start_printIreport.value = []
   axios.post(rearEnd + path + goW001.name + printIreport.name, {
     GoW001_print: printIreport_Array.value
   })
       .then((response) => {
-        Start_printIreport.value.push(response.data[0])
-        Start_printIreport.value.push(response.data[1])
+        Start_printIreport.value.push(response.data[0],response.data[1])
       })
 }
 
