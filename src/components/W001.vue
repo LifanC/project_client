@@ -81,7 +81,7 @@ const W001_table_column2 = ref([
   {'income': '收入'},
   {'totle_money': '總金額'}
 ])
-const printTF = ref(true)
+
 const addTF = ref(true)
 const modifyTF = ref(true)
 
@@ -193,26 +193,22 @@ const W001Url = (restfulApi_type) => {
 
 const printIreport_Array = ref([])
 const handleSelectionChange = (val) => {
-  console.log(val)
   printIreport_Array.value = []
   if (val.length > 0) {
-    printTF.value = false
     for (let valKey in val) {
       printIreport_Array.value.push(val[valKey])
     }
-    console.log('typeof',typeof printIreport_Array.value)
-  } else {
-    printTF.value = true
   }
 }
 
+const Start_printIreport = ref([])
 const printIreport = () => {
   axios.post(rearEnd + path + goW001.name + printIreport.name, {
     GoW001_print: printIreport_Array.value
   })
       .then((response) => {
-        console.log(response.data[0])
-        console.log(response.data[1])
+        Start_printIreport.value.push(response.data[0])
+        Start_printIreport.value.push(response.data[1])
       })
 }
 
@@ -276,7 +272,10 @@ const confirmEventDelete = (row) => {
             <el-button @click="W001Url('Search')">查詢</el-button>
           </el-form-item>
           <el-form-item label="選擇日期">
-            <el-button :disabled="printTF" @click="printIreport()">列印報表</el-button>
+            <el-button @click="printIreport()">列印報表</el-button>
+          </el-form-item>
+          <el-form-item>
+            &emsp;{{ Start_printIreport[0] }}&emsp;{{ Start_printIreport[1] }}
           </el-form-item>
         </el-row>
         <el-space wrap>
