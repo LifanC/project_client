@@ -32,10 +32,7 @@ const fromData = reactive({
 })
 
 if (toFindCookie() === undefined) {
-  let currentURL = window.location.href;
-  if (currentURL !== frontEnd + path) {
-    location.href = frontEnd + path
-  }
+  location.href = frontEnd
 } else {
   fromData.f_name = toFindCookie().substring(0, 1)
   fromData.number = toFindCookie().substring(1, 3)
@@ -209,7 +206,7 @@ const printIreport = () => {
     GoW001_print: printIreport_Array.value
   })
       .then((response) => {
-        Start_printIreport.value.push(response.data[0],response.data[1])
+        Start_printIreport.value.push(response.data[0], response.data[1])
       })
 }
 
@@ -253,13 +250,15 @@ const confirmEventDelete = (row) => {
 </script>
 
 <template>
-  {{ W001 }}
   <el-container>
-    <el-header/>
+    <el-header>{{ W001 }}</el-header>
     <el-container>
-      <el-aside width="500px">
-        <el-row>
-          <el-form-item>
+      <el-aside width="450px">
+        <el-descriptions
+            direction="horizontal"
+            :column="2"
+        >
+          <el-descriptions-item>
             <el-date-picker
                 v-model="datePicker"
                 type="daterange"
@@ -268,37 +267,35 @@ const confirmEventDelete = (row) => {
                 range-separator="~"
                 start-placeholder="Start"
                 end-placeholder="End"
+                style="width: 200px"
             />
-            &emsp;
+          </el-descriptions-item>
+          <el-descriptions-item>
             <el-button @click="W001Url('Search')">查詢</el-button>
-          </el-form-item>
-          <el-form-item label="選擇日期">
+          </el-descriptions-item>
+          <el-descriptions-item span="2">
             <el-button @click="printIreport()">列印報表</el-button>
-          </el-form-item>
-          <el-form-item>
-            &emsp;{{ Start_printIreport[0] }}&emsp;{{ Start_printIreport[1] }}
-          </el-form-item>
-        </el-row>
+            {{ Start_printIreport[0] }}&emsp;{{ Start_printIreport[1] }}
+          </el-descriptions-item>
+        </el-descriptions>
         <el-space wrap>
-          <el-card shadow="always">
-            <el-form v-model="fromData">
-              <el-form-item label="新增其他種類">
+          <el-form v-model="fromData">
+            <el-descriptions
+                direction="vertical"
+                :column="2"
+                border
+            >
+              <el-descriptions-item label="新增種類" span="2" label-align="center">
                 <el-input
                     v-model="insTypeValue"
                     type="text"
                     size="small"
-                    style="width: 250px;height: 100%"
+                    style="width: 100px"
                 />
-              </el-form-item>
-              <el-form-item>
-                <el-button size="small"
-                           @click="W001Type('insType')">新增暫存種類
-                </el-button>
-                <el-button size="small"
-                           @click="W001Type('insTypeClear')">清除暫存種類
-                </el-button>
-              </el-form-item>
-              <el-form-item label="種類">
+                <el-button-group>
+                  <el-button size="small" @click="W001Type('insType')">新增</el-button>
+                  <el-button size="small" @click="W001Type('insTypeClear')">清除</el-button>
+                </el-button-group>
                 <el-radio-group
                     v-model="radio_group_value"
                 >
@@ -310,40 +307,44 @@ const confirmEventDelete = (row) => {
                   >({{ radioItem.value }}) {{ radioItem.label }}
                   </el-radio-button>
                 </el-radio-group>
-              </el-form-item>
-              <el-form-item label="選擇">
+              </el-descriptions-item>
+              <el-descriptions-item label="選擇" label-align="center">
                 <el-radio-group
                     v-model="fromData.expense_and_income_number"
                 >
-                  <el-radio size="small" label="A">支出</el-radio>
-                  <el-radio size="small" label="B">收入</el-radio>
+                  <el-radio-button size="small" label="A">支出</el-radio-button>
+                  <el-radio-button size="small" label="B">收入</el-radio-button>
                 </el-radio-group>
-              </el-form-item>
-              <el-form-item label="金額">
+              </el-descriptions-item>
+              <el-descriptions-item label="金額" label-align="center">
                 <el-input
                     v-model.number="fromData.input_money"
                     @input="less_than_zero"
                 />
-              </el-form-item>
-              <el-form-item label="支出、收入內容">
+              </el-descriptions-item>
+              <el-descriptions-item label="內容" label-align="center">
                 <el-input
-                    v-model="fromData.details" type="textarea" style="width: 100%;height: 100%"/>
-              </el-form-item>
-              <el-form-item label="日期">
+                    v-model="fromData.details"
+                    type="textarea"
+                />
+              </el-descriptions-item>
+              <el-descriptions-item label="日期" label-align="center">
                 <el-date-picker
                     v-model="fromData.new_date"
                     type="date"
+                    style="width: 120px"
                 />
-                &emsp;
-                <el-button @click="W001Url('Single_search')">單一查詢</el-button>
-              </el-form-item>
-              <el-form-item>
-                <el-button :disabled="addTF" @click="W001Url('Add')">新增</el-button>
-                <el-button :disabled="modifyTF" @click="W001Url('Modify')">修改</el-button>
-                <el-button @click="W001Url('Clear')">清除</el-button>
-              </el-form-item>
-            </el-form>
-          </el-card>
+                <el-button
+                    @click="W001Url('Single_search')">單一查詢
+                </el-button>
+                <el-button-group>
+                  <el-button size="small" :disabled="addTF" @click="W001Url('Add')">新增</el-button>
+                  <el-button size="small" :disabled="modifyTF" @click="W001Url('Modify')">修改</el-button>
+                  <el-button size="small" @click="W001Url('Clear')">清除</el-button>
+                </el-button-group>
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-form>
         </el-space>
       </el-aside>
       <el-main>
