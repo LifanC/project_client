@@ -285,7 +285,7 @@ const confirmEventDelete = (row) => {
                 :column="2"
                 border
             >
-              <el-descriptions-item label="新增種類" span="2" label-align="center">
+              <el-descriptions-item label="新增種類" span="2" label-align="center" align="center">
                 <el-input
                     v-model="insTypeValue"
                     type="text"
@@ -308,7 +308,7 @@ const confirmEventDelete = (row) => {
                   </el-radio-button>
                 </el-radio-group>
               </el-descriptions-item>
-              <el-descriptions-item label="選擇" label-align="center">
+              <el-descriptions-item label="選擇" label-align="center" align="center">
                 <el-radio-group
                     v-model="fromData.expense_and_income_number"
                 >
@@ -316,19 +316,19 @@ const confirmEventDelete = (row) => {
                   <el-radio-button size="small" label="B">收入</el-radio-button>
                 </el-radio-group>
               </el-descriptions-item>
-              <el-descriptions-item label="金額" label-align="center">
+              <el-descriptions-item label="金額" label-align="center" align="center">
                 <el-input
                     v-model.number="fromData.input_money"
                     @input="less_than_zero"
                 />
               </el-descriptions-item>
-              <el-descriptions-item label="內容" label-align="center">
+              <el-descriptions-item label="內容" label-align="center" align="center">
                 <el-input
                     v-model="fromData.details"
                     type="textarea"
                 />
               </el-descriptions-item>
-              <el-descriptions-item label="日期" label-align="center">
+              <el-descriptions-item label="日期" label-align="center" align="center">
                 <el-date-picker
                     v-model="fromData.new_date"
                     type="date"
