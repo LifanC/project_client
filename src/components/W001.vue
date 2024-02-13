@@ -6,7 +6,7 @@ import {setDefaultDateRange} from "@/components/componentsJs/W001.js";
 
 const rearEnd = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
-const path = window.location.pathname + '/';
+const path = window.location.pathname + '/'
 const W001 = ref('')
 
 goW001()
