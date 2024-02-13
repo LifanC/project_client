@@ -24,7 +24,13 @@ if (toFindCookie() === undefined) {
 </script>
 
 <template>
-  {{ W002 }}測試
+  <el-container>
+    <el-header>{{ W002 }}</el-header>
+    <el-container>
+      <el-aside width="200px">Aside</el-aside>
+      <el-main>Main</el-main>
+    </el-container>
+  </el-container>
 </template>
 
 <style scoped>

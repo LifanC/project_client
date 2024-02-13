@@ -375,27 +375,27 @@ const confirmEventDelete = (row) => {
             >
             <el-table-column
                 label="功能"
-                width="200px"
+                width="150%"
             >
-              <template #default="scope">
-                <el-button
-                    link
-                    type="primary"
-                    @click.prevent="modify(scope.row)"
-                >修改金額
-                </el-button>
-                <el-popconfirm
-                    width="220"
-                    confirm-button-text="確定"
-                    cancel-button-text="取消"
-                    title="確定要刪除嗎?"
-                    @confirm="confirmEventDelete(scope.row)"
-                >
-                  <template #reference>
-                    <el-button link type="primary">刪除資料</el-button>
-                  </template>
-                </el-popconfirm>
-              </template>
+              <el-button-group>
+                <template #default="scope">
+                  <el-button
+                      @click.prevent="modify(scope.row)"
+                  >修改
+                  </el-button>
+                  <el-popconfirm
+                      width="220"
+                      confirm-button-text="確定"
+                      cancel-button-text="取消"
+                      title="確定要刪除嗎?"
+                      @confirm="confirmEventDelete(scope.row)"
+                  >
+                    <template #reference>
+                      <el-button>刪除</el-button>
+                    </template>
+                  </el-popconfirm>
+                </template>
+              </el-button-group>
             </el-table-column>
             <el-table-column
                 v-for="i in W001_table_column"
