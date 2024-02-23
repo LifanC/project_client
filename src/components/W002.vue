@@ -19,14 +19,20 @@ function goW002() {
 }
 
 const fromData = reactive({
+  f_name: '',
+  number: '',
   a_value: '',
   b_value: '',
+  // 分類
   c_value: '',
+  // Ex
   d_value: '',
+  // 備註
   e_value: '',
+  // 數量
   f_value: '',
+  // 金額
   g_value: '',
-  h_value: '',
 })
 
 if (toFindCookie() === undefined) {
@@ -36,6 +42,26 @@ if (toFindCookie() === undefined) {
   fromData.b_value = (dateConversionYMDhms(false)
       .replace(/\D/g, '')
       .substring(8, 0)) + '000001'
+  fromData.f_name = toFindCookie().substring(0, 1)
+  fromData.number = toFindCookie().substring(1, 3)
+  W002UrlDefault()
+}
+
+const all_totle = ref(0)
+function W002UrlDefault() {
+  axios.get(rearEnd + path + W002UrlDefault.name, {
+    params: {
+      f_name: fromData.f_name,
+      number: fromData.number
+    }
+  })
+      .then((response) => {
+        tableW002.value = response.data[0]
+        all_totle.value = 0
+        for (let num in tableW002.value) {
+          all_totle.value += +tableW002.value[num].total
+        }
+      })
 }
 
 const typeSelects = ref([
@@ -56,21 +82,19 @@ const selectProductCategory = (selectValue) => {
 
 const tableW002 = ref([])
 const W002_table_column = ref([
-  {'a_value': 'a_value'},
-  {'b_value': 'b_value'},
-  {'c_value': 'c_value'},
-  {'d_value': 'd_value'},
-  {'e_value': 'e_value'},
-  {'f_value': 'f_value'},
-  {'g_value': 'g_value'},
-  {'h_value': 'h_value'}
+  {'m_code': '編號'},
+  {'remark': '備註'},
+  {'quantity': '數量'},
+  {'amount': '金額'},
+  {'total': '總金額'}
 ])
 
+const h_totle = ref('')
 const calc = () => {
   fromData.f_value = fromData.f_value <= 0 ? '' : fromData.f_value;
   fromData.g_value = fromData.g_value <= 0 ? '' : fromData.g_value;
   if (fromData.f_value !== '' && fromData.g_value !== '') {
-    fromData.h_value = fromData.f_value * fromData.g_value;
+    h_totle.value = fromData.f_value * fromData.g_value;
   }
 }
 
@@ -78,22 +102,31 @@ const W002Url = (restfulApi_type) => {
   switch (restfulApi_type) {
     case 'Add' :
       let patternNum = /^\d+$/
-      if (fromData.c_value === '' ||
-          fromData.d_value.length !== 3 ||
-          !patternNum.test(fromData.d_value) ||
-          fromData.e_value === '' ||
-          fromData.f_value === '' ||
-          fromData.g_value === '' ||
-          fromData.h_value === ''
-      ) {
+      if ([
+        fromData.c_value,
+        fromData.d_value,
+        fromData.e_value,
+        fromData.f_value,
+        fromData.g_value
+      ].some(value => value === '')) {
         return
       }
-      console.log(fromData)
+      if (!patternNum.test(fromData.d_value)) return
       axios.post(rearEnd + path + goW002.name + restfulApi_type, {
         GoW002: fromData
       })
           .then((response) => {
-            console.log(response.data)
+            tableW002.value = response.data[0]
+            fromData.c_value = ''
+            fromData.d_value = ''
+            fromData.e_value = ''
+            fromData.f_value = ''
+            fromData.g_value = ''
+            h_totle.value = ''
+            all_totle.value = 0
+            for (let num in tableW002.value) {
+              all_totle.value += +tableW002.value[num].total
+            }
           })
       break
   }
@@ -105,7 +138,7 @@ const W002Url = (restfulApi_type) => {
   <el-container>
     <el-header>{{ W002 }}</el-header>
     <el-container>
-      <el-aside width="290px">
+      <el-aside width="330px">
         <el-text>範例 : L0720240218000001A001</el-text>
         <el-form v-model="fromData">
           <el-form-item>
@@ -114,7 +147,7 @@ const W002Url = (restfulApi_type) => {
                 filterable
                 placeholder="分類"
                 clearable
-                style="width: 290px"
+                style="width: 330px"
                 @change="selectProductCategory"
             >
               <el-option v-for="typeSelect in typeSelects"
@@ -145,45 +178,57 @@ const W002Url = (restfulApi_type) => {
                 disabled
             />
             <el-input
-                style="width: 50px"
+                style="width: 90px"
                 maxlength="3"
                 v-model="fromData.d_value"
+                placeholder="Ex : 001"
             />
             <el-input
-                style="width: 290px"
+                style="width: 335px"
                 :rows="2"
                 type="textarea"
-                placeholder="內容"
+                placeholder="備註"
                 v-model="fromData.e_value"
             />
             <el-input
-                style="width: 100px"
+                style="width: 120px"
                 type="number"
                 placeholder="數量"
                 v-model.number="fromData.f_value"
                 @input="calc"
             />
             <el-input
-                style="width: 190px"
+                style="width: 210px"
                 type="number"
                 placeholder="金額"
                 v-model.number="fromData.g_value"
                 @input="calc"
             />
             <el-input
-                style="width: 290px"
+                style="width: 330px"
                 readonly
                 disabled
                 type="number"
                 placeholder="總金額"
-                v-model.number="fromData.h_value"
+                :value="h_totle"
             />
-            <el-button
-                style="width: 290px"
-                @click="W002Url('Add')"
-            >
-              新增
-            </el-button>
+            <el-button-group>
+              <el-button
+                  style="width: 110px"
+                  @click="W002Url('Add')"
+              >新增
+              </el-button>
+              <el-button
+                  style="width: 110px"
+                  @click="W002Url('Modify')"
+              >修改
+              </el-button>
+              <el-button
+                  style="width: 110px"
+                  @click="W002Url('Delete')"
+              >刪除
+              </el-button>
+            </el-button-group>
           </el-form-item>
         </el-form>
       </el-aside>
@@ -195,6 +240,9 @@ const W002Url = (restfulApi_type) => {
             style="width: 1000px"
             v-if="tableW002.length > 0"
         >
+          <template #append>
+            <el-text size="large" type="warning">&emsp;總開銷&emsp;{{ all_totle }}</el-text>
+          </template>
           <el-table-column
               v-for="i in W002_table_column"
               :label="i[Object.keys(i)[0]].toString()"

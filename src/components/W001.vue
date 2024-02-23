@@ -377,8 +377,8 @@ const confirmEventDelete = (row) => {
                 label="功能"
                 width="150%"
             >
-              <el-button-group>
-                <template #default="scope">
+              <template #default="scope">
+                <el-button-group>
                   <el-button
                       @click.prevent="modify(scope.row)"
                   >修改
@@ -394,8 +394,8 @@ const confirmEventDelete = (row) => {
                       <el-button>刪除</el-button>
                     </template>
                   </el-popconfirm>
-                </template>
-              </el-button-group>
+                </el-button-group>
+              </template>
             </el-table-column>
             <el-table-column
                 v-for="i in W001_table_column"

@@ -41,16 +41,16 @@ if (toFindCookie() !== undefined) {
       <el-text>{{ date }}</el-text>
     </el-header>
     <el-container>
-      <el-aside width="80px">
+      <el-aside width="150px">
         <el-menu
             @select="handleSelect"
         >
           <div v-if="showUrl">
             <el-menu-item index="W001">
-              <el-text>W001</el-text>
+              <el-text>記帳系統</el-text>
             </el-menu-item>
             <el-menu-item index="W002">
-              <el-text>W002</el-text>
+              <el-text>總務系統</el-text>
             </el-menu-item>
           </div>
         </el-menu>
