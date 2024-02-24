@@ -47,10 +47,10 @@ if (toFindCookie() !== undefined) {
         >
           <div v-if="showUrl">
             <el-menu-item index="W001">
-              <el-text>記帳系統</el-text>
+              <el-text>記帳系統 W001</el-text>
             </el-menu-item>
             <el-menu-item index="W002">
-              <el-text>總務系統</el-text>
+              <el-text>總務系統 W002</el-text>
             </el-menu-item>
           </div>
         </el-menu>

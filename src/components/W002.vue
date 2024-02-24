@@ -19,6 +19,7 @@ function goW002() {
 }
 
 const fromData = reactive({
+  id: '',
   f_name: '',
   number: '',
   a_value: '',
@@ -33,6 +34,7 @@ const fromData = reactive({
   f_value: '',
   // 金額
   g_value: '',
+  new_date: new Date(),
 })
 
 if (toFindCookie() === undefined) {
@@ -47,7 +49,17 @@ if (toFindCookie() === undefined) {
   W002UrlDefault()
 }
 
-const all_totle = ref(0)
+const all_totle_w001_ex = ref(0)
+const all_totle_w001_ic = ref(0)
+const tableW0012 = ref([]);
+const W001_table_column2 = ref([
+  {'new_date_Format': '日期'},
+  {'expense': '支出'},
+  {'income': '收入'},
+  {'totle_money': '總金額'}
+])
+const all_totle_w002 = ref(0)
+
 function W002UrlDefault() {
   axios.get(rearEnd + path + W002UrlDefault.name, {
     params: {
@@ -57,9 +69,24 @@ function W002UrlDefault() {
   })
       .then((response) => {
         tableW002.value = response.data[0]
-        all_totle.value = 0
+        all_totle_w002.value = 0
         for (let num in tableW002.value) {
-          all_totle.value += +tableW002.value[num].total
+          all_totle_w002.value += +tableW002.value[num].total
+        }
+      })
+  axios.get(rearEnd + '/W001/W001UrlDefault', {
+    params: {
+      f_name: fromData.f_name,
+      number: fromData.number
+    }
+  })
+      .then((response) => {
+        tableW0012.value = response.data[1]
+        all_totle_w001_ex.value = 0
+        all_totle_w001_ic.value = 0
+        for (let num in tableW0012.value) {
+          all_totle_w001_ex.value += +tableW0012.value[num].expense
+          all_totle_w001_ic.value += +tableW0012.value[num].income
         }
       })
 }
@@ -86,7 +113,8 @@ const W002_table_column = ref([
   {'remark': '備註'},
   {'quantity': '數量'},
   {'amount': '金額'},
-  {'total': '總金額'}
+  {'total': '總金額'},
+  {'new_date': '日期'}
 ])
 
 const h_totle = ref('')
@@ -98,6 +126,8 @@ const calc = () => {
   }
 }
 
+const addTF = ref(false)
+const modifyTF = ref(true)
 const W002Url = (restfulApi_type) => {
   switch (restfulApi_type) {
     case 'Add' :
@@ -112,6 +142,9 @@ const W002Url = (restfulApi_type) => {
         return
       }
       if (!patternNum.test(fromData.d_value)) return
+      if (fromData.new_date === null) {
+        fromData.new_date = new Date()
+      }
       axios.post(rearEnd + path + goW002.name + restfulApi_type, {
         GoW002: fromData
       })
@@ -123,13 +156,70 @@ const W002Url = (restfulApi_type) => {
             fromData.f_value = ''
             fromData.g_value = ''
             h_totle.value = ''
-            all_totle.value = 0
+            productCategory.value = ''
+            all_totle_w002.value = 0
             for (let num in tableW002.value) {
-              all_totle.value += +tableW002.value[num].total
+              all_totle_w002.value += +tableW002.value[num].total
+            }
+          })
+      break
+    case 'Modify' :
+      axios.put(rearEnd + path + goW002.name + restfulApi_type, {
+        GoW002: fromData
+      })
+          .then((response) => {
+            addTF.value = false
+            tableW002.value = response.data[0]
+            fromData.c_value = ''
+            fromData.d_value = ''
+            fromData.e_value = ''
+            fromData.f_value = ''
+            fromData.g_value = ''
+            h_totle.value = ''
+            all_totle_w002.value = 0
+            for (let num in tableW002.value) {
+              all_totle_w002.value += +tableW002.value[num].total
             }
           })
       break
   }
+}
+
+const modify = (row) => {
+  addTF.value = true
+  modifyTF.value = false
+  fromData.id = String(row.id)
+  fromData.a_value = row.m_code.substring(0, 3)
+  fromData.b_value = row.m_code.substring(3, 17)
+  fromData.c_value = row.m_code.substring(17, 18)
+  fromData.d_value = row.m_code.substring(18, 21)
+  fromData.e_value = row.remark
+  fromData.f_value = row.quantity
+  fromData.g_value = row.amount
+  h_totle.value = fromData.f_value * fromData.g_value;
+}
+
+const confirmEventDelete = (row) => {
+  axios.delete(rearEnd + path + confirmEventDelete.name, {
+    params: {
+      id: row.id,
+      f_name: row.m_code.substring(0, 2),
+      number: row.m_code.substring(2, 3),
+    }
+  })
+      .then((response) => {
+        tableW002.value = response.data[0]
+        fromData.c_value = ''
+        fromData.d_value = ''
+        fromData.e_value = ''
+        fromData.f_value = ''
+        fromData.g_value = ''
+        h_totle.value = ''
+        all_totle_w002.value = 0
+        for (let num in tableW002.value) {
+          all_totle_w002.value += +tableW002.value[num].total
+        }
+      })
 }
 
 </script>
@@ -212,43 +302,95 @@ const W002Url = (restfulApi_type) => {
                 placeholder="總金額"
                 :value="h_totle"
             />
+            <el-date-picker
+                v-model="fromData.new_date"
+                type="date"
+                style="width: 330px"
+            />
             <el-button-group>
               <el-button
-                  style="width: 110px"
+                  :disabled="addTF"
+                  style="width: 165px"
                   @click="W002Url('Add')"
               >新增
               </el-button>
               <el-button
-                  style="width: 110px"
+                  :disabled="modifyTF"
+                  style="width: 165px"
                   @click="W002Url('Modify')"
               >修改
-              </el-button>
-              <el-button
-                  style="width: 110px"
-                  @click="W002Url('Delete')"
-              >刪除
               </el-button>
             </el-button-group>
           </el-form-item>
         </el-form>
       </el-aside>
       <el-main>
-        <el-table
-            :data="tableW002"
-            border
-            height="250px"
-            style="width: 1000px"
-            v-if="tableW002.length > 0"
-        >
-          <template #append>
-            <el-text size="large" type="warning">&emsp;總開銷&emsp;{{ all_totle }}</el-text>
-          </template>
-          <el-table-column
-              v-for="i in W002_table_column"
-              :label="i[Object.keys(i)[0]].toString()"
-              :prop="Object.keys(i).toString()"
-          />
-        </el-table>
+        <el-row>
+          <el-table
+              :data="tableW002"
+              border
+              height="250px"
+              style="width: 1300px"
+              v-if="tableW002.length > 0"
+          >
+            <el-table-column
+                label="功能"
+                width="150%"
+            >
+              <template #default="scope">
+                <el-button-group>
+                  <el-button
+                      @click.prevent="modify(scope.row)"
+                  >修改
+                  </el-button>
+                  <el-popconfirm
+                      width="220"
+                      confirm-button-text="確定"
+                      cancel-button-text="取消"
+                      title="確定要刪除嗎?"
+                      @confirm="confirmEventDelete(scope.row)"
+                  >
+                    <template #reference>
+                      <el-button>刪除</el-button>
+                    </template>
+                  </el-popconfirm>
+                </el-button-group>
+              </template>
+            </el-table-column>
+            <el-table-column
+                v-for="i in W002_table_column"
+                :label="i[Object.keys(i)[0]].toString()"
+                :prop="Object.keys(i).toString()"
+            />
+            <template #append>
+              <el-text size="large" type="warning">
+                &emsp;總務系統總支出&emsp;{{ all_totle_w002 }}
+              </el-text>
+            </template>
+          </el-table>
+        </el-row>
+        <el-row>
+          <el-table
+              :data="tableW0012"
+              height="250px" border
+              style="width: 1000px"
+              v-if="tableW0012.length > 0"
+          >
+            <el-table-column
+                v-for="i in W001_table_column2"
+                :label="i[Object.keys(i)[0]].toString()"
+                :prop="Object.keys(i).toString()"
+            />
+            <template #append>
+              <el-text size="large" type="warning">
+                &emsp;記帳系統總支出&emsp;{{ all_totle_w001_ex }}
+              </el-text>
+              <el-text size="large" type="warning">
+                &emsp;記帳系統總收入&emsp;{{ all_totle_w001_ic }}
+              </el-text>
+            </template>
+          </el-table>
+        </el-row>
       </el-main>
     </el-container>
   </el-container>
