@@ -6,7 +6,7 @@ import {setDefaultDateRange} from "@/components/componentsJs/W001.js";
 
 const rearEnd = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
-const path = window.location.pathname + '/';
+const path = window.location.pathname + '/'
 const W001 = ref('')
 
 goW001()
@@ -285,20 +285,19 @@ const confirmEventDelete = (row) => {
                 :column="2"
                 border
             >
-              <el-descriptions-item label="新增種類" span="2" label-align="center" align="center">
+              <el-descriptions-item label="新增分類" span="2" label-align="center" align="center">
                 <el-input
                     v-model="insTypeValue"
                     type="text"
                     size="small"
-                    style="width: 100px"
+                    style="width: 230px"
+                    placeholder="新增下面沒有的選項"
                 />
                 <el-button-group>
                   <el-button size="small" @click="W001Type('insType')">新增</el-button>
-                  <el-button size="small" @click="W001Type('insTypeClear')">清除</el-button>
+                  <el-button size="small" @click="W001Type('insTypeClear')">清除分類資料</el-button>
                 </el-button-group>
-                <el-radio-group
-                    v-model="radio_group_value"
-                >
+                <el-radio-group v-model="radio_group_value">
                   <el-radio-button
                       v-for="radioItem in radioItems"
                       :key="radioItem.value"
@@ -309,9 +308,7 @@ const confirmEventDelete = (row) => {
                 </el-radio-group>
               </el-descriptions-item>
               <el-descriptions-item label="選擇" label-align="center" align="center">
-                <el-radio-group
-                    v-model="fromData.expense_and_income_number"
-                >
+                <el-radio-group v-model="fromData.expense_and_income_number">
                   <el-radio-button size="small" label="A">支出</el-radio-button>
                   <el-radio-button size="small" label="B">收入</el-radio-button>
                 </el-radio-group>
@@ -335,12 +332,27 @@ const confirmEventDelete = (row) => {
                     style="width: 120px"
                 />
                 <el-button
+                    style="width: 120px"
                     @click="W001Url('Single_search')">單一查詢
                 </el-button>
                 <el-button-group>
-                  <el-button size="small" :disabled="addTF" @click="W001Url('Add')">新增</el-button>
-                  <el-button size="small" :disabled="modifyTF" @click="W001Url('Modify')">修改</el-button>
-                  <el-button size="small" @click="W001Url('Clear')">清除</el-button>
+                  <el-button
+                      style="width: 80px"
+                      :disabled="addTF"
+                      @click="W001Url('Add')">
+                    新增
+                  </el-button>
+                  <el-button
+                      style="width: 80px"
+                      :disabled="modifyTF"
+                      @click="W001Url('Modify')">
+                    修改
+                  </el-button>
+                  <el-button
+                      style="width: 80px"
+                      @click="W001Url('Clear')">
+                    清除
+                  </el-button>
                 </el-button-group>
               </el-descriptions-item>
             </el-descriptions>
@@ -375,26 +387,26 @@ const confirmEventDelete = (row) => {
             >
             <el-table-column
                 label="功能"
-                width="200px"
+                width="150%"
             >
               <template #default="scope">
-                <el-button
-                    link
-                    type="primary"
-                    @click.prevent="modify(scope.row)"
-                >修改金額
-                </el-button>
-                <el-popconfirm
-                    width="220"
-                    confirm-button-text="確定"
-                    cancel-button-text="取消"
-                    title="確定要刪除嗎?"
-                    @confirm="confirmEventDelete(scope.row)"
-                >
-                  <template #reference>
-                    <el-button link type="primary">刪除資料</el-button>
-                  </template>
-                </el-popconfirm>
+                <el-button-group>
+                  <el-button
+                      @click.prevent="modify(scope.row)"
+                  >修改金額
+                  </el-button>
+                  <el-popconfirm
+                      width="220"
+                      confirm-button-text="確定"
+                      cancel-button-text="取消"
+                      title="確定要刪除嗎?"
+                      @confirm="confirmEventDelete(scope.row)"
+                  >
+                    <template #reference>
+                      <el-button>刪除資料</el-button>
+                    </template>
+                  </el-popconfirm>
+                </el-button-group>
               </template>
             </el-table-column>
             <el-table-column

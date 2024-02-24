@@ -1,21 +1,15 @@
 <script setup>
 import {zeroPadding} from "@/components/componentsJs/ConvertPadding"
 import {toFindCookie} from "@/components/componentsJs/cookie";
+import {dateConversionYMDhms} from "@/components/componentsJs/ConvertPadding";
+
 
 const date = ref('')
 const time = ref('')
 const showUrl = ref(false)
 
 setInterval(() => {
-  let NowDate = new Date()
-  let Y = NowDate.getFullYear()
-  let M = NowDate.getMonth() + 1
-  let D = NowDate.getDate()
-  let h = NowDate.getHours()
-  let m = NowDate.getMinutes()
-  let s = NowDate.getSeconds()
-  date.value = Y + '/' + zeroPadding(M, 2) + '/' + zeroPadding(D, 2)
-  time.value = zeroPadding(h, 2) + ':' + zeroPadding(m, 2) + ':' + zeroPadding(s, 2)
+  date.value = dateConversionYMDhms(true)
 }, 1000)
 
 const handleSelect = (url) => {
@@ -44,19 +38,19 @@ if (toFindCookie() !== undefined) {
         <el-breadcrumb-item :to="{ path: '/' }">Index</el-breadcrumb-item>
         <el-breadcrumb-item>...</el-breadcrumb-item>
       </el-breadcrumb>
-      <el-text>{{ date }}&emsp;{{ time }}</el-text>
+      <el-text>{{ date }}</el-text>
     </el-header>
     <el-container>
-      <el-aside width="80px">
+      <el-aside width="150px">
         <el-menu
             @select="handleSelect"
         >
           <div v-if="showUrl">
             <el-menu-item index="W001">
-              <el-text>W001</el-text>
+              <el-text>記帳系統 W001</el-text>
             </el-menu-item>
             <el-menu-item index="W002">
-              <el-text>W002</el-text>
+              <el-text>總務系統 W002</el-text>
             </el-menu-item>
           </div>
         </el-menu>

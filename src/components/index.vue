@@ -88,10 +88,10 @@ if (toFindCookie() !== undefined) {
 <template>
   <el-container>
     <el-header>
-      <font size="6"><b>首頁 Index</b></font>
+      <el-text size="large"><b>首頁 Index</b></el-text>
     </el-header>
     <el-container>
-      <el-main>
+      <el-aside width="250px">
         <el-form v-model="fromData">
           <el-descriptions
               direction="horizontal"
@@ -122,17 +122,17 @@ if (toFindCookie() !== undefined) {
                   </el-input>
                 </el-form-item>
               </el-row>
-                <el-button-group>
-                  <el-button @click="indexUrl('Login')">登入</el-button>
-                  <el-button @click="indexUrl('Register')">註冊</el-button>
-                  <el-button @click="indexUrl('Delete')">刪除</el-button>
-                  <el-button @click="quitIndexUrl">退出</el-button>
-                </el-button-group>
+              <el-button-group>
+                <el-button @click="indexUrl('Login')">登入</el-button>
+                <el-button @click="indexUrl('Register')">註冊</el-button>
+                <el-button @click="indexUrl('Delete')">刪除</el-button>
+                <el-button @click="quitIndexUrl">退出</el-button>
+              </el-button-group>
             </el-descriptions-item>
           </el-descriptions>
         </el-form>
         {{ Start_indexUrl_type }}
-      </el-main>
+      </el-aside>
     </el-container>
   </el-container>
 </template>
