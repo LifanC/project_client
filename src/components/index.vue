@@ -88,7 +88,7 @@ if (toFindCookie() !== undefined) {
 <template>
   <el-container>
     <el-header>
-      <el-text size="large"><b>首頁 Index</b></el-text>
+      <el-text size="large"><b>首頁 使用者登入</b></el-text>
     </el-header>
     <el-container>
       <el-aside width="250px">
@@ -98,7 +98,7 @@ if (toFindCookie() !== undefined) {
               :column="1"
           >
             <el-descriptions-item>
-              <el-text v-if="!isText">輸入英文 : 大寫</el-text>
+              <el-text v-if="!isText">輸入英文 : 大寫。範例 : A</el-text>
               <el-row>
                 <el-form-item>
                   <el-input v-model="fromData.f_name"
@@ -126,7 +126,7 @@ if (toFindCookie() !== undefined) {
                 <el-button @click="indexUrl('Login')">登入</el-button>
                 <el-button @click="indexUrl('Register')">註冊</el-button>
                 <el-button @click="indexUrl('Delete')">刪除</el-button>
-                <el-button @click="quitIndexUrl">退出</el-button>
+                <el-button @click="quitIndexUrl">登出</el-button>
               </el-button-group>
             </el-descriptions-item>
           </el-descriptions>

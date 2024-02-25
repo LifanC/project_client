@@ -49,8 +49,8 @@ if (toFindCookie() === undefined) {
   W002UrlDefault()
 }
 
-const all_totle_w001_ex = ref(0)
-const all_totle_w001_ic = ref(0)
+const all_totle_w001_exp = ref(0)
+const all_totle_w001_inc = ref(0)
 const tableW0012 = ref([]);
 const W001_table_column2 = ref([
   {'new_date_Format': '日期'},
@@ -59,6 +59,10 @@ const W001_table_column2 = ref([
   {'totle_money': '總金額'}
 ])
 const all_totle_w002 = ref(0)
+const errorText = ref('')
+const errorTextTF = ref(true)
+const errorTextColor = ref('')
+const budget = ref([])
 
 function W002UrlDefault() {
   axios.get(rearEnd + path + W002UrlDefault.name, {
@@ -73,6 +77,7 @@ function W002UrlDefault() {
         for (let num in tableW002.value) {
           all_totle_w002.value += +tableW002.value[num].total
         }
+        budget.value.push(+all_totle_w002.value)
       })
   axios.get(rearEnd + '/W001/W001UrlDefault', {
     params: {
@@ -82,13 +87,26 @@ function W002UrlDefault() {
   })
       .then((response) => {
         tableW0012.value = response.data[1]
-        all_totle_w001_ex.value = 0
-        all_totle_w001_ic.value = 0
+        all_totle_w001_exp.value = 0
+        all_totle_w001_inc.value = 0
         for (let num in tableW0012.value) {
-          all_totle_w001_ex.value += +tableW0012.value[num].expense
-          all_totle_w001_ic.value += +tableW0012.value[num].income
+          all_totle_w001_exp.value += +tableW0012.value[num].expense
+          all_totle_w001_inc.value += +tableW0012.value[num].income
         }
+        budget.value.push(+all_totle_w001_inc.value - +all_totle_w001_exp.value)
       })
+  setTimeout(() => {
+    let spread = budget.value[1] - budget.value[0]
+    if (spread < 0) {
+      errorText.value = '目前總支出已超過總收入，請注意'
+      errorTextColor.value = 'danger'
+      errorTextTF.value = true
+    } else {
+      errorText.value = ''
+      errorTextColor.value = ''
+      errorTextTF.value = false
+    }
+  }, 500)
 }
 
 const typeSelects = ref([
@@ -128,7 +146,9 @@ const calc = () => {
 
 const addTF = ref(false)
 const modifyTF = ref(true)
+const hint = ref('')
 const W002Url = (restfulApi_type) => {
+  hint.value = ''
   switch (restfulApi_type) {
     case 'Add' :
       let patternNum = /^\d+$/
@@ -145,23 +165,34 @@ const W002Url = (restfulApi_type) => {
       if (fromData.new_date === null) {
         fromData.new_date = new Date()
       }
-      axios.post(rearEnd + path + goW002.name + restfulApi_type, {
+      axios.post(rearEnd + path + goW002.name + 'Search', {
         GoW002: fromData
       })
           .then((response) => {
-            tableW002.value = response.data[0]
-            fromData.c_value = ''
-            fromData.d_value = ''
-            fromData.e_value = ''
-            fromData.f_value = ''
-            fromData.g_value = ''
-            h_totle.value = ''
-            productCategory.value = ''
-            all_totle_w002.value = 0
-            for (let num in tableW002.value) {
-              all_totle_w002.value += +tableW002.value[num].total
+            if (response.data) {
+              hint.value = 'Success'
+              axios.post(rearEnd + path + goW002.name + restfulApi_type, {
+                GoW002: fromData
+              })
+                  .then((response) => {
+                    tableW002.value = response.data[0]
+                    fromData.c_value = ''
+                    fromData.d_value = ''
+                    fromData.e_value = ''
+                    fromData.f_value = ''
+                    fromData.g_value = ''
+                    h_totle.value = ''
+                    productCategory.value = ''
+                    all_totle_w002.value = 0
+                    for (let num in tableW002.value) {
+                      all_totle_w002.value += +tableW002.value[num].total
+                    }
+                  })
+            } else {
+              hint.value = '編號重複，請換其他編號'
             }
           })
+
       break
     case 'Modify' :
       axios.put(rearEnd + path + goW002.name + restfulApi_type, {
@@ -203,8 +234,8 @@ const confirmEventDelete = (row) => {
   axios.delete(rearEnd + path + confirmEventDelete.name, {
     params: {
       id: row.id,
-      f_name: row.m_code.substring(0, 2),
-      number: row.m_code.substring(2, 3),
+      f_name: row.m_code.substring(0, 1),
+      number: row.m_code.substring(1, 3),
     }
   })
       .then((response) => {
@@ -229,7 +260,8 @@ const confirmEventDelete = (row) => {
     <el-header>{{ W002 }}</el-header>
     <el-container>
       <el-aside width="330px">
-        <el-text>範例 : L0720240218000001A001</el-text>
+        <el-text v-if="errorTextTF" :type="errorTextColor"><b>{{ errorText }}</b></el-text>
+        <el-text><p>範例 : L0720240218000001A001</p></el-text>
         <el-form v-model="fromData">
           <el-form-item>
             <el-select
@@ -321,6 +353,7 @@ const confirmEventDelete = (row) => {
               >修改
               </el-button>
             </el-button-group>
+            <el-text>{{ hint }}</el-text>
           </el-form-item>
         </el-form>
       </el-aside>
@@ -383,10 +416,10 @@ const confirmEventDelete = (row) => {
             />
             <template #append>
               <el-text size="large" type="warning">
-                &emsp;記帳系統總支出&emsp;{{ all_totle_w001_ex }}
+                &emsp;記帳系統總支出&emsp;{{ all_totle_w001_exp }}
               </el-text>
               <el-text size="large" type="warning">
-                &emsp;記帳系統總收入&emsp;{{ all_totle_w001_ic }}
+                &emsp;記帳系統總收入&emsp;{{ all_totle_w001_inc }}
               </el-text>
             </template>
           </el-table>
