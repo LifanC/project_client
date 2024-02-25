@@ -55,7 +55,7 @@ function W001UrlDefault() {
 const insTypeValue = ref('')
 const radio_group_value = ref('6')
 const radioItems = ref([
-  {label: '收入', value: '1'},
+  {label: '薪資', value: '1'},
   {label: '食物', value: '2'},
   {label: '交通', value: '3'},
   {label: '消費', value: '4'},
@@ -110,27 +110,29 @@ const W001Type = (W001Type_type) => {
   }
 }
 
+const hint = ref('')
 /**
  * <h3>分類W001Url方法</h3>
  */
 const W001Url = (restfulApi_type) => {
+  hint.value = ''
   Start_printIreport.value = []
-  fromData.radio_group_value = radio_group_value.value
-  fromData.radio_items = radioItems.value[+radio_group_value.value - 1].label
   if (fromData.new_date === null) {
     fromData.new_date = new Date()
   }
+  let returnAdd = false
+  if (fromData.expense_and_income_number === 'A' && radio_group_value.value === '1') {
+    radio_group_value.value = '6'
+    returnAdd = true
+  } else if (fromData.expense_and_income_number === 'B' && radio_group_value.value !== '1') {
+    radio_group_value.value = '1'
+    returnAdd = true
+  }
+  fromData.radio_group_value = radio_group_value.value
+  fromData.radio_items = radioItems.value[+radio_group_value.value - 1].label
   switch (restfulApi_type) {
     case 'Add' :
-      if (fromData.expense_and_income_number === 'A' && radio_group_value.value === '1') {
-        fromData.radio_group_value = '6'
-        radio_group_value.value = '6'
-        fromData.radio_items = radioItems.value[+radio_group_value.value - 1].label
-      }
-      if (fromData.expense_and_income_number === 'B') {
-        fromData.radio_group_value = '1'
-        radio_group_value.value = '1'
-      }
+      if (returnAdd) return
       axios.post(rearEnd + path + goW001.name + restfulApi_type, {
         GoW001: fromData
       })
@@ -139,6 +141,8 @@ const W001Url = (restfulApi_type) => {
             tableW0012.value = response.data[1]
             fromData.input_money = 0
             fromData.details = ''
+            addTF.value = true
+            hint.value = 'Success'
           })
       break
     case 'Single_search' :
@@ -148,6 +152,7 @@ const W001Url = (restfulApi_type) => {
           .then((response) => {
             tableW001.value = response.data[0]
             tableW0012.value = response.data[1]
+            hint.value = 'Success'
           })
       break
     case 'Search' :
@@ -160,6 +165,7 @@ const W001Url = (restfulApi_type) => {
           .then((response) => {
             tableW001.value = response.data[0]
             tableW0012.value = response.data[1]
+            hint.value = 'Success'
           })
       break
     case 'Clear' :
@@ -170,8 +176,10 @@ const W001Url = (restfulApi_type) => {
       radio_group_value.value = '6'
       modifyTF.value = true
       datePicker.value = setDefaultDateRange()
+      hint.value = ''
       break
     case 'Modify' :
+      if (returnAdd) return
       axios.put(rearEnd + path + goW001.name + restfulApi_type, {
         GoW001: fromData
       })
@@ -184,6 +192,7 @@ const W001Url = (restfulApi_type) => {
             fromData.new_date = new Date()
             radio_group_value.value = '6'
             modifyTF.value = true
+            hint.value = 'Success'
           })
       break
   }
@@ -221,8 +230,10 @@ const less_than_zero = () => {
 }
 
 const modify = (row) => {
+  console.log('row', row)
   modifyTF.value = false
   radio_group_value.value = row.radio_group_value
+  fromData.radio_group_value = row.radio_group_value
   fromData.expense_and_income_number = row.expense_and_income_number
   fromData.input_money = row.input_money
   fromData.setInputMoney = row.input_money
@@ -285,19 +296,19 @@ const confirmEventDelete = (row) => {
                 :column="2"
                 border
             >
-              <el-descriptions-item label="新增分類" span="2" label-align="center" align="center">
+              <el-descriptions-item label="新增分類" span="2" label-align="center">
                 <el-input
                     v-model="insTypeValue"
                     type="text"
                     size="small"
-                    style="width: 230px"
-                    placeholder="新增下面沒有的選項"
+                    style="width: 255px"
+                    placeholder="新增下方沒有的選項"
                 />
                 <el-button-group>
                   <el-button size="small" @click="W001Type('insType')">新增</el-button>
-                  <el-button size="small" @click="W001Type('insTypeClear')">清除分類資料</el-button>
+                  <el-button size="small" @click="W001Type('insTypeClear')">清除分類</el-button>
                 </el-button-group>
-                <el-radio-group v-model="radio_group_value">
+                <el-radio-group style="width: 100%" v-model="radio_group_value">
                   <el-radio-button
                       v-for="radioItem in radioItems"
                       :key="radioItem.value"
@@ -316,12 +327,14 @@ const confirmEventDelete = (row) => {
               <el-descriptions-item label="金額" label-align="center" align="center">
                 <el-input
                     v-model.number="fromData.input_money"
+                    style="width: 100%"
                     @input="less_than_zero"
                 />
               </el-descriptions-item>
-              <el-descriptions-item label="內容" label-align="center" align="center">
+              <el-descriptions-item label="款項名稱" label-align="center" align="center">
                 <el-input
                     v-model="fromData.details"
+                    style="width: 100%"
                     type="textarea"
                 />
               </el-descriptions-item>
@@ -329,27 +342,27 @@ const confirmEventDelete = (row) => {
                 <el-date-picker
                     v-model="fromData.new_date"
                     type="date"
-                    style="width: 120px"
+                    style="width: 139px"
                 />
                 <el-button
-                    style="width: 120px"
+                    style="width: 80px"
                     @click="W001Url('Single_search')">單一查詢
                 </el-button>
                 <el-button-group>
                   <el-button
-                      style="width: 80px"
+                      style="width: 73px"
                       :disabled="addTF"
                       @click="W001Url('Add')">
                     新增
                   </el-button>
                   <el-button
-                      style="width: 80px"
+                      style="width: 73px"
                       :disabled="modifyTF"
                       @click="W001Url('Modify')">
                     修改
                   </el-button>
                   <el-button
-                      style="width: 80px"
+                      style="width: 73px"
                       @click="W001Url('Clear')">
                     清除
                   </el-button>
@@ -358,6 +371,7 @@ const confirmEventDelete = (row) => {
             </el-descriptions>
           </el-form>
         </el-space>
+        <el-text type="success">{{ hint }}</el-text>
       </el-aside>
       <el-main>
         <el-row>
@@ -380,7 +394,7 @@ const confirmEventDelete = (row) => {
           <el-table
               :data="tableW001"
               border
-              height="250px"
+              height="500px"
               style="width: 1000px"
               v-if="tableW001.length > 0"
           >
@@ -393,7 +407,7 @@ const confirmEventDelete = (row) => {
                 <el-button-group>
                   <el-button
                       @click.prevent="modify(scope.row)"
-                  >修改金額
+                  >修改資料
                   </el-button>
                   <el-popconfirm
                       width="220"
