@@ -59,10 +59,6 @@ const W001_table_column2 = ref([
   {'totle_money': '總金額'}
 ])
 const all_totle_w002 = ref(0)
-const errorText = ref('')
-const errorTextTF = ref(true)
-const errorTextColor = ref('')
-const budget = ref([])
 
 function W002UrlDefault() {
   axios.get(rearEnd + path + W002UrlDefault.name, {
@@ -77,7 +73,6 @@ function W002UrlDefault() {
         for (let num in tableW002.value) {
           all_totle_w002.value += +tableW002.value[num].total
         }
-        budget.value.push(+all_totle_w002.value)
       })
   axios.get(rearEnd + '/W001/W001UrlDefault', {
     params: {
@@ -93,20 +88,7 @@ function W002UrlDefault() {
           all_totle_w001_exp.value += +tableW0012.value[num].expense
           all_totle_w001_inc.value += +tableW0012.value[num].income
         }
-        budget.value.push(+all_totle_w001_inc.value - +all_totle_w001_exp.value)
       })
-  setTimeout(() => {
-    let spread = budget.value[1] - budget.value[0]
-    if (spread < 0) {
-      errorText.value = '目前總支出已超過總收入，請注意'
-      errorTextColor.value = 'danger'
-      errorTextTF.value = true
-    } else {
-      errorText.value = ''
-      errorTextColor.value = ''
-      errorTextTF.value = false
-    }
-  }, 500)
 }
 
 const typeSelects = ref([
@@ -260,7 +242,10 @@ const confirmEventDelete = (row) => {
     <el-header>{{ W002 }}</el-header>
     <el-container>
       <el-aside width="330px">
-        <el-text v-if="errorTextTF" :type="errorTextColor"><b>{{ errorText }}</b></el-text>
+        <el-text type="danger" v-if="all_totle_w001_inc - all_totle_w001_exp - all_totle_w002 < 0">
+          <b>目前總支出已超過總收入，請注意!!</b>&emsp;
+          {{ all_totle_w001_inc - all_totle_w001_exp - all_totle_w002 }}
+        </el-text>
         <el-text><p>範例 : L0720240218000001A001</p></el-text>
         <el-form v-model="fromData">
           <el-form-item>
@@ -397,7 +382,7 @@ const confirmEventDelete = (row) => {
             />
             <template #append>
               <el-text size="large" type="warning">
-                &emsp;總務系統總支出&emsp;{{ all_totle_w002 }}
+                &emsp;總務系統總&emsp;支出&emsp;{{ all_totle_w002 }}
               </el-text>
             </template>
           </el-table>
@@ -416,10 +401,9 @@ const confirmEventDelete = (row) => {
             />
             <template #append>
               <el-text size="large" type="warning">
-                &emsp;記帳系統總支出&emsp;{{ all_totle_w001_exp }}
-              </el-text>
-              <el-text size="large" type="warning">
-                &emsp;記帳系統總收入&emsp;{{ all_totle_w001_inc }}
+                記帳系統總&emsp;支出&emsp;{{ all_totle_w001_exp }}
+                <br>
+                記帳系統總&emsp;收入&emsp;{{ all_totle_w001_inc }}
               </el-text>
             </template>
           </el-table>
