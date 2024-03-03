@@ -163,8 +163,8 @@ const W001Url = (restfulApi_type) => {
         GoW001_datePicker: datePicker.value
       })
           .then((response) => {
-            tableW001.value = response.data[0]
-            tableW0012.value = response.data[1]
+            tableW001.value = response.data.length > 0 ? response.data[0] : [];
+            tableW0012.value = response.data.length > 0 ? response.data[1] : [];
             hint.value = 'Success'
           })
       break
@@ -222,15 +222,10 @@ const printIreport = () => {
 const less_than_zero = () => {
   fromData.input_money = (fromData.input_money < 0) ? 0 : fromData.input_money
   fromData.input_money = (fromData.input_money === '') ? 0 : fromData.input_money
-  if (fromData.input_money > 0) {
-    addTF.value = false
-  } else {
-    addTF.value = true
-  }
+  addTF.value = fromData.input_money <= 0;
 }
 
 const modify = (row) => {
-  console.log('row', row)
   modifyTF.value = false
   radio_group_value.value = row.radio_group_value
   fromData.radio_group_value = row.radio_group_value

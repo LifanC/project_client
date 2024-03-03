@@ -99,12 +99,8 @@ const typeSelects = ref([
 const productCategory = ref('')
 
 const selectProductCategory = (selectValue) => {
-  if (selectValue === '') {
-    productCategory.value = typeSelects.value[typeSelects.value.length - 1].value
-    fromData.c_value = productCategory.value
-  } else {
-    fromData.c_value = selectValue
-  }
+  fromData.c_value = selectValue || typeSelects.value[typeSelects.value.length - 1].value
+  productCategory.value = fromData.c_value
 }
 
 const tableW002 = ref([])
@@ -119,14 +115,11 @@ const W002_table_column = ref([
 
 const h_totle = ref('')
 const calc = () => {
-  fromData.f_value = fromData.f_value <= 0 ? '' : fromData.f_value;
-  fromData.g_value = fromData.g_value <= 0 ? '' : fromData.g_value;
-  if (fromData.f_value !== '' && fromData.g_value !== '') {
-    h_totle.value = fromData.f_value * fromData.g_value;
-  }
+  fromData.f_value = Math.max(+fromData.f_value, 0) || ''
+  fromData.g_value = Math.max(+fromData.g_value, 0) || ''
+  h_totle.value = fromData.f_value && fromData.g_value ? String(fromData.f_value * fromData.g_value) : ''
 }
 
-const addTF = ref(false)
 const modifyTF = ref(true)
 const hint = ref('')
 const W002Url = (restfulApi_type) => {
@@ -158,14 +151,11 @@ const W002Url = (restfulApi_type) => {
               })
                   .then((response) => {
                     tableW002.value = response.data[0]
-                    fromData.c_value = ''
-                    fromData.d_value = ''
-                    fromData.e_value = ''
-                    fromData.f_value = ''
-                    fromData.g_value = ''
+                    reductionFromData()
                     h_totle.value = ''
                     productCategory.value = ''
                     all_totle_w002.value = 0
+                    productCategory.value = ''
                     for (let num in tableW002.value) {
                       all_totle_w002.value += +tableW002.value[num].total
                     }
@@ -181,15 +171,11 @@ const W002Url = (restfulApi_type) => {
         GoW002: fromData
       })
           .then((response) => {
-            addTF.value = false
             tableW002.value = response.data[0]
-            fromData.c_value = ''
-            fromData.d_value = ''
-            fromData.e_value = ''
-            fromData.f_value = ''
-            fromData.g_value = ''
+            reductionFromData()
             h_totle.value = ''
             all_totle_w002.value = 0
+            productCategory.value = ''
             for (let num in tableW002.value) {
               all_totle_w002.value += +tableW002.value[num].total
             }
@@ -199,18 +185,26 @@ const W002Url = (restfulApi_type) => {
 }
 
 const modify = (row) => {
-  addTF.value = true
-  modifyTF.value = false
-  fromData.id = String(row.id)
-  fromData.a_value = row.m_code.substring(0, 3)
-  fromData.b_value = row.m_code.substring(3, 17)
-  fromData.c_value = row.m_code.substring(17, 18)
-  fromData.d_value = row.m_code.substring(18, 21)
-  fromData.e_value = row.remark
-  fromData.f_value = row.quantity
-  fromData.g_value = row.amount
-  h_totle.value = fromData.f_value * fromData.g_value;
+  let { id, m_code, remark, quantity, amount } = row;
+  let [a_value, b_value, c_value, d_value] = [
+    m_code.substring(0, 3),
+    m_code.substring(3, 17),
+    m_code.substring(17, 18),
+    m_code.substring(18, 21)
+  ];
+  modifyTF.value = false;
+  fromData.id = String(id);
+  fromData.a_value = a_value;
+  fromData.b_value = b_value;
+  fromData.c_value = c_value;
+  fromData.d_value = d_value;
+  fromData.e_value = remark;
+  fromData.f_value = quantity;
+  fromData.g_value = amount;
+  h_totle.value = String(quantity * amount);
+  productCategory.value = c_value;
 }
+
 
 const confirmEventDelete = (row) => {
   axios.delete(rearEnd + path + confirmEventDelete.name, {
@@ -222,17 +216,21 @@ const confirmEventDelete = (row) => {
   })
       .then((response) => {
         tableW002.value = response.data[0]
-        fromData.c_value = ''
-        fromData.d_value = ''
-        fromData.e_value = ''
-        fromData.f_value = ''
-        fromData.g_value = ''
+        reductionFromData()
         h_totle.value = ''
         all_totle_w002.value = 0
+        productCategory.value = ''
         for (let num in tableW002.value) {
           all_totle_w002.value += +tableW002.value[num].total
         }
       })
+}
+
+const reductionFromData = () => {
+  let fieldsToReset = ['c_value', 'd_value', 'e_value', 'f_value', 'g_value'];
+  for (let field of fieldsToReset) {
+    fromData[field] = '';
+  }
 }
 
 </script>
@@ -326,7 +324,6 @@ const confirmEventDelete = (row) => {
             />
             <el-button-group>
               <el-button
-                  :disabled="addTF"
                   style="width: 165px"
                   @click="W002Url('Add')"
               >新增
