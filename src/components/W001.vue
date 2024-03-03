@@ -219,6 +219,7 @@ const W001Url = (restfulApi_type) => {
 
 const printIreport_Array = ref([])
 const handleSelectionChange = (val) => {
+  dataItems.value = []
   printIreport_Array.value = []
   if (val.length > 0) {
     for (let valKey in val) {
@@ -227,6 +228,8 @@ const handleSelectionChange = (val) => {
   }
   proportion(val)
 }
+
+const dataItems = ref([])
 
 const proportion = (val) => {
   if (val.length === 1) {
@@ -237,13 +240,64 @@ const proportion = (val) => {
     })
         .then((response) => {
           // 148.56{data[0]單項支出金額}/(除)1238{data[1]支出總額}=0.12(占比%數) =>公式
-          console.log(response.data[0])
-          console.log(response.data[1])
+          let responseKeys = response.data[0];
+          let d = {};
+          for (let responseKey of responseKeys) {
+            if (responseKey.expense_and_income_number === 'A') {
+              let radio_group_value = responseKey.radio_group_value;
+              if (['1', '2', '3', '4', '5', '6'].includes(radio_group_value)) {
+                if (!d.hasOwnProperty(radio_group_value)) {
+                  d[radio_group_value] = [];
+                }
+                d[radio_group_value].push(responseKey.radio_items);
+                d[radio_group_value].push(responseKey.input_money);
+              } else {
+                if (!d.hasOwnProperty('7')) {
+                  d['7'] = [];
+                }
+                d['7'].push(responseKey.radio_items);
+                d['7'].push(responseKey.input_money);
+              }
+            }
+          }
+
+          let dataItem12 = 0
+          for (let responseKey of response.data[1]) {
+            dataItem12 = responseKey.expense
+          }
+          for (let dElement in d) {
+            let combined = combineChineseAndSumNumbers(d[dElement]);
+            if (dataItem12 !== 0) {
+              combined[1] = (combined[1] / dataItem12 * 100).toFixed(0)
+            } else {
+
+            }
+            dataItems.value.push(combined.join('  ➡ ')+'%…… ')
+          }
+
         })
         .catch(error => {
           console.error('proportion Error:', error);
         });
   }
+}
+
+function combineChineseAndSumNumbers(arr) {
+  let result = []
+  let currentChinese = null;
+  let currentSum = 0
+  for (let item of arr) {
+    if (typeof item === 'string') {
+      currentChinese = item
+    } else {
+      currentSum = item
+    }
+  }
+  if (currentChinese !== null) {
+    result.push(currentChinese)
+  }
+  result.push(currentSum)
+  return result
 }
 
 const Start_printIreport = ref([])
@@ -413,6 +467,7 @@ const confirmEventDelete = (row) => {
         <el-text type="success">{{ hint }}</el-text>
       </el-aside>
       <el-main>
+        <el-text v-for="dataItem in dataItems">{{ dataItem }}</el-text>
         <el-row>
           <el-table
               :data="tableW0012"
