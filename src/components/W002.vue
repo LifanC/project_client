@@ -16,6 +16,9 @@ function goW002() {
       .then((response) => {
         W002.value = response.data
       })
+      .catch(error => {
+        console.error('goW002 Error:', error);
+      });
 }
 
 const fromData = reactive({
@@ -74,6 +77,9 @@ function W002UrlDefault() {
           all_totle_w002.value += +tableW002.value[num].total
         }
       })
+      .catch(error => {
+        console.error('W002UrlDefault Error:', error);
+      });
   axios.get(rearEnd + '/W001/W001UrlDefault', {
     params: {
       f_name: fromData.f_name,
@@ -89,6 +95,9 @@ function W002UrlDefault() {
           all_totle_w001_inc.value += +tableW0012.value[num].income
         }
       })
+      .catch(error => {
+        console.error('W001UrlDefault Error:', error);
+      });
 }
 
 const typeSelects = ref([
@@ -160,6 +169,9 @@ const W002Url = (restfulApi_type) => {
                       all_totle_w002.value += +tableW002.value[num].total
                     }
                   })
+                  .catch(error => {
+                    console.error('Add Error:', error);
+                  });
             } else {
               hint.value = '編號重複，請換其他編號'
             }
@@ -180,6 +192,9 @@ const W002Url = (restfulApi_type) => {
               all_totle_w002.value += +tableW002.value[num].total
             }
           })
+          .catch(error => {
+            console.error('Modify Error:', error);
+          });
       break
   }
 }
@@ -224,6 +239,9 @@ const confirmEventDelete = (row) => {
           all_totle_w002.value += +tableW002.value[num].total
         }
       })
+      .catch(error => {
+        console.error('confirmEventDelete Error:', error);
+      });
 }
 
 const reductionFromData = () => {

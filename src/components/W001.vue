@@ -16,6 +16,9 @@ function goW001() {
       .then((response) => {
         W001.value = response.data
       })
+      .catch(error => {
+        console.error('goW001 Error:', error);
+      });
 }
 
 const fromData = reactive({
@@ -50,6 +53,9 @@ function W001UrlDefault() {
         tableW001.value = response.data[0]
         tableW0012.value = response.data[1]
       })
+      .catch(error => {
+        console.error('W001UrlDefault Error:', error);
+      });
 }
 
 const insTypeValue = ref('')
@@ -76,7 +82,7 @@ const W001_table_column2 = ref([
   {'new_date_Format': '日期'},
   {'expense': '支出'},
   {'income': '收入'},
-  {'totle_money': '總金額'}
+  {'totle_money': '損益'}
 ])
 
 const addTF = ref(true)
@@ -144,6 +150,9 @@ const W001Url = (restfulApi_type) => {
             addTF.value = true
             hint.value = 'Success'
           })
+          .catch(error => {
+            console.error('Add Error:', error);
+          });
       break
     case 'Single_search' :
       axios.post(rearEnd + path + goW001.name + restfulApi_type, {
@@ -154,19 +163,26 @@ const W001Url = (restfulApi_type) => {
             tableW0012.value = response.data[1]
             hint.value = 'Success'
           })
+          .catch(error => {
+            console.error('Single_search Error:', error);
+          });
       break
     case 'Search' :
       if (datePicker.value === null) {
         datePicker.value = setDefaultDateRange()
       }
       axios.post(rearEnd + path + goW001.name + restfulApi_type, {
-        GoW001_datePicker: datePicker.value
+        GoW001_datePicker: datePicker.value,
+        GoW001_fNume_number: [fromData.f_name, fromData.number]
       })
           .then((response) => {
             tableW001.value = response.data.length > 0 ? response.data[0] : [];
             tableW0012.value = response.data.length > 0 ? response.data[1] : [];
             hint.value = 'Success'
           })
+          .catch(error => {
+            console.error('Search Error:', error);
+          });
       break
     case 'Clear' :
       fromData.expense_and_income_number = 'A'
@@ -194,6 +210,9 @@ const W001Url = (restfulApi_type) => {
             modifyTF.value = true
             hint.value = 'Success'
           })
+          .catch(error => {
+            console.error('Modify Error:', error);
+          });
       break
   }
 }
@@ -206,6 +225,25 @@ const handleSelectionChange = (val) => {
       printIreport_Array.value.push(val[valKey])
     }
   }
+  proportion(val)
+}
+
+const proportion = (val) => {
+  if (val.length === 1) {
+    axios.post(rearEnd + path + goW001.name + proportion.name, {
+      f_name: val[0].f_name,
+      number: val[0].number,
+      new_date_Format: val[0].new_date_Format
+    })
+        .then((response) => {
+          // 148.56{data[0]單項支出金額}/(除)1238{data[1]支出總額}=0.12(占比%數) =>公式
+          console.log(response.data[0])
+          console.log(response.data[1])
+        })
+        .catch(error => {
+          console.error('proportion Error:', error);
+        });
+  }
 }
 
 const Start_printIreport = ref([])
@@ -217,6 +255,9 @@ const printIreport = () => {
       .then((response) => {
         Start_printIreport.value.push(response.data[0], response.data[1])
       })
+      .catch(error => {
+        console.error('printIreport Error:', error);
+      });
 }
 
 const less_than_zero = () => {
@@ -251,6 +292,9 @@ const confirmEventDelete = (row) => {
         tableW001.value = response.data[0]
         tableW0012.value = response.data[1]
       })
+      .catch(error => {
+        console.error('confirmEventDelete Error:', error);
+      });
 }
 
 </script>
