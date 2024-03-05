@@ -245,18 +245,12 @@ const proportion = (val) => {
           for (let responseKey of responseKeys) {
             if (responseKey.expense_and_income_number === 'A') {
               let radio_group_value = responseKey.radio_group_value;
-              if (['1', '2', '3', '4', '5', '6'].includes(radio_group_value)) {
+              if (['1', '2', '3', '4', '5', '6', '7'].includes(radio_group_value)) {
                 if (!d.hasOwnProperty(radio_group_value)) {
                   d[radio_group_value] = [];
                 }
                 d[radio_group_value].push(responseKey.radio_items);
                 d[radio_group_value].push(responseKey.input_money);
-              } else {
-                if (!d.hasOwnProperty('7')) {
-                  d['7'] = [];
-                }
-                d['7'].push(responseKey.radio_items);
-                d['7'].push(responseKey.input_money);
               }
             }
           }
@@ -267,14 +261,9 @@ const proportion = (val) => {
           }
           for (let dElement in d) {
             let combined = combineChineseAndSumNumbers(d[dElement]);
-            if (dataItem12 !== 0) {
-              combined[1] = (combined[1] / dataItem12 * 100).toFixed(0)
-            } else {
-
-            }
-            dataItems.value.push(combined.join('  ➡ ')+'%…… ')
+            combined[1] = (dataItem12 !== 0) ? combined[1] = (combined[1] / dataItem12 * 100).toFixed(0) : '0'
+            dataItems.value.push(combined.join('  ➡ ') + '%…… ')
           }
-
         })
         .catch(error => {
           console.error('proportion Error:', error);
