@@ -342,8 +342,8 @@ const thisMonth = (val) => {
       break
     case 'thisMonth':
       thisMonthNum.value = 0
-      datePicker.value = setDateRange(thisMonthNum.value)
-      monthProportion(setDateRange(thisMonthNum.value))
+      datePicker.value = setDateRange(0)
+      monthProportion(setDateRange(0))
       break
     case 'nextMonth':
       datePicker.value = setDateRange(++thisMonthNum.value)
