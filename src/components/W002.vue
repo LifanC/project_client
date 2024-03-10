@@ -119,7 +119,7 @@ const W002_table_column = ref([
   {'quantity': '數量'},
   {'amount': '金額'},
   {'total': '總金額'},
-  {'new_date': '日期'}
+  {'new_date_Format': '日期'}
 ])
 
 const h_totle = ref('')
@@ -133,6 +133,9 @@ const modifyTF = ref(true)
 const hint = ref('')
 const W002Url = (restfulApi_type) => {
   hint.value = ''
+  if (fromData.new_date === null) {
+    fromData.new_date = new Date()
+  }
   switch (restfulApi_type) {
     case 'Add' :
       let patternNum = /^\d+$/
@@ -196,11 +199,30 @@ const W002Url = (restfulApi_type) => {
             console.error('Modify Error:', error);
           });
       break
+    case 'Query' :
+      axios.post(rearEnd + path + goW002.name + restfulApi_type, {
+        GoW002: fromData
+      })
+          .then((response) => {
+            tableW002.value = response.data[0]
+            reductionFromData()
+            h_totle.value = ''
+            productCategory.value = ''
+            all_totle_w002.value = 0
+            productCategory.value = ''
+            for (let num in tableW002.value) {
+              all_totle_w002.value += +tableW002.value[num].total
+            }
+          })
+          .catch(error => {
+            console.error('Add Error:', error);
+          });
+      break
   }
 }
 
 const modify = (row) => {
-  let { id, m_code, remark, quantity, amount } = row;
+  let { id, m_code, remark, quantity, amount, new_date } = row
   let [a_value, b_value, c_value, d_value] = [
     m_code.substring(0, 3),
     m_code.substring(3, 17),
@@ -209,15 +231,16 @@ const modify = (row) => {
   ];
   modifyTF.value = false;
   fromData.id = String(id);
-  fromData.a_value = a_value;
-  fromData.b_value = b_value;
-  fromData.c_value = c_value;
-  fromData.d_value = d_value;
-  fromData.e_value = remark;
-  fromData.f_value = quantity;
-  fromData.g_value = amount;
-  h_totle.value = String(quantity * amount);
+  fromData.a_value = a_value
+  fromData.b_value = b_value
+  fromData.c_value = c_value
+  fromData.d_value = d_value
+  fromData.e_value = remark
+  fromData.f_value = quantity
+  fromData.g_value = amount
+  h_totle.value = String(quantity * amount)
   productCategory.value = c_value;
+  fromData.new_date = new_date
 }
 
 
@@ -342,15 +365,20 @@ const reductionFromData = () => {
             />
             <el-button-group>
               <el-button
-                  style="width: 165px"
+                  style="width: 110px"
                   @click="W002Url('Add')"
               >新增
               </el-button>
               <el-button
                   :disabled="modifyTF"
-                  style="width: 165px"
+                  style="width: 110px"
                   @click="W002Url('Modify')"
               >修改
+              </el-button>
+              <el-button
+                  style="width: 110px"
+                  @click="W002Url('Query')"
+              >查詢
               </el-button>
             </el-button-group>
             <el-text>{{ hint }}</el-text>
