@@ -1,11 +1,9 @@
 <script setup>
-import {zeroPadding} from "@/components/componentsJs/ConvertPadding"
 import {toFindCookie} from "@/components/componentsJs/cookie";
 import {dateConversionYMDhms} from "@/components/componentsJs/ConvertPadding";
 
 
 const date = ref('')
-const time = ref('')
 const showUrl = ref(false)
 
 setInterval(() => {
@@ -51,6 +49,9 @@ if (toFindCookie() !== undefined) {
             </el-menu-item>
             <el-menu-item index="W002">
               <el-text>總務系統 W002</el-text>
+            </el-menu-item>
+            <el-menu-item index="W003">
+              <el-text>分析系統 W003</el-text>
             </el-menu-item>
           </div>
         </el-menu>

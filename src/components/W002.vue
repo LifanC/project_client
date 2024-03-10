@@ -444,9 +444,9 @@ const reductionFromData = () => {
             />
             <template #append>
               <el-text size="large" type="warning">
-                記帳系統總&emsp;支出&emsp;{{ all_totle_w001_exp }}
+                &emsp;記帳系統總&emsp;支出&emsp;{{ all_totle_w001_exp }}
                 <br>
-                記帳系統總&emsp;收入&emsp;{{ all_totle_w001_inc }}
+                &emsp;記帳系統總&emsp;收入&emsp;{{ all_totle_w001_inc }}
               </el-text>
             </template>
           </el-table>

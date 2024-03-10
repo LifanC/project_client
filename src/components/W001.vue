@@ -67,7 +67,7 @@ const radioItems = ref([
   {label: '交通', value: '3'},
   {label: '消費', value: '4'},
   {label: '3C', value: '5'},
-  {label: '居家', value: '6'}
+  {label: '娛樂', value: '6'}
 ])
 const datePicker = ref(setDefaultDateRange())
 const tableW001 = ref([]);
@@ -238,7 +238,7 @@ const tableOneDayProportion_column = ref([
   {'expense_r3_proportion': '交通'},
   {'expense_r4_proportion': '消費'},
   {'expense_r5_proportion': '3C'},
-  {'expense_r6_proportion': '居家'},
+  {'expense_r6_proportion': '娛樂'},
   {'expense_r7_proportion': '其他'}
 ])
 const proportion = (val) => {
@@ -328,6 +328,7 @@ function monthProportion(val) {
       .then((response) => {
         tableOneDayProportion.value = response.data
       })
+
       .catch(error => {
         console.error('proportion Error:', error);
       });
@@ -350,9 +351,8 @@ const thisMonth = (val) => {
       monthProportion(datePicker.value)
       break
   }
-
-
 }
+
 </script>
 
 <template>
