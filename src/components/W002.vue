@@ -16,6 +16,9 @@ function goW002() {
       .then((response) => {
         W002.value = response.data
       })
+      .catch(error => {
+        console.error('goW002 Error:', error);
+      });
 }
 
 const fromData = reactive({
@@ -74,6 +77,9 @@ function W002UrlDefault() {
           all_totle_w002.value += +tableW002.value[num].total
         }
       })
+      .catch(error => {
+        console.error('W002UrlDefault Error:', error);
+      });
   axios.get(rearEnd + '/W001/W001UrlDefault', {
     params: {
       f_name: fromData.f_name,
@@ -89,6 +95,9 @@ function W002UrlDefault() {
           all_totle_w001_inc.value += +tableW0012.value[num].income
         }
       })
+      .catch(error => {
+        console.error('W001UrlDefault Error:', error);
+      });
 }
 
 const typeSelects = ref([
@@ -99,12 +108,8 @@ const typeSelects = ref([
 const productCategory = ref('')
 
 const selectProductCategory = (selectValue) => {
-  if (selectValue === '') {
-    productCategory.value = typeSelects.value[typeSelects.value.length - 1].value
-    fromData.c_value = productCategory.value
-  } else {
-    fromData.c_value = selectValue
-  }
+  fromData.c_value = selectValue || typeSelects.value[typeSelects.value.length - 1].value
+  productCategory.value = fromData.c_value
 }
 
 const tableW002 = ref([])
@@ -114,23 +119,23 @@ const W002_table_column = ref([
   {'quantity': '數量'},
   {'amount': '金額'},
   {'total': '總金額'},
-  {'new_date': '日期'}
+  {'new_date_Format': '日期'}
 ])
 
 const h_totle = ref('')
 const calc = () => {
-  fromData.f_value = fromData.f_value <= 0 ? '' : fromData.f_value;
-  fromData.g_value = fromData.g_value <= 0 ? '' : fromData.g_value;
-  if (fromData.f_value !== '' && fromData.g_value !== '') {
-    h_totle.value = fromData.f_value * fromData.g_value;
-  }
+  fromData.f_value = Math.max(+fromData.f_value, 0) || ''
+  fromData.g_value = Math.max(+fromData.g_value, 0) || ''
+  h_totle.value = fromData.f_value && fromData.g_value ? String(fromData.f_value * fromData.g_value) : ''
 }
 
-const addTF = ref(false)
 const modifyTF = ref(true)
 const hint = ref('')
 const W002Url = (restfulApi_type) => {
   hint.value = ''
+  if (fromData.new_date === null) {
+    fromData.new_date = new Date()
+  }
   switch (restfulApi_type) {
     case 'Add' :
       let patternNum = /^\d+$/
@@ -158,18 +163,18 @@ const W002Url = (restfulApi_type) => {
               })
                   .then((response) => {
                     tableW002.value = response.data[0]
-                    fromData.c_value = ''
-                    fromData.d_value = ''
-                    fromData.e_value = ''
-                    fromData.f_value = ''
-                    fromData.g_value = ''
+                    reductionFromData()
                     h_totle.value = ''
                     productCategory.value = ''
                     all_totle_w002.value = 0
+                    productCategory.value = ''
                     for (let num in tableW002.value) {
                       all_totle_w002.value += +tableW002.value[num].total
                     }
                   })
+                  .catch(error => {
+                    console.error('Add Error:', error);
+                  });
             } else {
               hint.value = '編號重複，請換其他編號'
             }
@@ -181,36 +186,63 @@ const W002Url = (restfulApi_type) => {
         GoW002: fromData
       })
           .then((response) => {
-            addTF.value = false
             tableW002.value = response.data[0]
-            fromData.c_value = ''
-            fromData.d_value = ''
-            fromData.e_value = ''
-            fromData.f_value = ''
-            fromData.g_value = ''
+            reductionFromData()
             h_totle.value = ''
             all_totle_w002.value = 0
+            productCategory.value = ''
             for (let num in tableW002.value) {
               all_totle_w002.value += +tableW002.value[num].total
             }
           })
+          .catch(error => {
+            console.error('Modify Error:', error);
+          });
+      break
+    case 'Query' :
+      axios.post(rearEnd + path + goW002.name + restfulApi_type, {
+        GoW002: fromData
+      })
+          .then((response) => {
+            tableW002.value = response.data[0]
+            reductionFromData()
+            h_totle.value = ''
+            productCategory.value = ''
+            all_totle_w002.value = 0
+            productCategory.value = ''
+            for (let num in tableW002.value) {
+              all_totle_w002.value += +tableW002.value[num].total
+            }
+          })
+          .catch(error => {
+            console.error('Add Error:', error);
+          });
       break
   }
 }
 
 const modify = (row) => {
-  addTF.value = true
-  modifyTF.value = false
-  fromData.id = String(row.id)
-  fromData.a_value = row.m_code.substring(0, 3)
-  fromData.b_value = row.m_code.substring(3, 17)
-  fromData.c_value = row.m_code.substring(17, 18)
-  fromData.d_value = row.m_code.substring(18, 21)
-  fromData.e_value = row.remark
-  fromData.f_value = row.quantity
-  fromData.g_value = row.amount
-  h_totle.value = fromData.f_value * fromData.g_value;
+  let { id, m_code, remark, quantity, amount, new_date } = row
+  let [a_value, b_value, c_value, d_value] = [
+    m_code.substring(0, 3),
+    m_code.substring(3, 17),
+    m_code.substring(17, 18),
+    m_code.substring(18, 21)
+  ];
+  modifyTF.value = false;
+  fromData.id = String(id);
+  fromData.a_value = a_value
+  fromData.b_value = b_value
+  fromData.c_value = c_value
+  fromData.d_value = d_value
+  fromData.e_value = remark
+  fromData.f_value = quantity
+  fromData.g_value = amount
+  h_totle.value = String(quantity * amount)
+  productCategory.value = c_value;
+  fromData.new_date = new_date
 }
+
 
 const confirmEventDelete = (row) => {
   axios.delete(rearEnd + path + confirmEventDelete.name, {
@@ -222,17 +254,24 @@ const confirmEventDelete = (row) => {
   })
       .then((response) => {
         tableW002.value = response.data[0]
-        fromData.c_value = ''
-        fromData.d_value = ''
-        fromData.e_value = ''
-        fromData.f_value = ''
-        fromData.g_value = ''
+        reductionFromData()
         h_totle.value = ''
         all_totle_w002.value = 0
+        productCategory.value = ''
         for (let num in tableW002.value) {
           all_totle_w002.value += +tableW002.value[num].total
         }
       })
+      .catch(error => {
+        console.error('confirmEventDelete Error:', error);
+      });
+}
+
+const reductionFromData = () => {
+  let fieldsToReset = ['c_value', 'd_value', 'e_value', 'f_value', 'g_value'];
+  for (let field of fieldsToReset) {
+    fromData[field] = '';
+  }
 }
 
 </script>
@@ -326,16 +365,20 @@ const confirmEventDelete = (row) => {
             />
             <el-button-group>
               <el-button
-                  :disabled="addTF"
-                  style="width: 165px"
+                  style="width: 110px"
                   @click="W002Url('Add')"
               >新增
               </el-button>
               <el-button
                   :disabled="modifyTF"
-                  style="width: 165px"
+                  style="width: 110px"
                   @click="W002Url('Modify')"
               >修改
+              </el-button>
+              <el-button
+                  style="width: 110px"
+                  @click="W002Url('Query')"
+              >查詢
               </el-button>
             </el-button-group>
             <el-text>{{ hint }}</el-text>
@@ -401,9 +444,9 @@ const confirmEventDelete = (row) => {
             />
             <template #append>
               <el-text size="large" type="warning">
-                記帳系統總&emsp;支出&emsp;{{ all_totle_w001_exp }}
+                &emsp;記帳系統總&emsp;支出&emsp;{{ all_totle_w001_exp }}
                 <br>
-                記帳系統總&emsp;收入&emsp;{{ all_totle_w001_inc }}
+                &emsp;記帳系統總&emsp;收入&emsp;{{ all_totle_w001_inc }}
               </el-text>
             </template>
           </el-table>

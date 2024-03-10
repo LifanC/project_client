@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import {toFindCookie} from "@/components/componentsJs/cookie";
-import {setDefaultDateRange} from "@/components/componentsJs/W001.js";
+import {setDefaultDateRange, setDateRange} from "@/components/componentsJs/W001.js";
 
 const rearEnd = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
@@ -16,6 +16,9 @@ function goW001() {
       .then((response) => {
         W001.value = response.data
       })
+      .catch(error => {
+        console.error('goW001 Error:', error);
+      });
 }
 
 const fromData = reactive({
@@ -50,6 +53,10 @@ function W001UrlDefault() {
         tableW001.value = response.data[0]
         tableW0012.value = response.data[1]
       })
+      .catch(error => {
+        console.error('W001UrlDefault Error:', error);
+      });
+  monthProportion(setDateRange(0))
 }
 
 const insTypeValue = ref('')
@@ -60,7 +67,7 @@ const radioItems = ref([
   {label: '交通', value: '3'},
   {label: '消費', value: '4'},
   {label: '3C', value: '5'},
-  {label: '其他', value: '6'}
+  {label: '娛樂', value: '6'}
 ])
 const datePicker = ref(setDefaultDateRange())
 const tableW001 = ref([]);
@@ -76,7 +83,7 @@ const W001_table_column2 = ref([
   {'new_date_Format': '日期'},
   {'expense': '支出'},
   {'income': '收入'},
-  {'totle_money': '總金額'}
+  {'totle_money': '損益'}
 ])
 
 const addTF = ref(true)
@@ -96,7 +103,7 @@ const W001Type = (W001Type_type) => {
         })
         if (TF) {
           radioItems.value.push(
-              {label: insTypeValue.value, value: (radioItems.value.length + 1).toString()}
+              {label: insTypeValue.value, value: '7'}
           )
         }
       }
@@ -144,6 +151,9 @@ const W001Url = (restfulApi_type) => {
             addTF.value = true
             hint.value = 'Success'
           })
+          .catch(error => {
+            console.error('Add Error:', error);
+          });
       break
     case 'Single_search' :
       axios.post(rearEnd + path + goW001.name + restfulApi_type, {
@@ -154,19 +164,26 @@ const W001Url = (restfulApi_type) => {
             tableW0012.value = response.data[1]
             hint.value = 'Success'
           })
+          .catch(error => {
+            console.error('Single_search Error:', error);
+          });
       break
     case 'Search' :
       if (datePicker.value === null) {
         datePicker.value = setDefaultDateRange()
       }
       axios.post(rearEnd + path + goW001.name + restfulApi_type, {
-        GoW001_datePicker: datePicker.value
+        GoW001_datePicker: datePicker.value,
+        GoW001_fNume_number: [fromData.f_name, fromData.number]
       })
           .then((response) => {
-            tableW001.value = response.data[0]
-            tableW0012.value = response.data[1]
+            tableW001.value = response.data.length > 0 ? response.data[0] : [];
+            tableW0012.value = response.data.length > 0 ? response.data[1] : [];
             hint.value = 'Success'
           })
+          .catch(error => {
+            console.error('Search Error:', error);
+          });
       break
     case 'Clear' :
       fromData.expense_and_income_number = 'A'
@@ -194,6 +211,9 @@ const W001Url = (restfulApi_type) => {
             modifyTF.value = true
             hint.value = 'Success'
           })
+          .catch(error => {
+            console.error('Modify Error:', error);
+          });
       break
   }
 }
@@ -206,6 +226,47 @@ const handleSelectionChange = (val) => {
       printIreport_Array.value.push(val[valKey])
     }
   }
+  proportion(val)
+}
+
+const tableOneDayProportion = ref([])
+const tableOneDayProportion_column = ref([
+  {'income': '收入'},
+  {'income_proportion': ''},
+  {'expense': '支出'},
+  {'expense_r2_proportion': '食物'},
+  {'expense_r3_proportion': '交通'},
+  {'expense_r4_proportion': '消費'},
+  {'expense_r5_proportion': '3C'},
+  {'expense_r6_proportion': '娛樂'},
+  {'expense_r7_proportion': '其他'}
+])
+const proportion = (val) => {
+  if (val.length === 1) {
+    axios.post(rearEnd + path + goW001.name + proportion.name, {
+      f_name: val[0].f_name,
+      number: val[0].number,
+      new_date_Format: val[0].new_date_Format
+    })
+        .then((response) => {
+          tableOneDayProportion.value = response.data
+        })
+        .catch(error => {
+          console.error('proportion Error:', error);
+        });
+    axios.post(rearEnd + path + goW001.name + proportion.name + 'Single_search', {
+      f_name: val[0].f_name,
+      number: val[0].number,
+      new_date_Format: val[0].new_date_Format
+    })
+        .then((response) => {
+          tableW001.value = response.data[0]
+          hint.value = 'Success'
+        })
+        .catch(error => {
+          console.error('proportion Error:', error);
+        });
+  }
 }
 
 const Start_printIreport = ref([])
@@ -217,20 +278,18 @@ const printIreport = () => {
       .then((response) => {
         Start_printIreport.value.push(response.data[0], response.data[1])
       })
+      .catch(error => {
+        console.error('printIreport Error:', error);
+      });
 }
 
 const less_than_zero = () => {
   fromData.input_money = (fromData.input_money < 0) ? 0 : fromData.input_money
   fromData.input_money = (fromData.input_money === '') ? 0 : fromData.input_money
-  if (fromData.input_money > 0) {
-    addTF.value = false
-  } else {
-    addTF.value = true
-  }
+  addTF.value = fromData.input_money <= 0;
 }
 
 const modify = (row) => {
-  console.log('row', row)
   modifyTF.value = false
   radio_group_value.value = row.radio_group_value
   fromData.radio_group_value = row.radio_group_value
@@ -256,6 +315,42 @@ const confirmEventDelete = (row) => {
         tableW001.value = response.data[0]
         tableW0012.value = response.data[1]
       })
+      .catch(error => {
+        console.error('confirmEventDelete Error:', error);
+      });
+}
+
+function monthProportion(val) {
+  axios.post(rearEnd + path + goW001.name + monthProportion.name, {
+    GoW001_fNume_number: [fromData.f_name, fromData.number],
+    GoW001_setDateRange: val
+  })
+      .then((response) => {
+        tableOneDayProportion.value = response.data
+      })
+
+      .catch(error => {
+        console.error('proportion Error:', error);
+      });
+}
+
+const thisMonthNum = ref(0)
+const thisMonth = (val) => {
+  switch (val) {
+    case 'lastMonth':
+      datePicker.value = setDateRange(--thisMonthNum.value)
+      monthProportion(datePicker.value)
+      break
+    case 'thisMonth':
+      thisMonthNum.value = 0
+      datePicker.value = setDateRange(0)
+      monthProportion(setDateRange(0))
+      break
+    case 'nextMonth':
+      datePicker.value = setDateRange(++thisMonthNum.value)
+      monthProportion(datePicker.value)
+      break
+  }
 }
 
 </script>
@@ -263,6 +358,28 @@ const confirmEventDelete = (row) => {
 <template>
   <el-container>
     <el-header>{{ W001 }}</el-header>
+    <el-row>
+      <el-table
+          :data="tableOneDayProportion"
+          border
+          height="80px"
+          style="width: 750px"
+          v-if="tableOneDayProportion.length > 0"
+      >
+        <el-table-column
+            v-for="i in tableOneDayProportion_column"
+            :label="i[Object.keys(i)[0]].toString()"
+            :prop="Object.keys(i).toString()"
+        />
+      </el-table>
+    </el-row>
+    <el-row>
+      <el-button-group>
+        <el-button @click="thisMonth('lastMonth')">上月</el-button>
+        <el-button @click="thisMonth('thisMonth')">本月</el-button>
+        <el-button @click="thisMonth('nextMonth')">下月</el-button>
+      </el-button-group>
+    </el-row>
     <el-container>
       <el-aside width="450px">
         <el-descriptions
