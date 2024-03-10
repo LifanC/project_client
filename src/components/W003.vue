@@ -4,21 +4,20 @@ import axios from "axios";
 import {toFindCookie} from "@/components/componentsJs/cookie";
 import {setDateRange} from "@/components/componentsJs/W001";
 
-const rearEnd = 'http://localhost:8080'
+axios.defaults.baseURL = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
 const path = window.location.pathname + '/'
 const W003 = ref('')
 
 goW003()
 
-function goW003() {
-  axios.get(rearEnd + path + goW003.name)
-      .then((response) => {
-        W003.value = response.data
-      })
-      .catch(error => {
-        console.error('goW002 Error:', error);
-      });
+async function goW003() {
+  try {
+    const response = await axios.get(path + goW003.name)
+    W003.value = response.data
+  } catch (error) {
+    console.error('goW003 Error:', error);
+  }
 }
 
 const fromData = reactive({
@@ -47,19 +46,18 @@ const W001_table_column2 = ref([
   {'totle_money': '總金額'}
 ])
 
-function monthProportion() {
-  axios.post(rearEnd + path + goW003.name + monthProportion.name, {
-    GoW003_fNume_number: [fromData.f_name, fromData.number],
-    GoW003_setDateRangeThis: setDateRange(0),
-    GoW003_setDateRangeLast: setDateRange(-1)
-  })
-      .then((response) => {
-        tableW0012This.value = response.data[0]
-        tableW0012Last.value = response.data[1]
-      })
-      .catch(error => {
-        console.error('monthProportion Error:', error);
-      });
+async function monthProportion() {
+  try {
+    const response = await axios.post(path + goW003.name + monthProportion.name, {
+      GoW003_fNume_number: [fromData.f_name, fromData.number],
+      GoW003_setDateRangeThis: setDateRange(0),
+      GoW003_setDateRangeLast: setDateRange(-1)
+    })
+    tableW0012This.value = response.data[0]
+    tableW0012Last.value = response.data[1]
+  } catch (error) {
+    console.error('monthProportion Error:', error);
+  }
 }
 
 </script>

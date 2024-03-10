@@ -3,7 +3,7 @@
 import axios from "axios";
 import {addCookie, clearCookie, toFindCookie} from "@/components/componentsJs/cookie";
 
-const rearEnd = 'http://localhost:8080'
+axios.defaults.baseURL = 'http://localhost:8080'
 const fromData = reactive({
   f_name: '',
   number: '',
@@ -39,30 +39,32 @@ const checkIf = (cIf) => {
 
 }
 
-const indexUrl = (restfulApi_type) => {
+const indexUrl = async (restfulApi_type) => {
   if (isText.value && isNumeric.value) {
     fromData.restfulApi_type = restfulApi_type
-    axios({
-      method: 'post',
-      url: rearEnd + '/Index/' + indexUrl.name,
-      data: fromData
-    })
-        .then((response) => {
-          if (response.data[0] === 'true') {
-            if (restfulApi_type === 'Delete') {
-              quitIndexUrl()
-            } else {
-              addCookie(fromData.f_name, fromData.number)
-              PubSub.publish('IndexUrl', response.data[0])
-            }
-            Start_indexUrl_type.value = response.data[1]
-          } else if (response.data[0] === 'false') {
-            fromData.f_name = ''
-            fromData.number = ''
-            Start_indexUrl_type.value = response.data[1]
-            PubSub.publish('IndexUrl', response.data[0])
-          }
-        })
+    try {
+      const response = await axios({
+        method: 'post',
+        url: '/Index/' + indexUrl.name,
+        data: fromData
+      });
+      if (response.data[0] === 'true') {
+        if (restfulApi_type === 'Delete') {
+          quitIndexUrl()
+        } else {
+          addCookie(fromData.f_name, fromData.number)
+          PubSub.publish('IndexUrl', response.data[0])
+        }
+        Start_indexUrl_type.value = response.data[1]
+      } else if (response.data[0] === 'false') {
+        fromData.f_name = ''
+        fromData.number = ''
+        Start_indexUrl_type.value = response.data[1]
+        PubSub.publish('IndexUrl', response.data[0])
+      }
+    } catch (error) {
+      console.error('indexUrl請求失敗:', error);
+    }
   }
 }
 
