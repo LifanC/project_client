@@ -487,7 +487,7 @@ const thisMonth = (val) => {
             </el-descriptions>
           </el-form>
         </el-space>
-        <el-text type="success">{{ hint }}</el-text>
+        <el-text>{{ hint }}</el-text>
       </el-aside>
       <el-main>
         <el-row>

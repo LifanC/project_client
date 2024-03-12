@@ -37,24 +37,16 @@ function W003UrlDefault() {
   monthProportion()
 }
 
-const tableW0012This = ref([]);
-const tableW0012Last = ref([]);
-const W001_table_column2 = ref([
-  {'new_date_Format': '日期'},
-  {'expense': '支出'},
-  {'income': '收入'},
-  {'totle_money': '總金額'}
-])
-
 async function monthProportion() {
   try {
     const response = await axios.post(path + goW003.name + monthProportion.name, {
       GoW003_fNume_number: [fromData.f_name, fromData.number],
+      GoW003_setDateRangeLast: setDateRange(-1),
       GoW003_setDateRangeThis: setDateRange(0),
-      GoW003_setDateRangeLast: setDateRange(-1)
+      GoW003_setDateRangeNext: setDateRange(1),
     })
-    tableW0012This.value = response.data[0]
-    tableW0012Last.value = response.data[1]
+    console.log('list12',response.data[0])
+    console.log('list2',response.data[1])
   } catch (error) {
     console.error('monthProportion Error:', error);
   }
@@ -70,36 +62,7 @@ async function monthProportion() {
 
       </el-aside>
       <el-main>
-        <el-text size="large">本月</el-text>
-        <el-row>
-          <el-table
-              :data="tableW0012This"
-              height="80px" border
-              style="width: 1000px"
-              v-if="tableW0012This.length > 0"
-          >
-            <el-table-column
-                v-for="i in W001_table_column2"
-                :label="i[Object.keys(i)[0]].toString()"
-                :prop="Object.keys(i).toString()"
-            />
-          </el-table>
-        </el-row>
-        <el-text size="large">上月</el-text>
-        <el-row>
-          <el-table
-              :data="tableW0012Last"
-              height="80px" border
-              style="width: 1000px"
-              v-if="tableW0012Last.length > 0"
-          >
-            <el-table-column
-                v-for="i in W001_table_column2"
-                :label="i[Object.keys(i)[0]].toString()"
-                :prop="Object.keys(i).toString()"
-            />
-          </el-table>
-        </el-row>
+
       </el-main>
     </el-container>
   </el-container>
