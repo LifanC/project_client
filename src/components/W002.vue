@@ -392,6 +392,8 @@ const reductionFromData = () => {
               height="250px"
               style="width: 1300px"
               v-if="tableW002.length > 0"
+              show-summary="show-summary"
+              sum-text="支出合計"
           >
             <el-table-column
                 label="功能"
@@ -422,11 +424,6 @@ const reductionFromData = () => {
                 :label="i[Object.keys(i)[0]].toString()"
                 :prop="Object.keys(i).toString()"
             />
-            <template #append>
-              <el-text size="large" type="warning">
-                &emsp;總務系統總&emsp;支出&emsp;{{ all_totle_w002 }}
-              </el-text>
-            </template>
           </el-table>
         </el-row>
         <el-row>
@@ -435,19 +432,14 @@ const reductionFromData = () => {
               height="250px" border
               style="width: 1000px"
               v-if="tableW0012.length > 0"
+              show-summary
+              sum-text="合計"
           >
             <el-table-column
                 v-for="i in W001_table_column2"
                 :label="i[Object.keys(i)[0]].toString()"
                 :prop="Object.keys(i).toString()"
             />
-            <template #append>
-              <el-text size="large" type="warning">
-                &emsp;記帳系統總&emsp;支出&emsp;{{ all_totle_w001_exp }}
-                <br>
-                &emsp;記帳系統總&emsp;收入&emsp;{{ all_totle_w001_inc }}
-              </el-text>
-            </template>
           </el-table>
         </el-row>
       </el-main>

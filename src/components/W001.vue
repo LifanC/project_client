@@ -338,18 +338,16 @@ const thisMonth = (val) => {
   switch (val) {
     case 'lastMonth':
       datePicker.value = setDateRange(--thisMonthNum.value)
-      monthProportion(datePicker.value)
       break
     case 'thisMonth':
       thisMonthNum.value = 0
       datePicker.value = setDateRange(0)
-      monthProportion(setDateRange(0))
       break
     case 'nextMonth':
       datePicker.value = setDateRange(++thisMonthNum.value)
-      monthProportion(datePicker.value)
       break
   }
+  monthProportion(datePicker.value)
 }
 
 </script>
@@ -363,7 +361,7 @@ const thisMonth = (val) => {
           border
           height="80px"
           style="width: 750px"
-          v-if="tableOneDayProportion.length > 0"
+          empty-text="無資料"
       >
         <el-table-column
             v-for="i in tableOneDayProportion_column"
@@ -497,8 +495,10 @@ const thisMonth = (val) => {
               height="250px" border
               style="width: 1000px"
               v-if="tableW0012.length > 0"
+              show-summary
+              sum-text="合計"
           >
-            <el-table-column type="selection" width="55px"/>
+            <el-table-column type="selection" width="60px"/>
             <el-table-column
                 v-for="i in W001_table_column2"
                 :label="i[Object.keys(i)[0]].toString()"
