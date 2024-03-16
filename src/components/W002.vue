@@ -4,21 +4,20 @@ import axios from "axios";
 import {toFindCookie} from "@/components/componentsJs/cookie";
 import {dateConversionYMDhms} from "@/components/componentsJs/ConvertPadding";
 
-const rearEnd = 'http://localhost:8080'
+axios.defaults.baseURL = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
 const path = window.location.pathname + '/'
 const W002 = ref('')
 
 goW002()
 
-function goW002() {
-  axios.get(rearEnd + path + goW002.name)
-      .then((response) => {
-        W002.value = response.data
-      })
-      .catch(error => {
-        console.error('goW002 Error:', error);
-      });
+async function goW002() {
+  try {
+    const response = await axios.get(path + goW002.name)
+    W002.value = response.data
+  } catch (error) {
+    console.error('goW002 Error:', error);
+  }
 }
 
 const fromData = reactive({
@@ -64,7 +63,7 @@ const W001_table_column2 = ref([
 const all_totle_w002 = ref(0)
 
 function W002UrlDefault() {
-  axios.get(rearEnd + path + W002UrlDefault.name, {
+  axios.get(path + W002UrlDefault.name, {
     params: {
       f_name: fromData.f_name,
       number: fromData.number
@@ -80,7 +79,7 @@ function W002UrlDefault() {
       .catch(error => {
         console.error('W002UrlDefault Error:', error);
       });
-  axios.get(rearEnd + '/W001/W001UrlDefault', {
+  axios.get('/W001/W001UrlDefault', {
     params: {
       f_name: fromData.f_name,
       number: fromData.number
@@ -152,13 +151,13 @@ const W002Url = (restfulApi_type) => {
       if (fromData.new_date === null) {
         fromData.new_date = new Date()
       }
-      axios.post(rearEnd + path + goW002.name + 'Search', {
+      axios.post(path + goW002.name + 'Search', {
         GoW002: fromData
       })
           .then((response) => {
             if (response.data) {
               hint.value = 'Success'
-              axios.post(rearEnd + path + goW002.name + restfulApi_type, {
+              axios.post(path + goW002.name + restfulApi_type, {
                 GoW002: fromData
               })
                   .then((response) => {
@@ -182,7 +181,7 @@ const W002Url = (restfulApi_type) => {
 
       break
     case 'Modify' :
-      axios.put(rearEnd + path + goW002.name + restfulApi_type, {
+      axios.put(path + goW002.name + restfulApi_type, {
         GoW002: fromData
       })
           .then((response) => {
@@ -200,7 +199,7 @@ const W002Url = (restfulApi_type) => {
           });
       break
     case 'Query' :
-      axios.post(rearEnd + path + goW002.name + restfulApi_type, {
+      axios.post(path + goW002.name + restfulApi_type, {
         GoW002: fromData
       })
           .then((response) => {
@@ -245,7 +244,7 @@ const modify = (row) => {
 
 
 const confirmEventDelete = (row) => {
-  axios.delete(rearEnd + path + confirmEventDelete.name, {
+  axios.delete(path + confirmEventDelete.name, {
     params: {
       id: row.id,
       f_name: row.m_code.substring(0, 1),
@@ -393,6 +392,8 @@ const reductionFromData = () => {
               height="250px"
               style="width: 1300px"
               v-if="tableW002.length > 0"
+              show-summary="show-summary"
+              sum-text="支出合計"
           >
             <el-table-column
                 label="功能"
@@ -423,11 +424,6 @@ const reductionFromData = () => {
                 :label="i[Object.keys(i)[0]].toString()"
                 :prop="Object.keys(i).toString()"
             />
-            <template #append>
-              <el-text size="large" type="warning">
-                &emsp;總務系統總&emsp;支出&emsp;{{ all_totle_w002 }}
-              </el-text>
-            </template>
           </el-table>
         </el-row>
         <el-row>
@@ -436,19 +432,14 @@ const reductionFromData = () => {
               height="250px" border
               style="width: 1000px"
               v-if="tableW0012.length > 0"
+              show-summary
+              sum-text="合計"
           >
             <el-table-column
                 v-for="i in W001_table_column2"
                 :label="i[Object.keys(i)[0]].toString()"
                 :prop="Object.keys(i).toString()"
             />
-            <template #append>
-              <el-text size="large" type="warning">
-                &emsp;記帳系統總&emsp;支出&emsp;{{ all_totle_w001_exp }}
-                <br>
-                &emsp;記帳系統總&emsp;收入&emsp;{{ all_totle_w001_inc }}
-              </el-text>
-            </template>
           </el-table>
         </el-row>
       </el-main>

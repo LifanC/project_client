@@ -4,21 +4,20 @@ import axios from "axios";
 import {toFindCookie} from "@/components/componentsJs/cookie";
 import {setDefaultDateRange, setDateRange} from "@/components/componentsJs/W001.js";
 
-const rearEnd = 'http://localhost:8080'
+axios.defaults.baseURL = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
 const path = window.location.pathname + '/'
 const W001 = ref('')
 
 goW001()
 
-function goW001() {
-  axios.get(rearEnd + path + goW001.name)
-      .then((response) => {
-        W001.value = response.data
-      })
-      .catch(error => {
-        console.error('goW001 Error:', error);
-      });
+async function goW001() {
+  try {
+    const response = await axios.get(path + goW001.name)
+    W001.value = response.data
+  } catch (error) {
+    console.error('goW001 Error:', error);
+  }
 }
 
 const fromData = reactive({
@@ -43,7 +42,7 @@ if (toFindCookie() === undefined) {
 }
 
 function W001UrlDefault() {
-  axios.get(rearEnd + path + W001UrlDefault.name, {
+  axios.get(path + W001UrlDefault.name, {
     params: {
       f_name: fromData.f_name,
       number: fromData.number
@@ -140,7 +139,7 @@ const W001Url = (restfulApi_type) => {
   switch (restfulApi_type) {
     case 'Add' :
       if (returnAdd) return
-      axios.post(rearEnd + path + goW001.name + restfulApi_type, {
+      axios.post(path + goW001.name + restfulApi_type, {
         GoW001: fromData
       })
           .then((response) => {
@@ -156,7 +155,7 @@ const W001Url = (restfulApi_type) => {
           });
       break
     case 'Single_search' :
-      axios.post(rearEnd + path + goW001.name + restfulApi_type, {
+      axios.post(path + goW001.name + restfulApi_type, {
         GoW001: fromData
       })
           .then((response) => {
@@ -172,7 +171,7 @@ const W001Url = (restfulApi_type) => {
       if (datePicker.value === null) {
         datePicker.value = setDefaultDateRange()
       }
-      axios.post(rearEnd + path + goW001.name + restfulApi_type, {
+      axios.post(path + goW001.name + restfulApi_type, {
         GoW001_datePicker: datePicker.value,
         GoW001_fNume_number: [fromData.f_name, fromData.number]
       })
@@ -197,7 +196,7 @@ const W001Url = (restfulApi_type) => {
       break
     case 'Modify' :
       if (returnAdd) return
-      axios.put(rearEnd + path + goW001.name + restfulApi_type, {
+      axios.put(path + goW001.name + restfulApi_type, {
         GoW001: fromData
       })
           .then((response) => {
@@ -243,7 +242,7 @@ const tableOneDayProportion_column = ref([
 ])
 const proportion = (val) => {
   if (val.length === 1) {
-    axios.post(rearEnd + path + goW001.name + proportion.name, {
+    axios.post(path + goW001.name + proportion.name, {
       f_name: val[0].f_name,
       number: val[0].number,
       new_date_Format: val[0].new_date_Format
@@ -254,7 +253,7 @@ const proportion = (val) => {
         .catch(error => {
           console.error('proportion Error:', error);
         });
-    axios.post(rearEnd + path + goW001.name + proportion.name + 'Single_search', {
+    axios.post(path + goW001.name + proportion.name + 'Single_search', {
       f_name: val[0].f_name,
       number: val[0].number,
       new_date_Format: val[0].new_date_Format
@@ -272,7 +271,7 @@ const proportion = (val) => {
 const Start_printIreport = ref([])
 const printIreport = () => {
   Start_printIreport.value = []
-  axios.post(rearEnd + path + goW001.name + printIreport.name, {
+  axios.post(path + goW001.name + printIreport.name, {
     GoW001_print: printIreport_Array.value
   })
       .then((response) => {
@@ -301,7 +300,7 @@ const modify = (row) => {
   fromData.new_date = row.upate_time
 }
 const confirmEventDelete = (row) => {
-  axios.delete(rearEnd + path + confirmEventDelete.name, {
+  axios.delete(path + confirmEventDelete.name, {
     params: {
       id: row.id,
       new_date_Format: row.new_date_Format,
@@ -321,7 +320,7 @@ const confirmEventDelete = (row) => {
 }
 
 function monthProportion(val) {
-  axios.post(rearEnd + path + goW001.name + monthProportion.name, {
+  axios.post(path + goW001.name + monthProportion.name, {
     GoW001_fNume_number: [fromData.f_name, fromData.number],
     GoW001_setDateRange: val
   })
@@ -339,18 +338,16 @@ const thisMonth = (val) => {
   switch (val) {
     case 'lastMonth':
       datePicker.value = setDateRange(--thisMonthNum.value)
-      monthProportion(datePicker.value)
       break
     case 'thisMonth':
       thisMonthNum.value = 0
       datePicker.value = setDateRange(0)
-      monthProportion(setDateRange(0))
       break
     case 'nextMonth':
       datePicker.value = setDateRange(++thisMonthNum.value)
-      monthProportion(datePicker.value)
       break
   }
+  monthProportion(datePicker.value)
 }
 
 </script>
@@ -364,7 +361,7 @@ const thisMonth = (val) => {
           border
           height="80px"
           style="width: 750px"
-          v-if="tableOneDayProportion.length > 0"
+          empty-text="無資料"
       >
         <el-table-column
             v-for="i in tableOneDayProportion_column"
@@ -488,7 +485,7 @@ const thisMonth = (val) => {
             </el-descriptions>
           </el-form>
         </el-space>
-        <el-text type="success">{{ hint }}</el-text>
+        <el-text>{{ hint }}</el-text>
       </el-aside>
       <el-main>
         <el-row>
@@ -498,8 +495,10 @@ const thisMonth = (val) => {
               height="250px" border
               style="width: 1000px"
               v-if="tableW0012.length > 0"
+              show-summary
+              sum-text="合計"
           >
-            <el-table-column type="selection" width="55px"/>
+            <el-table-column type="selection" width="60px"/>
             <el-table-column
                 v-for="i in W001_table_column2"
                 :label="i[Object.keys(i)[0]].toString()"
