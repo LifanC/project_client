@@ -25,7 +25,7 @@ function setDateRange(num) {
 /**
  * <h3>format日期的方法</h3>
  * @param date 要format的日期
- * @returns {string} Date() 例:2023/01/01
+ * @returns {string} Date() 例:2023-01-01
  */
 const formatDate = (date) => {
     let year = date.getFullYear();

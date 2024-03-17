@@ -193,6 +193,7 @@ const W001Url = (restfulApi_type) => {
       modifyTF.value = true
       datePicker.value = setDefaultDateRange()
       hint.value = ''
+      dateTF.value = false
       break
     case 'Modify' :
       if (returnAdd) return
@@ -209,6 +210,7 @@ const W001Url = (restfulApi_type) => {
             radio_group_value.value = '6'
             modifyTF.value = true
             hint.value = 'Success'
+            dateTF.value = false
           })
           .catch(error => {
             console.error('Modify Error:', error);
@@ -288,8 +290,10 @@ const less_than_zero = () => {
   addTF.value = fromData.input_money <= 0;
 }
 
+const dateTF = ref(false)
 const modify = (row) => {
   modifyTF.value = false
+  dateTF.value = true
   radio_group_value.value = row.radio_group_value
   fromData.radio_group_value = row.radio_group_value
   fromData.expense_and_income_number = row.expense_and_income_number
@@ -360,7 +364,7 @@ const thisMonth = (val) => {
           :data="tableOneDayProportion"
           border
           height="80px"
-          style="width: 750px"
+          style="width: 100%"
           empty-text="無資料"
       >
         <el-table-column
@@ -457,6 +461,7 @@ const thisMonth = (val) => {
                     v-model="fromData.new_date"
                     type="date"
                     style="width: 139px"
+                    :disabled="dateTF"
                 />
                 <el-button
                     style="width: 80px"
@@ -478,7 +483,7 @@ const thisMonth = (val) => {
                   <el-button
                       style="width: 73px"
                       @click="W001Url('Clear')">
-                    清除
+                    恢復
                   </el-button>
                 </el-button-group>
               </el-descriptions-item>
