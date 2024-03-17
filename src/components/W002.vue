@@ -135,19 +135,19 @@ const W002Url = (restfulApi_type) => {
   if (fromData.new_date === null) {
     fromData.new_date = new Date()
   }
+  let patternNum = /^\d+$/
+  if ([
+    fromData.c_value,
+    fromData.d_value,
+    fromData.e_value,
+    fromData.f_value,
+    fromData.g_value
+  ].some(value => value === '')) {
+    return
+  }
+  if (!patternNum.test(fromData.d_value)) return
   switch (restfulApi_type) {
     case 'Add' :
-      let patternNum = /^\d+$/
-      if ([
-        fromData.c_value,
-        fromData.d_value,
-        fromData.e_value,
-        fromData.f_value,
-        fromData.g_value
-      ].some(value => value === '')) {
-        return
-      }
-      if (!patternNum.test(fromData.d_value)) return
       if (fromData.new_date === null) {
         fromData.new_date = new Date()
       }
