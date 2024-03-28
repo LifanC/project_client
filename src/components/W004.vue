@@ -209,13 +209,10 @@ const W004_table_column_currency = ref([
 ])
 const rates = ref({})
 
-async function W004UrlDefault() {
-  try {
-    const response = await axios.get('https://api.exchangerate-api.com/v4/latest/TWD')
-    rates.value = response.data.rates
-  } catch (error) {
-    console.error('W004UrlDefault Error:', error);
-  }
+function W004UrlDefault() {
+  onMounted(async () => {
+    await first_rates(null)
+  })
 }
 
 const first_rates = async () => {
@@ -262,16 +259,17 @@ const calculate = () => {
   c.value = Math.round(number * 100) / 100
 }
 
+const selectTF = ref(true)
 const select = (row) => {
   value_a.value = row.value
   a.value = row.currency
+  selectTF.value = false
   calculate()
 }
 
 const selectInput = () => {
   calculate()
 }
-
 
 
 </script>
@@ -281,7 +279,7 @@ const selectInput = () => {
     <el-header>{{ W004 }}</el-header>
     <el-container>
       <el-aside width="500px">
-        <el-form-item label="金額">
+        <el-form-item>
           <el-select
               style="width:500px"
               v-model="firstSelect"
@@ -302,7 +300,7 @@ const selectInput = () => {
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="換">
+        <el-form-item>
           <el-select
               style="width:500px"
               v-model="currenciesSelect"
@@ -353,24 +351,36 @@ const selectInput = () => {
       </el-aside>
       <el-main>
         <el-row>
-          <el-form-item :label="value_a">
+          <el-form-item>
             <el-input
                 v-model.number="a"
                 disabled
-            />
+            >
+              <template #prepend>{{ value_a }}</template>
+            </el-input>
           </el-form-item>
-          <el-form-item :label="firstSelect">
+        </el-row>
+        <br>
+        <el-row>
+          <el-form-item>
             <el-input
                 v-model.number="b"
                 @input="selectInput"
-            />
+                style="width: 100%"
+                :disabled="selectTF"
+            >
+              <template #prepend>{{ firstSelect }}</template>
+            </el-input>
           </el-form-item>
-          <el-text>換多少&emsp;=&emsp;</el-text>
-          <el-form-item :label="value_a">
+          <el-text>&emsp;換多少&emsp;</el-text>
+          <el-form-item>
             <el-input
                 v-model.number="c"
                 disabled
-            />
+                style="width: 100%"
+            >
+              <template #prepend>{{ value_a }}</template>
+            </el-input>
           </el-form-item>
         </el-row>
       </el-main>
