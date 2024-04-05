@@ -499,7 +499,7 @@ const thisMonth = (val) => {
               @selection-change="handleSelectionChange"
               height="250px" border
               style="width: 1000px"
-              v-if="tableW0012.length > 0"
+              empty-text="無資料"
               show-summary
               sum-text="合計"
           >
@@ -517,7 +517,7 @@ const thisMonth = (val) => {
               border
               height="500px"
               style="width: 1000px"
-              v-if="tableW001.length > 0"
+              empty-text="無資料"
           >
             >
             <el-table-column

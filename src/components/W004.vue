@@ -275,7 +275,7 @@ const selectInput = () => {
   <el-container>
     <el-header>{{ W004 }}</el-header>
     <el-container>
-      <el-aside width="600px">
+      <el-aside width="700px">
         <el-form-item>
           <el-select
               style="width:600px"
