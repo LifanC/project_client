@@ -16,12 +16,7 @@ const handleSelect = (url) => {
 
 PubSub.subscribe('IndexUrl', function (msg, data) {
   // console.log(msg, data)
-  switch (data) {
-    case 'true': showUrl.value = true
-      break
-    case 'false': showUrl.value = false
-      break
-  }
+  showUrl.value = data ? true : false
 })
 if (toFindCookie() !== undefined) {
   showUrl.value = true
@@ -32,9 +27,9 @@ if (toFindCookie() !== undefined) {
 <template>
   <el-container>
     <el-header>
-      <el-breadcrumb separator="/">
+      <el-breadcrumb separator="*">
         <el-breadcrumb-item :to="{ path: '/' }">Index</el-breadcrumb-item>
-        <el-breadcrumb-item>...</el-breadcrumb-item>
+        <el-breadcrumb-item></el-breadcrumb-item>
       </el-breadcrumb>
       <el-text>{{ date }}</el-text>
     </el-header>

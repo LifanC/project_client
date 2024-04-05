@@ -259,11 +259,9 @@ const calculate = () => {
   c.value = Math.round(number * 100) / 100
 }
 
-const selectTF = ref(true)
 const select = (row) => {
   value_a.value = row.value
   a.value = row.currency
-  selectTF.value = false
   calculate()
 }
 
@@ -271,17 +269,16 @@ const selectInput = () => {
   calculate()
 }
 
-
 </script>
 
 <template>
   <el-container>
     <el-header>{{ W004 }}</el-header>
     <el-container>
-      <el-aside width="500px">
+      <el-aside width="600px">
         <el-form-item>
           <el-select
-              style="width:500px"
+              style="width:600px"
               v-model="firstSelect"
               filterable
               @change="first_rates"
@@ -302,7 +299,7 @@ const selectInput = () => {
         </el-form-item>
         <el-form-item>
           <el-select
-              style="width:500px"
+              style="width:600px"
               v-model="currenciesSelect"
               multiple
               placeholder="輸入換算貨幣代號"
@@ -328,7 +325,7 @@ const selectInput = () => {
         <el-table
             :data="tableW004_currency"
             border
-            style="width: 500px"
+            style="width: 600px"
             empty-text="無資料"
         >
           <el-table-column
@@ -348,8 +345,6 @@ const selectInput = () => {
               :prop="String(Object.keys(i))"
           />
         </el-table>
-      </el-aside>
-      <el-main>
         <el-row>
           <el-form-item>
             <el-input
@@ -367,7 +362,6 @@ const selectInput = () => {
                 v-model.number="b"
                 @input="selectInput"
                 style="width: 100%"
-                :disabled="selectTF"
             >
               <template #prepend>{{ firstSelect }}</template>
             </el-input>
@@ -383,6 +377,9 @@ const selectInput = () => {
             </el-input>
           </el-form-item>
         </el-row>
+      </el-aside>
+      <el-main>
+        *
       </el-main>
     </el-container>
   </el-container>
