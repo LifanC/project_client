@@ -48,7 +48,7 @@ const indexUrl = async (restfulApi_type) => {
         url: '/Index/' + indexUrl.name,
         data: fromData
       });
-      if (response.data[0] === 'true') {
+      if (response.data[0] === true) {
         if (restfulApi_type === 'Delete') {
           quitIndexUrl()
         } else {
@@ -56,7 +56,7 @@ const indexUrl = async (restfulApi_type) => {
           PubSub.publish('IndexUrl', response.data[0])
         }
         Start_indexUrl_type.value = response.data[1]
-      } else if (response.data[0] === 'false') {
+      } else if (response.data[0] === false) {
         fromData.f_name = ''
         fromData.number = ''
         Start_indexUrl_type.value = response.data[1]
@@ -73,7 +73,7 @@ const quitIndexUrl = () => {
   fromData.f_name = ''
   fromData.number = ''
   Start_indexUrl_type.value = ''
-  PubSub.publish('IndexUrl', 'false')
+  PubSub.publish('IndexUrl', false)
   isText.value = false
   isNumeric.value = false
 }
@@ -90,7 +90,7 @@ if (toFindCookie() !== undefined) {
 <template>
   <el-container>
     <el-header>
-      <el-text size="large"><b>首頁 使用者登入</b></el-text>
+      <el-text size="large"><b>首頁&emsp;使用者登入</b></el-text>
     </el-header>
     <el-container>
       <el-aside width="250px">

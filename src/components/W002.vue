@@ -135,22 +135,21 @@ const W002Url = (restfulApi_type) => {
   if (fromData.new_date === null) {
     fromData.new_date = new Date()
   }
-  let patternNum = /^\d+$/
-  if ([
-    fromData.c_value,
-    fromData.d_value,
-    fromData.e_value,
-    fromData.f_value,
-    fromData.g_value
-  ].some(value => value === '')) {
-    return
+  if (restfulApi_type !== 'Query') {
+    let patternNum = /^\d+$/
+    if ([
+      fromData.c_value,
+      fromData.d_value,
+      fromData.e_value,
+      fromData.f_value,
+      fromData.g_value
+    ].some(value => value === '')) {
+      return
+    }
+    if (!patternNum.test(fromData.d_value)) return
   }
-  if (!patternNum.test(fromData.d_value)) return
   switch (restfulApi_type) {
     case 'Add' :
-      if (fromData.new_date === null) {
-        fromData.new_date = new Date()
-      }
       axios.post(path + goW002.name + 'Search', {
         GoW002: fromData
       })
@@ -391,7 +390,7 @@ const reductionFromData = () => {
               border
               height="250px"
               style="width: 1300px"
-              v-if="tableW002.length > 0"
+              empty-text="無資料"
               show-summary="show-summary"
               sum-text="支出合計"
           >
@@ -431,7 +430,7 @@ const reductionFromData = () => {
               :data="tableW0012"
               height="250px" border
               style="width: 1000px"
-              v-if="tableW0012.length > 0"
+              empty-text="無資料"
               show-summary
               sum-text="合計"
           >

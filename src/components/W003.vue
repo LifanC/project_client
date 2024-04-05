@@ -4,7 +4,6 @@ import axios from "axios";
 import {toFindCookie} from "@/components/componentsJs/cookie";
 import {setDateRange} from "@/components/componentsJs/W001";
 import {fourSeasonsYMDhms} from "@/components/componentsJs/ConvertPadding";
-import {ArrowLeftBold,ArrowRightBold} from "@element-plus/icons-vue";
 
 axios.defaults.baseURL = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
@@ -196,9 +195,12 @@ const calculateTotal = (ExOrIn, tableName, respList, totalElement, textElement, 
 }
 
 const calculateProportionTotal = (lastMonth, thisMonth, nextMonth) => {
-  lastProportionTotal_in.value = +(((last2Total.value + last12Total_ex.value) / last12Total_in.value) * 100).toFixed(0)
-  thisProportionTotal_in.value = +(((this2Total.value + this12Total_ex.value) / this12Total_in.value) * 100).toFixed(0)
-  nextProportionTotal_in.value = +(((next2Total.value + next12Total_ex.value) / next12Total_in.value) * 100).toFixed(0)
+  lastProportionTotal_in.value = (last12Total_in.value === 0)
+      ? 0 : +(((last2Total.value + last12Total_ex.value) / last12Total_in.value) * 100).toFixed(0)
+  thisProportionTotal_in.value = (this12Total_in.value === 0)
+      ? 0 : +(((this2Total.value + this12Total_ex.value) / this12Total_in.value) * 100).toFixed(0)
+  nextProportionTotal_in.value = (next12Total_in.value === 0)
+      ? 0 : +(((next2Total.value + next12Total_ex.value) / next12Total_in.value) * 100).toFixed(0)
   lastProportionText_in.value = getUniqueArr(lastMonth, lastProportionTotal_in, thisProportionTotal_in, nextProportionTotal_in)
   thisProportionText_in.value = getUniqueArr(thisMonth, lastProportionTotal_in, thisProportionTotal_in, nextProportionTotal_in)
   nextProportionText_in.value = getUniqueArr(nextMonth, lastProportionTotal_in, thisProportionTotal_in, nextProportionTotal_in)
@@ -282,8 +284,8 @@ async function seasonProportion(data) {
     calculateTotal('', 'L2', respList2[0], list2Total, null, null)
     let months = seasons[tempData].join(' ~ ') + '月'
     list2TotalText.value = list12TotalText_ex.value = list12TotalText_in.value = listProportionText_in.value = months
-    let totals = +(((list2Total.value + list12Total_ex.value) / list12Total_in.value) * 100).toFixed(0)
-    listProportionTotal_in.value = isNaN(totals) ? 0 : totals
+    listProportionTotal_in.value = (list12Total_in.value === 0)
+        ? 0 : +(((list2Total.value + list12Total_ex.value) / list12Total_in.value) * 100).toFixed(0)
     checkAndSetProportionValue(listProportionTotal_in.value, listProportionTotalTF, list_pt)
   } catch (error) {
     console.error('seasonProportion Error:', error);
@@ -327,9 +329,9 @@ async function seasonProportion(data) {
       <el-main>
         <el-row>
           <el-button-group>
-            <el-button @click="thisMonth('lastMonth')" :icon="ArrowLeftBold"/>
+            <el-button @click="thisMonth('lastMonth')">上月</el-button>
             <el-button @click="thisMonth('thisMonth')">當月</el-button>
-            <el-button @click="thisMonth('nextMonth')" :icon="ArrowRightBold"/>
+            <el-button @click="thisMonth('nextMonth')">下月</el-button>
           </el-button-group>
         </el-row>
         <el-space
