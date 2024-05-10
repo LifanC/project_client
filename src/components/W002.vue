@@ -37,17 +37,19 @@ const fromData = reactive({
   // 金額
   g_value: '',
   new_date: new Date(),
+  permissions_value: '',
 })
 
 if (toFindCookie() === undefined) {
   location.href = frontEnd
 } else {
-  fromData.a_value = toFindCookie()
+  fromData.a_value = toFindCookie().substring(0, 3)
   fromData.b_value = (dateConversionYMDhms(false)
       .replace(/\D/g, '')
       .substring(8, 0)) + '000001'
   fromData.f_name = toFindCookie().substring(0, 1)
   fromData.number = toFindCookie().substring(1, 3)
+  fromData.permissions_value = toFindCookie().substring(3, 4)
   W002UrlDefault()
 }
 
@@ -66,7 +68,8 @@ function W002UrlDefault() {
   axios.get(path + W002UrlDefault.name, {
     params: {
       f_name: fromData.f_name,
-      number: fromData.number
+      number: fromData.number,
+      permissions_value: fromData.permissions_value
     }
   })
       .then((response) => {
@@ -82,7 +85,8 @@ function W002UrlDefault() {
   axios.get('/W001/W001UrlDefault', {
     params: {
       f_name: fromData.f_name,
-      number: fromData.number
+      number: fromData.number,
+      permissions_value: fromData.permissions_value
     }
   })
       .then((response) => {
@@ -243,11 +247,13 @@ const modify = (row) => {
 
 
 const confirmEventDelete = (row) => {
+  fromData.permissions_value = toFindCookie().substring(3, 4)
   axios.delete(path + confirmEventDelete.name, {
     params: {
       id: row.id,
       f_name: row.m_code.substring(0, 1),
       number: row.m_code.substring(1, 3),
+      permissions_value : fromData.permissions_value,
     }
   })
       .then((response) => {

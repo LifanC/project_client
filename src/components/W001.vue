@@ -31,6 +31,7 @@ const fromData = reactive({
   number: '',
   id: '',
   setInputMoney: 0,
+  permissions_value: '',
 })
 
 if (toFindCookie() === undefined) {
@@ -38,24 +39,27 @@ if (toFindCookie() === undefined) {
 } else {
   fromData.f_name = toFindCookie().substring(0, 1)
   fromData.number = toFindCookie().substring(1, 3)
+  fromData.permissions_value = toFindCookie().substring(3, 4)
   W001UrlDefault()
 }
 
-function W001UrlDefault() {
-  axios.get(path + W001UrlDefault.name, {
-    params: {
-      f_name: fromData.f_name,
-      number: fromData.number
-    }
-  })
-      .then((response) => {
-        tableW001.value = response.data[0]
-        tableW0012.value = response.data[1]
-      })
-      .catch(error => {
-        console.error('W001UrlDefault Error:', error);
-      });
-  monthProportion(setDateRange(0))
+async function W001UrlDefault() {
+  try {
+    const response = await axios({
+      method: 'get',
+      url: path + W001UrlDefault.name,
+      params: {
+        f_name: fromData.f_name,
+        number: fromData.number,
+        permissions_value: fromData.permissions_value
+      }
+    });
+    tableW001.value = response.data[0]
+    tableW0012.value = response.data[1]
+    monthProportion(setDateRange(0))
+  } catch (error) {
+    console.error('W001UrlDefault Error:', error);
+  }
 }
 
 const insTypeValue = ref('')
@@ -173,7 +177,7 @@ const W001Url = (restfulApi_type) => {
       }
       axios.post(path + goW001.name + restfulApi_type, {
         GoW001_datePicker: datePicker.value,
-        GoW001_fNume_number: [fromData.f_name, fromData.number]
+        GoW001_fNume_number: [fromData.f_name, fromData.number, fromData.permissions_value]
       })
           .then((response) => {
             tableW001.value = response.data.length > 0 ? response.data[0] : [];
@@ -304,6 +308,7 @@ const modify = (row) => {
   fromData.new_date = row.upate_time
 }
 const confirmEventDelete = (row) => {
+  fromData.permissions_value = toFindCookie().substring(3, 4)
   axios.delete(path + confirmEventDelete.name, {
     params: {
       id: row.id,
@@ -312,6 +317,7 @@ const confirmEventDelete = (row) => {
       number: row.number,
       expense_and_income_number: row.expense_and_income_number,
       input_money: row.input_money,
+      permissions_value : fromData.permissions_value,
     }
   })
       .then((response) => {
@@ -325,7 +331,7 @@ const confirmEventDelete = (row) => {
 
 function monthProportion(val) {
   axios.post(path + goW001.name + monthProportion.name, {
-    GoW001_fNume_number: [fromData.f_name, fromData.number],
+    GoW001_fNume_number: [fromData.f_name, fromData.number, fromData.permissions_value],
     GoW001_setDateRange: val
   })
       .then((response) => {

@@ -8,7 +8,17 @@ const fromData = reactive({
   f_name: '',
   number: '',
   restfulApi_type: '',
+  permissions_value: 'A',
 })
+
+const permissions = [
+  {value: "A", label: "檢視者",},
+  {value: "B", label: "加註者",},
+  {value: "C", label: "編輯者",}
+]
+
+const permissions_ft = ref(true)
+
 const Start_indexUrl_type = ref('')
 
 const isText = ref(false)
@@ -48,19 +58,18 @@ const indexUrl = async (restfulApi_type) => {
         url: '/Index/' + indexUrl.name,
         data: fromData
       });
-      if (response.data[0] === true) {
+      if (response.data[0]) {
         if (restfulApi_type === 'Delete') {
           quitIndexUrl()
         } else {
-          addCookie(fromData.f_name, fromData.number)
+          addCookie(fromData.f_name, fromData.number, fromData.permissions_value)
           PubSub.publish('IndexUrl', response.data[0])
         }
         Start_indexUrl_type.value = response.data[1]
-      } else if (response.data[0] === false) {
-        fromData.f_name = ''
-        fromData.number = ''
-        Start_indexUrl_type.value = response.data[1]
+      } else {
+        quitIndexUrl()
         PubSub.publish('IndexUrl', response.data[0])
+        Start_indexUrl_type.value = response.data[1]
       }
     } catch (error) {
       console.error('indexUrl請求失敗:', error);
@@ -81,6 +90,7 @@ const quitIndexUrl = () => {
 if (toFindCookie() !== undefined) {
   fromData.f_name = toFindCookie().substring(0, 1)
   fromData.number = toFindCookie().substring(1, 3)
+  fromData.permissions_value = toFindCookie().substring(3, 4)
   isText.value = true
   isNumeric.value = true
 }
@@ -100,25 +110,44 @@ if (toFindCookie() !== undefined) {
               :column="1"
           >
             <el-descriptions-item>
-              <el-text v-if="!isText">輸入英文 : 大寫。範例 : A</el-text>
               <el-row>
                 <el-form-item>
-                  <el-input v-model="fromData.f_name"
-                            maxlength="1"
-                            show-word-limit
-                            @input="checkIf('name')"
+                  <el-select
+                      style="width:200px"
+                      v-model="fromData.permissions_value"
+                      filterable
+                      :disabled="permissions_ft"
+                  >
+                    <el-option
+                        v-for="item in permissions"
+                        :key="item.value"
+                        :label="`${item.label} - ${item.value}`"
+                        :value="item.value"
+                    >
+                      <span style="float: left">{{ item.label }}</span>
+                      <span style=" float: right;
+                          color: var(--el-text-color-secondary);
+                          font-size: 13px;"
+                      >{{ item.value }}</span>
+                    </el-option>
+                  </el-select>
+                  <el-text v-if="!isText">輸入英文 : 大寫。範例 : A</el-text>
+                  <el-input
+                      style="width:200px"
+                      v-model="fromData.f_name"
+                      maxlength="1"
+                      show-word-limit
+                      @input="checkIf('name')"
                   >
                     <template #prepend>F-Name</template>
                   </el-input>
-                </el-form-item>
-              </el-row>
-              <el-text v-if="!isNumeric">輸入數字 : 2碼。範例 : 01</el-text>
-              <el-row>
-                <el-form-item>
-                  <el-input v-model="fromData.number"
-                            maxlength="2"
-                            show-word-limit
-                            @input="checkIf('number')"
+                  <el-text v-if="!isNumeric">輸入數字 : 2碼。範例 : 01</el-text>
+                  <el-input
+                      style="width:200px"
+                      v-model="fromData.number"
+                      maxlength="2"
+                      show-word-limit
+                      @input="checkIf('number')"
                   >
                     <template #prepend>Number</template>
                   </el-input>
