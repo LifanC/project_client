@@ -24,7 +24,6 @@ async function goW003() {
 const fromData = reactive({
   f_name: '',
   number: '',
-  permissions_value: '',
 })
 
 if (toFindCookie() === undefined) {
@@ -32,7 +31,6 @@ if (toFindCookie() === undefined) {
 } else {
   fromData.f_name = toFindCookie().substring(0, 1)
   fromData.number = toFindCookie().substring(1, 3)
-  fromData.permissions_value = toFindCookie().substring(3, 4)
   W003UrlDefault()
 }
 
@@ -151,7 +149,7 @@ const calculateMoM = (totalValue, lastTotalValue, outputElement) => {
 async function monthProportion(lastMonth, thisMonth, nextMonth) {
   try {
     const response = await axios.post(path + goW003.name + monthProportion.name, {
-      GoW003_fNume_number: [fromData.f_name, fromData.number, fromData.permissions_value],
+      GoW003_fNume_number: [fromData.f_name, fromData.number],
       GoW003_setDateRangeLast: setDateRange(lastMonth),
       GoW003_setDateRangeThis: setDateRange(thisMonth),
       GoW003_setDateRangeNext: setDateRange(nextMonth),
@@ -276,7 +274,7 @@ async function seasonProportion(data) {
   }
   try {
     const response = await axios.post(path + goW003.name + seasonProportion.name, {
-      GoW003_fNume_number: [fromData.f_name, fromData.number, fromData.permissions_value],
+      GoW003_fNume_number: [fromData.f_name, fromData.number],
       GoW003_fourSeasons: fourSeasonsYMDhms(seasons[tempData])
     })
     let respList12 = response.data[0]
@@ -295,7 +293,7 @@ async function seasonProportion(data) {
   if (tempData !== 'spring') {
     try {
       const response = await axios.post(path + goW003.name + seasonProportion.name, {
-        GoW003_fNume_number: [fromData.f_name, fromData.number, fromData.permissions_value],
+        GoW003_fNume_number: [fromData.f_name, fromData.number],
         GoW003_fourSeasons: fourSeasonsYMDhms(temp)
       })
       let respList12 = response.data[0]

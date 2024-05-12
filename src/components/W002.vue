@@ -37,8 +37,9 @@ const fromData = reactive({
   // 金額
   g_value: '',
   new_date: new Date(),
-  permissions_value: '',
 })
+
+const permissions_tf = ref(true)
 
 if (toFindCookie() === undefined) {
   location.href = frontEnd
@@ -49,7 +50,18 @@ if (toFindCookie() === undefined) {
       .substring(8, 0)) + '000001'
   fromData.f_name = toFindCookie().substring(0, 1)
   fromData.number = toFindCookie().substring(1, 3)
-  fromData.permissions_value = toFindCookie().substring(3, 4)
+  let tempPermissions = toFindCookie().substring(3, 4)
+  switch (tempPermissions) {
+    case 'A':
+      permissions_tf.value = true
+      break
+    case 'B':
+      permissions_tf.value = false
+      break
+    default :
+      permissions_tf.value = false
+      break
+  }
   W002UrlDefault()
 }
 
@@ -68,8 +80,7 @@ function W002UrlDefault() {
   axios.get(path + W002UrlDefault.name, {
     params: {
       f_name: fromData.f_name,
-      number: fromData.number,
-      permissions_value: fromData.permissions_value
+      number: fromData.number
     }
   })
       .then((response) => {
@@ -85,8 +96,7 @@ function W002UrlDefault() {
   axios.get('/W001/W001UrlDefault', {
     params: {
       f_name: fromData.f_name,
-      number: fromData.number,
-      permissions_value: fromData.permissions_value
+      number: fromData.number
     }
   })
       .then((response) => {
@@ -224,7 +234,7 @@ const W002Url = (restfulApi_type) => {
 }
 
 const modify = (row) => {
-  let { id, m_code, remark, quantity, amount, new_date } = row
+  let {id, m_code, remark, quantity, amount, new_date} = row
   let [a_value, b_value, c_value, d_value] = [
     m_code.substring(0, 3),
     m_code.substring(3, 17),
@@ -247,13 +257,11 @@ const modify = (row) => {
 
 
 const confirmEventDelete = (row) => {
-  fromData.permissions_value = toFindCookie().substring(3, 4)
   axios.delete(path + confirmEventDelete.name, {
     params: {
       id: row.id,
       f_name: row.m_code.substring(0, 1),
-      number: row.m_code.substring(1, 3),
-      permissions_value : fromData.permissions_value,
+      number: row.m_code.substring(1, 3)
     }
   })
       .then((response) => {
@@ -290,7 +298,7 @@ const reductionFromData = () => {
           {{ all_totle_w001_inc - all_totle_w001_exp - all_totle_w002 }}
         </el-text>
         <el-text><p>範例 : L0720240218000001A001</p></el-text>
-        <el-form v-model="fromData">
+        <el-form v-model="fromData" :disabled="permissions_tf">
           <el-form-item>
             <el-select
                 v-model="productCategory"
@@ -407,6 +415,7 @@ const reductionFromData = () => {
               <template #default="scope">
                 <el-button-group>
                   <el-button
+                      :disabled="permissions_tf"
                       @click.prevent="modify(scope.row)"
                   >修改
                   </el-button>
@@ -418,7 +427,10 @@ const reductionFromData = () => {
                       @confirm="confirmEventDelete(scope.row)"
                   >
                     <template #reference>
-                      <el-button>刪除</el-button>
+                      <el-button
+                          :disabled="permissions_tf"
+                      >刪除
+                      </el-button>
                     </template>
                   </el-popconfirm>
                 </el-button-group>

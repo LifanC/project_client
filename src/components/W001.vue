@@ -31,15 +31,28 @@ const fromData = reactive({
   number: '',
   id: '',
   setInputMoney: 0,
-  permissions_value: '',
 })
+
+const permissions = ref('')
+const permissions_tf = ref(true)
 
 if (toFindCookie() === undefined) {
   location.href = frontEnd
 } else {
   fromData.f_name = toFindCookie().substring(0, 1)
   fromData.number = toFindCookie().substring(1, 3)
-  fromData.permissions_value = toFindCookie().substring(3, 4)
+  let tempPermissions = toFindCookie().substring(3, 4)
+  switch (tempPermissions) {
+    case 'A':
+      permissions_tf.value = true
+      break
+    case 'B':
+      permissions_tf.value = false
+      break
+    default :
+      permissions_tf.value = false
+      break
+  }
   W001UrlDefault()
 }
 
@@ -50,8 +63,7 @@ async function W001UrlDefault() {
       url: path + W001UrlDefault.name,
       params: {
         f_name: fromData.f_name,
-        number: fromData.number,
-        permissions_value: fromData.permissions_value
+        number: fromData.number
       }
     });
     tableW001.value = response.data[0]
@@ -177,7 +189,7 @@ const W001Url = (restfulApi_type) => {
       }
       axios.post(path + goW001.name + restfulApi_type, {
         GoW001_datePicker: datePicker.value,
-        GoW001_fNume_number: [fromData.f_name, fromData.number, fromData.permissions_value]
+        GoW001_fNume_number: [fromData.f_name, fromData.number]
       })
           .then((response) => {
             tableW001.value = response.data.length > 0 ? response.data[0] : [];
@@ -308,7 +320,6 @@ const modify = (row) => {
   fromData.new_date = row.upate_time
 }
 const confirmEventDelete = (row) => {
-  fromData.permissions_value = toFindCookie().substring(3, 4)
   axios.delete(path + confirmEventDelete.name, {
     params: {
       id: row.id,
@@ -316,8 +327,7 @@ const confirmEventDelete = (row) => {
       f_name: row.f_name,
       number: row.number,
       expense_and_income_number: row.expense_and_income_number,
-      input_money: row.input_money,
-      permissions_value : fromData.permissions_value,
+      input_money: row.input_money
     }
   })
       .then((response) => {
@@ -331,7 +341,7 @@ const confirmEventDelete = (row) => {
 
 function monthProportion(val) {
   axios.post(path + goW001.name + monthProportion.name, {
-    GoW001_fNume_number: [fromData.f_name, fromData.number, fromData.permissions_value],
+    GoW001_fNume_number: [fromData.f_name, fromData.number],
     GoW001_setDateRange: val
   })
       .then((response) => {
@@ -414,7 +424,7 @@ const thisMonth = (val) => {
           </el-descriptions-item>
         </el-descriptions>
         <el-space wrap>
-          <el-form v-model="fromData">
+          <el-form v-model="fromData" :disabled="permissions_tf">
             <el-descriptions
                 direction="vertical"
                 :column="2"
@@ -533,6 +543,7 @@ const thisMonth = (val) => {
               <template #default="scope">
                 <el-button-group>
                   <el-button
+                      :disabled="permissions_tf"
                       @click.prevent="modify(scope.row)"
                   >修改資料
                   </el-button>
@@ -544,7 +555,10 @@ const thisMonth = (val) => {
                       @confirm="confirmEventDelete(scope.row)"
                   >
                     <template #reference>
-                      <el-button>刪除資料</el-button>
+                      <el-button
+                          :disabled="permissions_tf"
+                      >刪除資料
+                      </el-button>
                     </template>
                   </el-popconfirm>
                 </el-button-group>

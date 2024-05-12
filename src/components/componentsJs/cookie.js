@@ -9,10 +9,10 @@ function clearCookie() {
  * <h3>新增cookie的方法</h3>
  * @param f_name 新增cookie的值
  * @param number 新增cookie的值
- * @param permissions_value 新增cookie的值
+ * @param permissions 新增cookie的值
  */
-function addCookie(f_name,number,permissions_value) {
-    document.cookie = `f_name_number=${f_name}${number}${permissions_value}`
+function addCookie(f_name,number,permissions) {
+    document.cookie = `f_name_number=${f_name}${number}${permissions}`
 }
 
 /**
