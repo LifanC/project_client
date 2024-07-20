@@ -33,7 +33,6 @@ const fromData = reactive({
   setInputMoney: 0,
 })
 
-const permissions = ref('')
 const permissions_tf = ref(true)
 
 if (toFindCookie() === undefined) {

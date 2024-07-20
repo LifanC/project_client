@@ -27,6 +27,11 @@ const router = createRouter({
             path: '/W004',
             name: 'W004',
             component: () => import("@/components/W004.vue")
+        },
+        {
+            path: '/W005',
+            name: 'W005',
+            component: () => import("@/components/W005.vue")
         }
     ]
 })

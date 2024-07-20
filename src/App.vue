@@ -51,6 +51,9 @@ if (toFindCookie() !== undefined) {
             <el-menu-item index="W004">
               <el-text>匯率系統 W004</el-text>
             </el-menu-item>
+            <el-menu-item index="W005">
+              <el-text>JokeAPI W005</el-text>
+            </el-menu-item>
           </div>
         </el-menu>
       </el-aside>
