@@ -22,11 +22,11 @@ async function goW005() {
 const fromData = reactive({
   f_name: '',
   number: '',
-  amount: 1,
 })
 
 const permissions_tf = ref(true)
 const checkList = ref([])
+const checkList2 = ref('any')
 
 if (toFindCookie() === undefined) {
   location.href = frontEnd
@@ -42,6 +42,7 @@ const amountCalc = () => {
 }
 
 const url = ref('https://v2.jokeapi.dev/joke/Any')
+const url2 = ref('')
 const apiUrl = (val) => {
   url.value = 'https://v2.jokeapi.dev/joke/' +
       (val.length === 0 ? 'Any' : val.filter(item => item !== 'Any').join() || 'Any');
@@ -49,18 +50,21 @@ const apiUrl = (val) => {
 
 const category = ref()
 const lang = ref()
-const amount = ref()
+const amount = ref(1)
 const joke = ref([])
 const setup_delivery = ref([])
+const URL = ref('')
 const apiUrlSelect = async () => {
   joke.value = [];
   setup_delivery.value = [];
-  const temp_amount = fromData.amount;
-
+  url2.value = (checkList2.value === 'any') ? '' : '?type=' + checkList2.value;
+  let amountLink = (url2.value === '') ? '?amount=' : '&amount=';
+  let urlApi = (amount.value === 1) ?
+      url.value + url2.value : url.value + url2.value + amountLink + amount.value
+  URL.value = urlApi;
   try {
-    const response = await axios.get(`${url.value}?amount=${temp_amount}`);
+    const response = await axios.get(urlApi);
     const data = response.data;
-
     const updateValues = (type, i, setup, delivery, single) => {
       if (type === 'single') {
         joke.value.push({label: `(${i})`, value: single});
@@ -70,13 +74,12 @@ const apiUrlSelect = async () => {
       }
     };
 
-    if (temp_amount === 1) {
+    if (amount.value === 1) {
       amount.value = 1;
       category.value = data.category;
       lang.value = data.lang;
       updateValues(data.type, 1, data.setup, data.delivery, data.joke);
     } else {
-      amount.value = data.amount;
       const categorys = new Set();
       const langs = new Set();
 
@@ -116,7 +119,7 @@ const apiUrlSelect = async () => {
               type="number"
               :min="1"
               :max="10"
-              v-model.number="fromData.amount"
+              v-model.number="amount"
               @input="amountCalc()"
           />
           <el-checkbox-group
@@ -131,7 +134,14 @@ const apiUrlSelect = async () => {
             <el-checkbox-button label="Christmas" value="Christmas" border/>
           </el-checkbox-group>
         </el-row>
-        {{ url }}
+        <el-row>
+          <el-radio-group v-model="checkList2">
+            <el-radio-button label="any" value="any" />
+            <el-radio-button label="single" value="single" />
+            <el-radio-button label="twopart" value="twopart" />
+          </el-radio-group>
+        </el-row>
+        {{ URL }}
         <br>
         <el-button @click="apiUrlSelect">查詢</el-button>
         <el-text><p>類別：{{ category }}</p></el-text>
