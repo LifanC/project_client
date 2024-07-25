@@ -118,39 +118,97 @@ async function indexUrlDefault() {
   }
 }
 
-const account_number = ref('')
-const password_number = ref('')
 const permissions_btn = ref(false)
-const Account = ref('')
-const Password = ref('')
 
-const permissionsFunction = async (val) => {
-  if (val) {
-    if (permissions_btn.value) {
-      let fromBean = {
-        account: account_number.value,
-        password: password_number.value
-      }
-      try {
-        const response = await axios({
-          method: 'post',
-          url: '/Index/' + permissionsFunction.name,
-          data: fromBean
-        });
-        permissions_btn.value = !response.data
-        permissions_ft.value = !response.data
-      } catch (error) {
-        console.error('indexUrlDefault Error:', error);
-      }
+const permissionsFunction = () => {
+  permissions_btn.value = true
+}
+
+const permissionsFromData = reactive({
+  account: '',
+  password: '',
+})
+
+const selectEncryption = ref([])
+const selectPrivatedata = ref([])
+const W005_table_column = ref([
+  {'account': '帳號'},
+  {'password': '密碼'}
+])
+
+const permissionsFunctionSelect = async () => {
+  let pattern = /^[A-Z,a-z,\d]+$/
+  let account_password = pattern.test(permissionsFromData.account) && pattern.test(permissionsFromData.password)
+  if (account_password && permissionsFromData.account.length === 10 && permissionsFromData.password.length === 10) {
+    AP_Text.value = ''
+    try {
+      const response = await axios.post('/Index/' + permissionsFunctionSelect.name, {
+        account: permissionsFromData.account,
+        password: permissionsFromData.password
+      })
+      permissions_btn.value = (response.data.isNotEmpty) ? false : true
+      permissions_ft.value = (response.data.isNotEmpty) ? false : true
+      selectEncryption.value = response.data.selectEncryption
+    } catch (error) {
+      console.error('permissionsFunctionSelect Error:', error);
     }
   } else {
-    permissions_btn.value = true
-    const responseDefault = await axios({
-      method: 'get',
-      url: '/Index/' + 'permissionsDefault'
-    });
-    Account.value = responseDefault.data[0]
-    Password.value = responseDefault.data[1]
+    AP_Text.value = '輸入錯誤'
+    accountText.value = permissionsFromData.account
+    passwordText.value = permissionsFromData.password
+    permissionsFromData.account = ''
+    permissionsFromData.password = ''
+  }
+}
+
+const AP_Text = ref('')
+const accountText = ref('')
+const passwordText = ref('')
+
+const permissionsFunctionAdd = async () => {
+  let pattern = /^[A-Z,a-z,\d]+$/
+  let account_password = pattern.test(permissionsFromData.account) && pattern.test(permissionsFromData.password)
+  if (account_password && permissionsFromData.account.length === 10 && permissionsFromData.password.length === 10) {
+    AP_Text.value = ''
+    try {
+      const response = await axios.post('/Index/' + permissionsFunctionAdd.name, {
+        account: permissionsFromData.account,
+        password: permissionsFromData.password
+      })
+      if (response.data) {
+        AP_Text.value = '新增成功'
+        permissionsFromData.account = ''
+        permissionsFromData.password = ''
+      } else {
+        AP_Text.value = '新增失敗'
+        permissionsFromData.account = ''
+        permissionsFromData.password = ''
+      }
+    } catch (error) {
+      console.error('permissionsFunctionAdd Error:', error);
+    }
+  } else {
+    AP_Text.value = '輸入錯誤'
+    accountText.value = permissionsFromData.account
+    passwordText.value = permissionsFromData.password
+    permissionsFromData.account = ''
+    permissionsFromData.password = ''
+  }
+}
+
+const permissionsFunctionAdmin = async () => {
+  try {
+    const response = await axios.post('/Index/' + permissionsFunctionAdmin.name, {
+      account: permissionsFromData.account,
+      password: permissionsFromData.password
+    })
+    if (response.data.isNotEmpty) {
+      selectPrivatedata.value = response.data.selectPrivatedata
+    }
+    permissionsFromData.account = ''
+    permissionsFromData.password = ''
+  } catch (error) {
+    console.error('permissionsFunctionAdmin Error:', error);
   }
 }
 
@@ -217,33 +275,67 @@ const permissionsFunction = async (val) => {
                 <el-button @click="indexUrl('Register')">註冊</el-button>
                 <el-button @click="indexUrl('Delete')">刪除</el-button>
                 <el-button @click="quitIndexUrl">登出</el-button>
-                <el-button @click="permissionsFunction(false)">管理權限</el-button>
+                <el-button @click="permissionsFunction">管理權限</el-button>
               </el-button-group>
             </el-descriptions-item>
           </el-descriptions>
         </el-form>
         {{ Start_indexUrl_type }}
+        <el-table
+            :data="selectEncryption"
+            style="width: 500px"
+            empty-text="無資料"
+        >
+          <el-table-column
+              v-for="i in W005_table_column"
+              :label="i[Object.keys(i)[0]].toString()"
+              :prop="Object.keys(i).toString()"
+          />
+        </el-table>
       </el-aside>
       <el-main v-if="permissions_btn">
-        <el-row>
-          <el-input
-              style="width:250px"
-              v-model="account_number"
-              maxlength="10"
-              show-word-limit
-              :placeholder=Account
+        <el-form v-model="permissionsFromData">
+          <el-text>帳號、密碼 : 輸入10碼</el-text>
+          <el-row>
+            <el-input
+                style="width:250px"
+                v-model="permissionsFromData.account"
+                maxlength="10"
+                show-word-limit
+            >
+              <template #prepend>帳號</template>
+            </el-input>
+          </el-row>
+          <el-row>
+            <el-input
+                style="width:250px"
+                v-model="permissionsFromData.password"
+                maxlength="10"
+                show-word-limit
+            >
+              <template #prepend>密碼</template>
+            </el-input>
+          </el-row>
+        </el-form>
+        <el-button-group>
+          <el-button @click="permissionsFunctionSelect">查詢管理權限</el-button>
+          <el-button @click="permissionsFunctionAdd">新增管理權限</el-button>
+          <el-button @click="permissionsFunctionAdmin">BOSS權限</el-button>
+        </el-button-group>
+        <p>{{ AP_Text }}</p>
+        <p>{{ accountText }}</p>
+        <p>{{ passwordText }}</p>
+        <el-table
+            :data="selectPrivatedata"
+            style="width: 500px"
+            empty-text="無資料"
+        >
+          <el-table-column
+              v-for="i in W005_table_column"
+              :label="i[Object.keys(i)[0]].toString()"
+              :prop="Object.keys(i).toString()"
           />
-        </el-row>
-        <el-row>
-          <el-input
-              style="width:250px"
-              v-model="password_number"
-              maxlength="10"
-              show-word-limit
-              :placeholder=Password
-          />
-        </el-row>
-        <el-button @click="permissionsFunction(true)">查詢管理權限</el-button>
+        </el-table>
       </el-main>
     </el-container>
   </el-container>
