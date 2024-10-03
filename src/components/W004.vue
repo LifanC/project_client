@@ -21,8 +21,8 @@ async function goW004() {
 }
 
 const fromData = reactive({
-  id: '',
   f_name: '',
+  number: '',
 })
 
 if (toFindCookie() === undefined) {
