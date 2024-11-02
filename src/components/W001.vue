@@ -11,12 +11,22 @@ const fromData = reactive({
   password: '',
 })
 
+const formRef = ref(null)
+const fromDataW001 = reactive({
+  accountNumber: '',
+  password: '',
+  money: '',
+  type: '',
+})
+
 if (toFindCookie() === undefined) {
   location.href = frontEnd
 } else {
   let findCookie = toFindCookie().split('|')
   fromData.accountNumber = findCookie[0]
   fromData.password = findCookie[1]
+  fromDataW001.accountNumber = findCookie[0]
+  fromDataW001.password = findCookie[1]
 }
 
 const W001 = ref('')
@@ -34,6 +44,7 @@ async function goW001() {
 
 const fileList = ref([]);
 const text = ref('');
+const textOnly = ref('');
 
 const beforeRemove = (file) => {
   text.value = ''
@@ -61,6 +72,92 @@ const submitUpload = async () => {
   }
 }
 
+const rules = computed(() => {
+  return {
+    money: [{required: true, message: '金額必填'}, {type: 'number', message: '金額必填是數字'},],
+    type: [{required: true, message: '種類必填'},]
+  };
+});
+
+const submitForm = (formEl) => {
+  if (!formEl) return
+  formEl.validate(async (valid) => {
+    if (valid) {
+      try {
+        const response = await axios({
+          method: 'post',
+          url: path + submitForm.name,
+          data: fromDataW001,
+        });
+        let data = response.data
+        ElMessageBox.confirm(
+            '種類為' + fromDataW001.type + data,
+            'Warning',
+            {
+              confirmButtonText: '新增',
+              cancelButtonText: '取消',
+              type: 'warning',
+            }
+        )
+            .then(async () => {
+              try {
+                const response = await axios({
+                  method: 'post',
+                  url: path + submitForm.name + "Ok",
+                  data: fromDataW001,
+                });
+                textOnly.value = response.data
+              } catch (error) {
+                // console.error('submitFormOk Error:', error)
+              }
+            })
+            .catch(() => {
+              fromDataW001.money = ''
+              fromDataW001.type = ''
+            })
+      } catch (error) {
+        // console.error('submitForm Error:', error)
+      }
+    }
+  })
+}
+
+const resetForm = (formEl) => {
+  if (!formEl) return
+  formEl.resetFields()
+}
+
+const options = ref(
+    [
+      { value: 'A', label: 'A' },
+      { value: 'B', label: 'B' },
+      { value: 'C', label: 'C' },
+      { value: 'D', label: 'D' },
+      { value: 'E', label: 'E' },
+      { value: 'F', label: 'F' },
+      { value: 'G', label: 'G' },
+      { value: 'H', label: 'H' },
+      { value: 'I', label: 'I' },
+      { value: 'J', label: 'J' },
+      { value: 'K', label: 'K' },
+      { value: 'L', label: 'L' },
+      { value: 'M', label: 'M' },
+      { value: 'N', label: 'N' },
+      { value: 'O', label: 'O' },
+      { value: 'P', label: 'P' },
+      { value: 'Q', label: 'Q' },
+      { value: 'R', label: 'R' },
+      { value: 'S', label: 'S' },
+      { value: 'T', label: 'T' },
+      { value: 'U', label: 'U' },
+      { value: 'V', label: 'V' },
+      { value: 'W', label: 'W' },
+      { value: 'X', label: 'X' },
+      { value: 'Y', label: 'Y' },
+      { value: 'Z', label: 'Z' }
+    ]
+)
+
 </script>
 
 <template>
@@ -68,6 +165,7 @@ const submitUpload = async () => {
     <el-header>{{ W001 }}</el-header>
     <el-container>
       <el-main>
+        <el-text>金額、種類、編號、檢查</el-text>
         <el-row>
           <el-upload
               v-model:file-list="fileList"
@@ -88,6 +186,52 @@ const submitUpload = async () => {
           </el-upload>
         </el-row>
         <el-text>{{ text }}</el-text>
+        <el-row>
+          <el-form
+              ref="formRef"
+              style="max-width: 500px"
+              :model="fromDataW001"
+              :rules="rules"
+              label-width="auto"
+          >
+            <!--"金額", "種類", "編號"-->
+            <el-form-item
+                label="金額"
+                prop="money"
+            >
+              <el-input
+                  v-model.number="fromDataW001.money"
+                  type="text"
+                  autocomplete="off"
+                  @input="fromDataW001.money = (fromDataW001.money <= 0) ? 1 : fromDataW001.money"
+              />
+            </el-form-item>
+            <el-form-item
+                label="種類"
+                prop="type"
+            >
+              <el-select
+                  v-model="fromDataW001.type"
+                  placeholder=" "
+                  style="width: 240px"
+              >
+                <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button-group>
+                <el-button type="primary" @click="submitForm(formRef)">新增</el-button>
+                <el-button @click="resetForm(formRef)">清除</el-button>
+              </el-button-group>
+            </el-form-item>
+          </el-form>
+        </el-row>
+        <el-text>{{ textOnly }}</el-text>
       </el-main>
     </el-container>
   </el-container>
