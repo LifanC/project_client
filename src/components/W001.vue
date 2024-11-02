@@ -165,7 +165,7 @@ const options = ref(
     <el-header>{{ W001 }}</el-header>
     <el-container>
       <el-main>
-        <el-text>金額、種類、編號、檢查</el-text>
+        <el-text>金額、種類</el-text>
         <el-row>
           <el-upload
               v-model:file-list="fileList"
