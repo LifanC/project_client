@@ -220,6 +220,7 @@ const dialogVisibleMethod = async () => {
             style="width:50%"
             v-model="adminFromData.adminAccountNumber"
             clearable
+            placeholder="admin"
         >
           <template #prepend>管理帳號</template>
         </el-input>
@@ -227,6 +228,7 @@ const dialogVisibleMethod = async () => {
             style="width:50%"
             v-model="adminFromData.adminPassword"
             clearable
+            placeholder="456123"
         >
           <template #prepend>管理密碼</template>
         </el-input>
