@@ -1,6 +1,7 @@
 <script setup>
 import axios from "axios";
 import {toFindCookie} from "@/components/componentsJs/cookie";
+import {optionsLists} from "@/components/componentsJs/common";
 
 axios.defaults.baseURL = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
@@ -17,6 +18,7 @@ const fromDataW001 = reactive({
   password: '',
   money: '',
   type: '',
+  number: '',
 })
 
 if (toFindCookie() === undefined) {
@@ -170,43 +172,15 @@ const resetForm = (formEl) => {
   formEl.resetFields()
 }
 
-const options = ref(
-    [
-      {value: 'A', label: '食物'},
-      {value: 'B', label: '飲品'},
-      {value: 'C', label: '交通'},
-      {value: 'D', label: '消費'},
-      {value: 'E', label: '娛樂'},
-      {value: 'F', label: '居家'},
-      {value: 'G', label: '3C'},
-      {value: 'H', label: '醫藥'},
-      {value: 'I', label: '早餐'},
-      {value: 'J', label: '中餐'},
-      {value: 'K', label: '晚餐'},
-      {value: 'L', label: '電費'},
-      {value: 'M', label: '水費'},
-      {value: 'N', label: '網路費'},
-      {value: 'O', label: '電話費'},
-      {value: 'P', label: '掛號費'},
-      {value: 'Q', label: '伏冒熱飲'},
-      {value: 'R', label: '加油'},
-      {value: 'S', label: '機油'},
-      {value: 'T', label: '齒輪油'},
-      {value: 'U', label: '罰單'},
-      {value: 'V', label: '捷運'},
-      {value: 'W', label: '宵夜'},
-      {value: 'X', label: '紅包'},
-      {value: 'Y', label: '其他'},
-      {value: 'Z', label: '收入'}
-    ]
-)
+const options = ref(optionsLists())
 
 const tableW001 = ref([]);
 const w001TableColumn = ref([
   {'number': '編號'},
   {'money': '金額'},
   {'type': '類別'},
-  {'update_time': '更新日期'}
+  {'update_time': '更新日期'},
+  {'update_cd': ''}
 ])
 const queryForm = (formEl) => {
   if (!formEl) return
@@ -229,6 +203,72 @@ const queryForm = (formEl) => {
       }
     }
   });
+}
+
+const modify = (val) => {
+  ElMessageBox.confirm(
+      '編號:' + val.number + '<br>金額:' + val.money + '<br>類別:' + val.type
+      + '<br><label>修改金額</label><input type="number" id="exMoney" value=1 min="1"/>',
+      '更新',
+      {
+        confirmButtonText: '更新',
+        cancelButtonText: '取消',
+        type: 'warning',
+        dangerouslyUseHTMLString: true,
+      }
+  )
+      .then(async () => {
+        let element = document.querySelector("#exMoney");
+        if (element.value) {
+          if (element.value < 1) {
+            element.value = 1
+          }
+        } else {
+          element.value = 1
+        }
+        fromDataW001.money = Number(element.value)
+        fromDataW001.number = val.number
+        try {
+          const response = await axios({
+            method: 'post',
+            url: path + modify.name,
+            data: fromDataW001,
+          });
+          tableW001.value = response.data[0]
+        } catch (error) {
+          // console.error('modify Error:', error)
+        }
+      })
+      .catch(() => {
+      })
+}
+
+const eventDelete = (val) => {
+  ElMessageBox.confirm(
+      '編號:' + val.number + '<br>金額:' + val.money + '<br>類別:' + val.type,
+      '刪除',
+      {
+        confirmButtonText: '刪除',
+        cancelButtonText: '取消',
+        type: 'error',
+        dangerouslyUseHTMLString: true,
+      }
+  )
+      .then(async () => {
+        fromDataW001.number = val.number
+              try {
+                const response = await axios({
+                  method: 'post',
+                  url: path + eventDelete.name,
+                  data: fromDataW001,
+                });
+                tableW001.value = response.data[0]
+              } catch (error) {
+                // console.error('modify Error:', error)
+              }
+      })
+      .catch(() => {
+      })
 }
 
 </script>
@@ -324,9 +364,23 @@ const queryForm = (formEl) => {
               border
               style="width: 1000px; height: 500px;"
               empty-text="無資料"
-              show-summary
-              sum-text="合計"
           >
+            <el-table-column
+                width="150%"
+            >
+              <template #default="scope">
+                <el-button-group>
+                  <el-button
+                      @click.prevent="modify(scope.row)"
+                  >更新
+                  </el-button>
+                  <el-button
+                      @click.prevent="eventDelete(scope.row)"
+                  >刪除
+                  </el-button>
+                </el-button-group>
+              </template>
+            </el-table-column>
             <el-table-column
                 v-for="i in w001TableColumn"
                 :label="i[Object.keys(i)[0]].toString()"

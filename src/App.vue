@@ -30,6 +30,14 @@ PubSub.subscribe('W001', function (msg, data) {
   dataW001.value = data
 })
 
+const msgW002 = ref('W002')
+const dataW002 = ref('記帳明細系統')
+PubSub.subscribe('W002', function (msg, data) {
+  // console.log(msg, data)
+  msgW002.value = msg
+  dataW002.value = data
+})
+
 </script>
 
 <template>
@@ -49,6 +57,9 @@ PubSub.subscribe('W001', function (msg, data) {
           <div v-if="showUrl">
             <el-menu-item :index="msgW001">
               <el-text>{{ dataW001 }}</el-text>
+            </el-menu-item>
+            <el-menu-item :index="msgW002">
+              <el-text>{{ dataW002 }}</el-text>
             </el-menu-item>
           </div>
         </el-menu>
