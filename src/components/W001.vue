@@ -1,7 +1,6 @@
 <script setup>
 import axios from "axios";
 import {toFindCookie} from "@/components/componentsJs/cookie";
-import {optionsLists} from "@/components/componentsJs/common";
 
 axios.defaults.baseURL = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
@@ -19,6 +18,7 @@ const fromDataW001 = reactive({
   money: '',
   type: '',
   number: '',
+  update_date: '',
 })
 
 if (toFindCookie() === undefined) {
@@ -118,8 +118,7 @@ const submitUpload = async () => {
 
 const rules = computed(() => {
   return {
-    money: [{required: true, message: '金額必填'}, {type: 'number', message: '金額必填是數字'},],
-    type: [{required: true, message: '種類必填'},]
+    money: [{required: true, message: '金額必填'}, {type: 'number', message: '金額必填是數字'},]
   };
 });
 
@@ -127,6 +126,12 @@ const submitForm = (formEl) => {
   if (!formEl) return
   formEl.validate(async (valid) => {
     if (valid) {
+      if (!fromDataW001.update_date) {
+        fromDataW001.update_date = new Date();
+      }
+      if (fromDataW001.type === '') {
+        return
+      }
       try {
         const response = await axios({
           method: 'post',
@@ -167,20 +172,36 @@ const submitForm = (formEl) => {
 }
 
 const resetForm = (formEl) => {
+  tableW001.value = []
+  fromDataW001.update_date = '';
   textOnly.value = ''
   if (!formEl) return
   formEl.resetFields()
 }
 
-const options = ref(optionsLists())
+const options = ref([])
+w001type()
+async function w001type() {
+  options.value = []
+  try {
+    const response = await axios.get(path + w001type.name)
+    for (let i = 0; i < response.data.length; i++) {
+      options.value.push(
+          {value: response.data[i].typeNameNumber, label: response.data[i].typeName}
+      )
+    }
+  } catch (error) {
+    console.error('w001type Error:', error)
+  }
+}
 
 const tableW001 = ref([]);
 const w001TableColumn = ref([
   {'number': '編號'},
   {'money': '金額'},
   {'type': '類別'},
-  {'update_time': '更新日期'},
-  {'update_cd': ''}
+  {'typeName': '類別名稱'},
+  {'update_date': '日期'}
 ])
 const queryForm = (formEl) => {
   if (!formEl) return
@@ -198,9 +219,6 @@ const queryForm = (formEl) => {
       }
     } else {
       fromDataW001.money = 1
-      if (!fromDataW001.type) {
-        fromDataW001.type = 'A'
-      }
     }
   });
 }
@@ -228,6 +246,7 @@ const modify = (val) => {
         }
         fromDataW001.money = Number(element.value)
         fromDataW001.number = val.number
+        fromDataW001.type = val.type
         try {
           const response = await axios({
             method: 'post',
@@ -256,16 +275,17 @@ const eventDelete = (val) => {
   )
       .then(async () => {
         fromDataW001.number = val.number
-              try {
-                const response = await axios({
-                  method: 'post',
-                  url: path + eventDelete.name,
-                  data: fromDataW001,
-                });
-                tableW001.value = response.data[0]
-              } catch (error) {
-                // console.error('modify Error:', error)
-              }
+        fromDataW001.type = val.type
+        try {
+          const response = await axios({
+            method: 'post',
+            url: path + eventDelete.name,
+            data: fromDataW001,
+          });
+          tableW001.value = response.data[0]
+        } catch (error) {
+          // console.error('modify Error:', error)
+        }
       })
       .catch(() => {
       })
@@ -327,6 +347,8 @@ const eventDelete = (val) => {
                   v-model="fromDataW001.type"
                   placeholder=" "
                   style="width: 240px"
+                  filterable
+                  clearable
               >
                 <el-option
                     v-for="item in options"
@@ -345,6 +367,12 @@ const eventDelete = (val) => {
                   </span>
                 </el-option>
               </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-date-picker
+                  v-model="fromDataW001.update_date"
+                  type="date"
+              />
             </el-form-item>
             <el-text>{{ textQuery }}</el-text>
             <el-form-item>

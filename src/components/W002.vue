@@ -1,7 +1,6 @@
 <script setup>
 import axios from "axios";
 import {toFindCookie} from "@/components/componentsJs/cookie";
-import {optionsLists} from "@/components/componentsJs/common";
 
 axios.defaults.baseURL = 'http://localhost:8080'
 const frontEnd = 'http://localhost:5173'
@@ -43,7 +42,21 @@ async function goW002() {
   }
 }
 
-const options = ref(optionsLists())
+const options = ref([])
+w001type()
+async function w001type() {
+  options.value = []
+  try {
+    const response = await axios.get('/W001/' + w001type.name)
+    for (let i = 0; i < response.data.length; i++) {
+      options.value.push(
+          {value: response.data[i].typeNameNumber, label: response.data[i].typeName}
+      )
+    }
+  } catch (error) {
+    console.error('w001type Error:', error)
+  }
+}
 
 const tableW002 = ref([]);
 const w002TableColumn = ref([
@@ -57,13 +70,14 @@ const tableW002x = ref([]);
 const w002TableColumnx = ref([
   {'number': '編號'},
   {'money': '金額'},
-  {'update_time': '新增日期'},
-  {'update_cd': ''}
+  {'typeName': '類別名稱'},
+  {'update_date': '日期'}
 ])
 const tableW002h = ref([]);
 const w002TableColumnh = ref([
   {'number': '編號'},
   {'money': '金額'},
+  {'typeName': '類別名稱'},
   {'update_time': '異動日期'},
   {'update_cd': ''}
 ])
@@ -85,6 +99,7 @@ async function selectData() {
       url: path + selectData.name + 'x',
       data: fromDataW002,
     });
+    console.log(response.data[0])
     tableW002x.value = response.data[0]
   } catch (error) {
     // console.error('selectDatax Error:', error)
@@ -165,7 +180,7 @@ async function selectData() {
           <el-table
               :data="tableW002x"
               border
-              style="width: 1000px; height: 250px;"
+              style="width: 1000px; height: 500px;"
               empty-text="無資料"
               show-summary
               sum-text="合計"
