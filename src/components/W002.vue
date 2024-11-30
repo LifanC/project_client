@@ -35,8 +35,6 @@ async function goW002() {
     const response = await axios.get(path + goW002.name)
     W002.value = response.data
     PubSub.publish('W002', W002.value)
-    fromDataW002.type = 'A'
-    selectData()
   } catch (error) {
     console.error('goW002 Error:', error)
   }
@@ -99,7 +97,6 @@ async function selectData() {
       url: path + selectData.name + 'x',
       data: fromDataW002,
     });
-    console.log(response.data[0])
     tableW002x.value = response.data[0]
   } catch (error) {
     // console.error('selectDatax Error:', error)

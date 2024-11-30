@@ -11,6 +11,10 @@ const fromData = reactive({
   password: '',
 })
 
+const typeFromData = reactive({
+  typeName: '',
+})
+
 const formRef = ref(null)
 const fromDataW001 = reactive({
   accountNumber: '',
@@ -42,6 +46,73 @@ async function goW001() {
   } catch (error) {
     console.error('goW001 Error:', error)
   }
+}
+
+const typeFormRef = ref(null)
+const typeRules = computed(() => {
+  return {
+    typeName: [{required: true, message: '必填'},]
+  };
+});
+
+const tableTypeW001 = ref([])
+const w001TableTypeColumn = ref([
+  {'typeNameNumber': '編號'},
+  {'typeName': '名稱'}
+])
+
+const typeMethod = (val, formEl) => {
+  if (!formEl) return
+  formEl.validate(async (valid) => {
+    if (valid) {
+      switch (val) {
+        case 1:
+          try {
+            const response = await axios({
+              method: 'post',
+              url: path + typeMethod.name + val,
+              data: typeFromData,
+            });
+            let data = response.data
+            tableTypeW001.value = data[0]
+          } catch (error) {
+            console.error(val, 'typeMethod1 Error:', error.response.data)
+          }
+          break
+        case 2:
+          try {
+            const response = await axios({
+              method: 'post',
+              url: path + typeMethod.name + val,
+              data: typeFromData,
+            });
+            let data = response.data
+            tableTypeW001.value = data[0]
+          } catch (error) {
+            console.error(val, 'typeMethod2 Error:', error.response.data)
+          }
+          break
+      }
+    }
+
+  })
+
+}
+
+const eventDeleteType = async (val) => {
+  console.log(val)
+  try {
+    const response = await axios({
+      method: 'post',
+      url: path + eventDeleteType.name,
+      data: val,
+    });
+    let data = response.data
+    tableTypeW001.value = data[0]
+  } catch (error) {
+    console.error(val, 'eventDeleteType Error:', error.response.data)
+  }
+
 }
 
 const fileList = ref([]);
@@ -284,7 +355,7 @@ const eventDelete = (val) => {
           });
           tableW001.value = response.data[0]
         } catch (error) {
-          // console.error('modify Error:', error)
+          // console.error('eventDelete Error:', error)
         }
       })
       .catch(() => {
@@ -298,7 +369,53 @@ const eventDelete = (val) => {
     <el-header>{{ W001 }}</el-header>
     <el-container>
       <el-main>
-        <el-text>金額、種類</el-text>
+        <el-row>
+          <el-form
+              ref="typeFormRef"
+              style="max-width: 500px"
+              :model="typeFromData"
+              :rules="typeRules"
+              label-width="auto"
+          >
+            <el-form-item
+                label="種類"
+                prop="typeName"
+            >
+              <el-input v-model="typeFromData.typeName"/>
+            </el-form-item>
+          </el-form>
+          <el-button-group>
+            <el-button text @click="typeMethod(1, typeFormRef)">新增</el-button>
+            <el-button text @click="typeMethod(2, typeFormRef)">查詢</el-button>
+          </el-button-group>
+        </el-row>
+        <el-row>
+          <el-table
+              :data="tableTypeW001"
+              border
+              style="width: 500px; height: 100px;"
+              empty-text="無資料"
+          >
+            <el-table-column
+                width="100%"
+            >
+              <template #default="scope">
+                <el-button-group>
+                  <el-button
+                      @click.prevent="eventDeleteType(scope.row)"
+                  >刪除
+                  </el-button>
+                </el-button-group>
+              </template>
+            </el-table-column>
+            <el-table-column
+                v-for="i in w001TableTypeColumn"
+                :label="i[Object.keys(i)[0]].toString()"
+                :prop="Object.keys(i).toString()"
+            />
+          </el-table>
+        </el-row>
+        <br>
         <el-row>
           <el-upload
               v-model:file-list="fileList"
@@ -307,16 +424,25 @@ const eventDelete = (val) => {
               :auto-upload="false"
           >
             <template #trigger>
-              <el-button type="primary">選擇資料</el-button>
+              <el-button
+                  plain
+                  style="width: 150px"
+                  type="primary"
+              >選擇資料</el-button>
             </template>
             <template #tip>
               <br>
               <el-text>限制1個文件</el-text>
             </template>
-            <el-button type="success" @click="submitUpload">
-              批次新增
-            </el-button>
           </el-upload>
+          <el-button
+              plain
+              style="width: 100px"
+              type="success"
+              @click="submitUpload"
+          >
+            批次新增
+          </el-button>
         </el-row>
         <el-text>{{ text }}</el-text>
         <el-row>
@@ -377,9 +503,21 @@ const eventDelete = (val) => {
             <el-text>{{ textQuery }}</el-text>
             <el-form-item>
               <el-button-group>
-                <el-button type="primary" @click="submitForm(formRef)">新增</el-button>
-                <el-button @click="resetForm(formRef)">清除</el-button>
-                <el-button type="info" @click="queryForm(formRef)">查詢</el-button>
+                <el-button
+                    plain
+                    type="primary"
+                    @click="submitForm(formRef)"
+                >新增</el-button>
+                <el-button
+                    plain
+                    type="warning"
+                    @click="resetForm(formRef)"
+                >清除</el-button>
+                <el-button
+                    plain
+                    type="info"
+                    @click="queryForm(formRef)"
+                >查詢</el-button>
               </el-button-group>
             </el-form-item>
           </el-form>
