@@ -93,26 +93,56 @@ const typeMethod = (val, formEl) => {
           }
           break
       }
+    } else {
+      try {
+        const response = await axios({
+          method: 'post',
+          url: path + typeMethod.name,
+          data: typeFromData,
+        });
+        let data = response.data
+        tableTypeW001.value = data[0]
+      } catch (error) {
+        console.error(val, 'typeMethod Error:', error.response.data)
+      }
     }
-
   })
-
 }
 
 const eventDeleteType = async (val) => {
-  console.log(val)
-  try {
-    const response = await axios({
-      method: 'post',
-      url: path + eventDeleteType.name,
-      data: val,
-    });
-    let data = response.data
-    tableTypeW001.value = data[0]
-  } catch (error) {
-    console.error(val, 'eventDeleteType Error:', error.response.data)
-  }
+  ElMessageBox.confirm(
+      '<b>確定要刪除</b>' +
+      '<br>編號:&ensp;' + val.typeNameNumber + '&ensp;' + val.typeName +
+      '<br>此分類與所有數據嗎？',
+      '刪除',
+      {
+        confirmButtonText: '刪除',
+        cancelButtonText: '取消',
+        type: 'error',
+        dangerouslyUseHTMLString: true,
+      }
+  )
+      .then(async () => {
+        try {
+          const response = await axios({
+            method: 'post',
+            url: path + eventDeleteType.name,
+            data: val,
+          });
+          let data = response.data
+          tableTypeW001.value = data[0]
+        } catch (error) {
+          console.error(val, 'eventDeleteType Error:', error.response.data)
+        }
+      })
+      .catch(() => {
+      })
+}
 
+const resetFormType = (formEl) => {
+  tableTypeW001.value = []
+  if (!formEl) return
+  formEl.resetFields()
 }
 
 const fileList = ref([]);
@@ -193,6 +223,8 @@ const rules = computed(() => {
   };
 });
 
+const typePlaceholder = ref(' ')
+
 const submitForm = (formEl) => {
   if (!formEl) return
   formEl.validate(async (valid) => {
@@ -200,7 +232,10 @@ const submitForm = (formEl) => {
       if (!fromDataW001.update_date) {
         fromDataW001.update_date = new Date();
       }
-      if (fromDataW001.type === '') {
+      if (fromDataW001.type === ''
+          || fromDataW001.type === undefined
+          || fromDataW001.type === null) {
+        typePlaceholder.value = '未選擇'
         return
       }
       try {
@@ -246,12 +281,13 @@ const resetForm = (formEl) => {
   tableW001.value = []
   fromDataW001.update_date = '';
   textOnly.value = ''
+  typePlaceholder.value = ' '
   if (!formEl) return
   formEl.resetFields()
 }
 
 const options = ref([])
-w001type()
+
 async function w001type() {
   options.value = []
   try {
@@ -275,6 +311,7 @@ const w001TableColumn = ref([
   {'update_date': '日期'}
 ])
 const queryForm = (formEl) => {
+  typePlaceholder.value = ' '
   if (!formEl) return
   formEl.validate(async (valid) => {
     if (valid) {
@@ -368,54 +405,57 @@ const eventDelete = (val) => {
   <el-container>
     <el-header>{{ W001 }}</el-header>
     <el-container>
-      <el-main>
-        <el-row>
-          <el-form
-              ref="typeFormRef"
-              style="max-width: 500px"
-              :model="typeFromData"
-              :rules="typeRules"
-              label-width="auto"
+      <el-aside width="300px">
+        <el-form
+            ref="typeFormRef"
+            style="max-width: 500px"
+            :model="typeFromData"
+            :rules="typeRules"
+            label-width="auto"
+        >
+          <el-form-item
+              label="種類"
+              prop="typeName"
           >
-            <el-form-item
-                label="種類"
-                prop="typeName"
-            >
-              <el-input v-model="typeFromData.typeName"/>
-            </el-form-item>
-          </el-form>
-          <el-button-group>
-            <el-button text @click="typeMethod(1, typeFormRef)">新增</el-button>
-            <el-button text @click="typeMethod(2, typeFormRef)">查詢</el-button>
-          </el-button-group>
-        </el-row>
-        <el-row>
-          <el-table
-              :data="tableTypeW001"
-              border
-              style="width: 500px; height: 100px;"
-              empty-text="無資料"
-          >
-            <el-table-column
-                width="100%"
-            >
-              <template #default="scope">
-                <el-button-group>
-                  <el-button
-                      @click.prevent="eventDeleteType(scope.row)"
-                  >刪除
-                  </el-button>
-                </el-button-group>
-              </template>
-            </el-table-column>
-            <el-table-column
-                v-for="i in w001TableTypeColumn"
-                :label="i[Object.keys(i)[0]].toString()"
-                :prop="Object.keys(i).toString()"
+            <el-input
+                v-model="typeFromData.typeName"
+                placeholder=" "
+                filterable
+                clearable
             />
-          </el-table>
-        </el-row>
-        <br>
+          </el-form-item>
+        </el-form>
+        <el-button-group>
+          <el-button text @click="typeMethod(1, typeFormRef)">新增</el-button>
+          <el-button text @click="typeMethod(2, typeFormRef)">查詢</el-button>
+          <el-button text @click="resetFormType(typeFormRef)">清除</el-button>
+        </el-button-group>
+        <el-table
+            :data="tableTypeW001"
+            border
+            style="width: 500px; height: 770px;"
+            empty-text="無資料"
+        >
+          <el-table-column
+              width="100%"
+          >
+            <template #default="scope">
+              <el-button-group>
+                <el-button
+                    @click.prevent="eventDeleteType(scope.row)"
+                >刪除
+                </el-button>
+              </el-button-group>
+            </template>
+          </el-table-column>
+          <el-table-column
+              v-for="i in w001TableTypeColumn"
+              :label="i[Object.keys(i)[0]].toString()"
+              :prop="Object.keys(i).toString()"
+          />
+        </el-table>
+      </el-aside>
+      <el-main>
         <el-row>
           <el-upload
               v-model:file-list="fileList"
@@ -428,7 +468,8 @@ const eventDelete = (val) => {
                   plain
                   style="width: 150px"
                   type="primary"
-              >選擇資料</el-button>
+              >選擇資料
+              </el-button>
             </template>
             <template #tip>
               <br>
@@ -471,10 +512,11 @@ const eventDelete = (val) => {
             >
               <el-select
                   v-model="fromDataW001.type"
-                  placeholder=" "
+                  :placeholder="typePlaceholder"
                   style="width: 240px"
                   filterable
                   clearable
+                  @click="w001type"
               >
                 <el-option
                     v-for="item in options"
@@ -507,17 +549,20 @@ const eventDelete = (val) => {
                     plain
                     type="primary"
                     @click="submitForm(formRef)"
-                >新增</el-button>
+                >新增
+                </el-button>
+                <el-button
+                    plain
+                    type="success"
+                    @click="queryForm(formRef)"
+                >查詢
+                </el-button>
                 <el-button
                     plain
                     type="warning"
                     @click="resetForm(formRef)"
-                >清除</el-button>
-                <el-button
-                    plain
-                    type="info"
-                    @click="queryForm(formRef)"
-                >查詢</el-button>
+                >清除
+                </el-button>
               </el-button-group>
             </el-form-item>
           </el-form>
