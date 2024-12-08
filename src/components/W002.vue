@@ -11,6 +11,11 @@ const fromData = reactive({
   password: '',
 })
 
+const typeFromData = reactive({
+  accountNumber: '',
+  typeName: '',
+})
+
 const fromDataW002 = reactive({
   accountNumber: '',
   password: '',
@@ -25,6 +30,7 @@ if (toFindCookie() === undefined) {
   fromData.password = findCookie[1]
   fromDataW002.accountNumber = findCookie[0]
   fromDataW002.password = findCookie[1]
+  typeFromData.accountNumber = findCookie[0]
 }
 
 const W002 = ref('')
@@ -45,8 +51,13 @@ w001type()
 async function w001type() {
   options.value = []
   try {
-    const response = await axios.get('/W001/' + w001type.name)
-    for (let i = 0; i < response.data.length; i++) {
+    const response = await axios({
+      method: 'post',
+      url: '/W001/' + w001type.name,
+      data: typeFromData,
+    });
+    let data = response.data
+    for (let i = 0; i < data.length; i++) {
       options.value.push(
           {value: response.data[i].typeNameNumber, label: response.data[i].typeName}
       )

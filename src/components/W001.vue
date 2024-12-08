@@ -12,6 +12,7 @@ const fromData = reactive({
 })
 
 const typeFromData = reactive({
+  accountNumber: '',
   typeName: '',
 })
 
@@ -33,6 +34,7 @@ if (toFindCookie() === undefined) {
   fromData.password = findCookie[1]
   fromDataW001.accountNumber = findCookie[0]
   fromDataW001.password = findCookie[1]
+  typeFromData.accountNumber = findCookie[0]
 }
 
 const W001 = ref('')
@@ -76,7 +78,7 @@ const typeMethod = (val, formEl) => {
             let data = response.data
             tableTypeW001.value = data[0]
           } catch (error) {
-            console.error(val, 'typeMethod1 Error:', error.response.data)
+            console.error(val, typeMethod.name + val + ' Error:', error.response.data)
           }
           break
         case 2:
@@ -89,7 +91,7 @@ const typeMethod = (val, formEl) => {
             let data = response.data
             tableTypeW001.value = data[0]
           } catch (error) {
-            console.error(val, 'typeMethod2 Error:', error.response.data)
+            console.error(val, typeMethod.name + val + ' Error:', error.response.data)
           }
           break
       }
@@ -109,6 +111,12 @@ const typeMethod = (val, formEl) => {
   })
 }
 
+const removeTrim = () => {
+  if (!/^[a-zA-Z0-9\u4e00-\u9fa5]*$/.test(typeFromData.typeName)) {
+    typeFromData.typeName = typeFromData.typeName.slice(0, -1)
+  }
+}
+
 const eventDeleteType = async (val) => {
   ElMessageBox.confirm(
       '<b>確定要刪除</b>' +
@@ -123,14 +131,17 @@ const eventDeleteType = async (val) => {
       }
   )
       .then(async () => {
+        typeFromData.typeName = val.typeName
         try {
           const response = await axios({
             method: 'post',
             url: path + eventDeleteType.name,
-            data: val,
+            data: typeFromData,
           });
           let data = response.data
           tableTypeW001.value = data[0]
+          tableW001.value = data[1]
+          fromDataW001.type = ''
         } catch (error) {
           console.error(val, 'eventDeleteType Error:', error.response.data)
         }
@@ -252,6 +263,7 @@ const submitForm = (formEl) => {
               confirmButtonText: '新增',
               cancelButtonText: '取消',
               type: 'warning',
+              dangerouslyUseHTMLString: true
             }
         )
             .then(async () => {
@@ -261,7 +273,9 @@ const submitForm = (formEl) => {
                   url: path + submitForm.name + "Ok",
                   data: fromDataW001,
                 });
-                textOnly.value = response.data
+                let data = response.data
+                textOnly.value = data[0].body
+                tableW001.value = data[1]
               } catch (error) {
                 // console.error('submitFormOk Error:', error)
               }
@@ -291,8 +305,13 @@ const options = ref([])
 async function w001type() {
   options.value = []
   try {
-    const response = await axios.get(path + w001type.name)
-    for (let i = 0; i < response.data.length; i++) {
+    const response = await axios({
+      method: 'post',
+      url: path + w001type.name,
+      data: typeFromData,
+    });
+    let data = response.data
+    for (let i = 0; i < data.length; i++) {
       options.value.push(
           {value: response.data[i].typeNameNumber, label: response.data[i].typeName}
       )
@@ -323,7 +342,7 @@ const queryForm = (formEl) => {
         });
         tableW001.value = response.data[0]
       } catch (error) {
-        // console.error('queryForm Error:', error)
+        console.error('queryForm Error:', error)
       }
     } else {
       fromDataW001.money = 1
@@ -333,7 +352,7 @@ const queryForm = (formEl) => {
 
 const modify = (val) => {
   ElMessageBox.confirm(
-      '編號:' + val.number + '<br>金額:' + val.money + '<br>類別:' + val.type
+      '編號:' + val.number + '<br>金額:' + val.money + '<br>類別:' + val.typeName
       + '<br><label>修改金額</label><input type="number" id="exMoney" value=1 min="1"/>',
       '更新',
       {
@@ -352,18 +371,22 @@ const modify = (val) => {
         } else {
           element.value = 1
         }
-        fromDataW001.money = Number(element.value)
-        fromDataW001.number = val.number
-        fromDataW001.type = val.type
+        let fromW001 = {
+          'accountNumber' : fromDataW001.accountNumber,
+          'password' : fromDataW001.password,
+          'money' : Number(element.value),
+          'number' : val.number,
+          'type' : val.type,
+        }
         try {
           const response = await axios({
             method: 'post',
             url: path + modify.name,
-            data: fromDataW001,
+            data: fromW001,
           });
           tableW001.value = response.data[0]
         } catch (error) {
-          // console.error('modify Error:', error)
+          console.error('modify Error:', error)
         }
       })
       .catch(() => {
@@ -372,7 +395,7 @@ const modify = (val) => {
 
 const eventDelete = (val) => {
   ElMessageBox.confirm(
-      '編號:' + val.number + '<br>金額:' + val.money + '<br>類別:' + val.type,
+      '編號:' + val.number + '<br>金額:' + val.money + '<br>類別:' + val.typeName,
       '刪除',
       {
         confirmButtonText: '刪除',
@@ -382,17 +405,22 @@ const eventDelete = (val) => {
       }
   )
       .then(async () => {
-        fromDataW001.number = val.number
-        fromDataW001.type = val.type
+        let fromW001 = {
+          'accountNumber' : fromDataW001.accountNumber,
+          'password' : fromDataW001.password,
+          'number' : val.number,
+          'type' : val.type,
+          'money' : val.money,
+        }
         try {
           const response = await axios({
             method: 'post',
             url: path + eventDelete.name,
-            data: fromDataW001,
+            data: fromW001,
           });
           tableW001.value = response.data[0]
         } catch (error) {
-          // console.error('eventDelete Error:', error)
+          console.error('eventDelete Error:', error)
         }
       })
       .catch(() => {
@@ -422,6 +450,7 @@ const eventDelete = (val) => {
                 placeholder=" "
                 filterable
                 clearable
+                @input="removeTrim"
             />
           </el-form-item>
         </el-form>
@@ -437,6 +466,7 @@ const eventDelete = (val) => {
             empty-text="無資料"
         >
           <el-table-column
+              label="功能"
               width="100%"
           >
             <template #default="scope">
@@ -577,6 +607,7 @@ const eventDelete = (val) => {
               empty-text="無資料"
           >
             <el-table-column
+                label="功能"
                 width="150%"
             >
               <template #default="scope">
